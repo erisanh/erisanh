@@ -26,7 +26,8 @@ I am a fourth-year student at Da Nang University of Science and Technology, majo
 <img align="left" style="margin-right:10px; margin-top:10px;"  alt="Postman" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postman/postman-original.svg" />
 </div>
 <br />
-<h2>📈 Stats & Most Used Langs</h2>
+<br />
+<h2 style="display: inline-block;">📈 Stats & Most Used Langs</h2>
 <div align="center">
   <img src="https://github-readme-stats.vercel.app/api?hide_title=false&hide_rank=false&show_icons=true&include_all_commits=true&count_private=true&disable_animations=false&theme=onedark&locale=en&hide_border=false&username=DNAnh01" height="150" alt="stats graph"  />
   <img src="https://github-readme-stats.vercel.app/api/top-langs?locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=onedark&hide_border=false&username=DNAnh01" height="150" alt="languages graph"  />
