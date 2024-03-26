@@ -1,35 +1,31 @@
-<h1 align="left">Hi 👋! My name is Do Nguyen Anh and I'm a backend developer🦊</h1>
-<br />
+# 👋 Hi, I'm Do Nguyen Anh!
 
-**`Backend developer`**
 
-I am a fourth-year student at Da Nang University of Science and Technology, majoring in Information Technology. I have experience working with technologies such as Java, Spring, React, TypeScript, FastAPI, Python, MySQL, Docker, Git, GitHub, Postman, HTML, CSS, JavaScript, etc.
-<br />
-<h2>🔧 Technologies and Tools</h2>
-<div style="display: inline-block;">
-<img align="left" style="margin-right:10px; margin-top:10px;" alt="Python" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="FastAPI" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-plain.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="Java" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg"/>
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="Spring" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="MySQL" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="HTML" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-plain.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="CSS" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-plain.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="Sass" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sass/sass-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="Tailwind" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="JavaScript" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-plain.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="TypeScript" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-plain.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="React" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="TypeScript" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="Git" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="GitHub" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="Vscode" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" />
-<img align="left" style="margin-right:10px; margin-top:10px;"  alt="Postman" width="30px" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postman/postman-original.svg" />
-</div>
-<br />
-<br />
-<h2 style="display: inline-block;">📈 Stats & Most Used Langs</h2>
-<div align="center">
-  <img src="https://github-readme-stats.vercel.app/api?hide_title=false&hide_rank=false&show_icons=true&include_all_commits=true&count_private=true&disable_animations=false&theme=onedark&locale=en&hide_border=false&username=DNAnh01" height="150" alt="stats graph"  />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs?locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=onedark&hide_border=false&username=DNAnh01" height="150" alt="languages graph"  />
-</div>
-<br />
+👩🏻‍🎓 Currently, I am a fourth-year student majoring in Information Technology at Da Nang University of Science and Technology.<br/>
+
+🌱 I’m currently learning about **`Software Development`** and **`Machine Learning`**.<br/>
+
+👩🏻‍💻 Currently, I am a **`Backend Development`** intern at **`Tekup`** company in Da Nang.<br/>
+
+<!-- GitHub stats from https://github.com/anuraghazra/github-readme-stats -->
+<div align="left">
+  <img src="https://github-readme-stats.vercel.app/api?hide_title=false&hide_rank=false&show_icons=true&include_all_commits=true&count_private=true&disable_animations=false&theme=merko&locale=en&hide_border=false&username=DNAnh01" height="150" alt="stats graph"  />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs?locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=merko&hide_border=false&username=DNAnh01" height="150" alt="languages graph"  />
+</div><br />
+
+# 💻 Technologies and Tools
+
+<!-- https://github.com/Ileriayo/markdown-badges -->
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)![SASS](https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white)![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white)![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)![VS Code Insiders](https://img.shields.io/badge/VS%20Code%20Insiders-35b393.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white)![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+
+# 💻 Featured YouTube Videos
+<!-- https://github.com/DenverCoder1/github-readme-youtube-cards -->
+
+<!--
+let date_string = "29 Jun 2023";
+let date = new Date(date_string);
+let timestamp = Math.floor(date.getTime() / 1000);
+console.log(timestamp);
+-->
+
+[![Demo PBL5-smart-home](https://ytcards.demolab.com/?id=dvwq9WvmDM4&title=Demo+PBL5+-+smart+-+home&lang=en&timestamp=1686330000&background_color=%230d1117&title_color=%23ffffff&stats_color=%23dedede&max_title_lines=1&width=250&border_radius=5&duration=141 "Demo PBL5-smart-home")](https://youtu.be/dvwq9WvmDM4?si=j_HNg1IWzRyvVOu7)[![Demo PBL4-mess](https://ytcards.demolab.com/?id=vbQYvhYEAqE&title=Demo+PBL4+-+mess&lang=en&timestamp=1687971600&background_color=%230d1117&title_color=%23ffffff&stats_color=%23dedede&max_title_lines=1&width=250&border_radius=5&duration=97 "Demo PBL4-mess")](https://youtu.be/vbQYvhYEAqE?si=XCB6huKvwUSE45MP)
