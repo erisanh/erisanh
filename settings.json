@@ -1,0 +1,165 @@
+{
+  "markdown-preview-enhanced.scrollSync": false,
+  "workbench.iconTheme": "material-icon-theme",
+  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  "terminal.integrated.env.windows": {
+    "LANG": "en_US.UTF-8"
+  },
+
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    },
+    "Command Prompt": {
+      "path": [
+        "${env:windir}\\Sysnative\\cmd.exe",
+        "${env:windir}\\System32\\cmd.exe"
+      ],
+      "args": ["/K", "chcp 65001"],
+      "icon": "terminal-cmd",
+      "name": "Command Prompt",
+      "suppressApplicationTitle": true,
+      "env": {
+        "LANG": "en_US.UTF-8"
+      }
+    },
+    "Git Bash": {
+      "source": "Git Bash"
+    },
+    "Windows PowerShell": {
+      "path": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+    }
+  },
+
+  "markdown-preview-enhanced.previewTheme": "one-dark.css",
+  "liveServer.settings.donotShowInfoMsg": true,
+  "git.autofetch": true,
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "workbench.editor.wrapTabs": true,
+  "workbench.editorAssociations": {
+    "*.sqlite3": "default",
+    "*.mwb": "default"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  },
+  "liveServer.settings.donotVerifyTags": true,
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "editor.wordWrap": "on",
+  "redhat.telemetry.enabled": true,
+  "background.windowBackgrounds": [],
+  "background.backgroundOpacity": [0.8, 0.8, 0.8, 0.6],
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "git.openRepositoryInParentFolders": "never",
+  "extensions.ignoreRecommendations": true,
+  "workbench.colorTheme": "Bearded Theme Vivid Black",
+  "files.autoSave": "off",
+  "cmake.showOptionsMovedNotification": false,
+  "markdown-preview-enhanced.revealjsTheme": "black.css",
+  "window.customTitleBarVisibility": "windowed",
+  "terminal.integrated.fontFamily": "Consolas",
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": true,
+    "scminput": false
+  },
+  "background.backgroundChangeTime": [0, 0, 0, 0],
+  "workbench.statusBar.visible": false,
+  "workbench.activityBar.location": "hidden",
+
+  // customize the java environment settings
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.dependency.packagePresentation": "hierarchical",
+  "java.project.sourcePaths": ["src"],
+  "java.project.outputPath": "bin",
+  "java.project.referencedLibraries": ["lib/**/*.jar"],
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  },
+  // customize the python environment settings
+  "[python]": {
+    "editor.formatOnType": true
+  },
+  // customize the theme and extension settings
+
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "terminal.integrated.fontSize": 13,
+  "terminal.integrated.fontWeight": "600",
+  "terminal.integrated.fontWeightBold": "bold",
+  "terminal.integrated.lineHeight": 0.7,
+  "terminal.integrated.cursorStyle": "line",
+  "markdown-preview-enhanced.previewColorScheme": "selectedPreviewTheme",
+  "workbench.view.alwaysShowHeaderActions": false,
+  "workbench.colorCustomizations": {
+    "editor.background": "#011609",
+    "editor.selectionBackground": "#454545",
+    "editor.lineHighlightBackground": "#011609",
+    "sideBar.background": "#011609",
+    "minimap.background": "#011609",
+    "editor.foreground": "#36b73f",
+    "editorLineNumber.activeForeground": "#71d677",
+    "editorGutter.background": "#011609",
+    // Added color for header, tab bar, and dev link:
+
+    "titleBar.activeBackground": "#031e0d",
+    "activityBar.background": "#011609",
+    "activityBar.foreground": "#ffffff", // Ensure visibility for foreground text
+    "activityBar.activeBorder": "#011609",
+    "activityBar.inactiveForeground": "#6c6c6c", // Adjust for inactive tabs
+    "editorGroupHeader.tabsBackground": "#011609",
+    "editorGroupHeader.tabsBorder": "#011609",
+    "editorGroupHeader.tab.activeBackground": "#011609",
+    "editorGroupHeader.tab.activeForeground": "#ffffff", // Ensure visibility for active tab text
+    "editorGroupHeader.tab.inactiveForeground": "#6c6c6c", // Adjust for inactive tabs
+    "statusBar.background": "#011609",
+    "statusBar.noFolderBackground": "#011609",
+    "statusBar.debuggingBackground": "#011609",
+    "statusBarItem.prominentForeground": "#ffffff", // Ensure visibility for prominent items
+    "statusBarItem.remoteBackground": "#011609",
+    "statusBarItem.remoteForeground": "#ffffff", // Ensure visibility for remote indicator
+    "statusBarItem.remoteBackgroundHover": "#454545",
+    "debugToolBar.background": "#454545", // Optional: Consider using a darker shade for contrast
+    // customize the terminal settings
+    "terminal.foreground": "#36b73f",
+    "terminal.background": "#011609",
+    "terminalCursor.background": "#36b73f",
+    "terminalCursor.foreground": "#36b73f",
+    "terminal.ansiBlack": "#011609",
+    "terminal.ansiBlue": "#36b73f",
+    "terminal.ansiBrightBlack": "#011609",
+    "terminal.ansiBrightBlue": "#36b73f",
+    "terminal.ansiBrightCyan": "#36b73f",
+    "terminal.ansiBrightGreen": "#36b73f",
+    "terminal.ansiBrightMagenta": "#36b73f",
+    "terminal.ansiBrightRed": "#36b73f",
+    "terminal.ansiBrightWhite": "#36b73f",
+    "terminal.ansiBrightYellow": "#36b73f",
+    "terminal.ansiCyan": "#36b73f",
+    "terminal.ansiGreen": "#36b73f",
+    "terminal.ansiMagenta": "#36b73f",
+    "terminal.ansiRed": "#36b73f",
+    "terminal.ansiWhite": "#36b73f",
+    "terminal.ansiYellow": "#36b73f"
+  },
+  // customize the extension settings
+  "powermode.enabled": true,
+  "powermode.combo.counterEnabled": "hide",
+  "powermode.combo.counterSize": 30,
+  "powermode.combo.threshold": 0.1,
+  "powermode.shake.enabled": false,
+  "powermode.combo.location": "off",
+  "powermode.explosions.maxExplosions": 10
+}

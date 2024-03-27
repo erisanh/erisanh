@@ -1,0 +1,64 @@
+// Place your key bindings in this file to override the defaultsauto[]
+[
+    {
+      "key": "alt+j alt+j",
+      "command": "javaProjectExplorer.focus"
+    },
+    {
+      "key": "alt+s alt+a",
+      "command": "editor.action.sourceAction"
+    },
+    {
+      "key": "ctrl+alt+e",
+      "command": "mithrilEmmet.expand"
+    },
+    {
+      "key": "alt+t alt+t",
+      "command": "workbench.action.terminal.toggleTerminal",
+      "when": "terminal.active"
+    },
+    {
+      "key": "ctrl+`",
+      "command": "-workbench.action.terminal.toggleTerminal",
+      "when": "terminal.active"
+    },
+    {
+      "key": "alt+f alt+f",
+      "command": "workbench.action.closeAuxiliaryBar"
+    },
+    {
+      "key": "alt+r alt+r",
+      "command": "java.debug.runJavaFile"
+    },
+    {
+      "key": "alt+c alt+c",
+      "command": "workbench.action.closeOtherEditors"
+    },
+    {
+      "key": "shift+alt+pagedown",
+      "command": "cursorLineEnd"
+    },
+    {
+      "key": "alt+a alt+i",
+      "command": "workbench.panel.chat.view.copilot.focus"
+    },
+    {
+      "key": "ctrl+w ctrl+i",
+      "command": "explorer.newFile"
+    },
+    {
+      "key": "ctrl+r ctrl+n",
+      "command": "renameFile",
+      "when": "filesExplorerFocus && foldersViewVisible && !explorerResourceIsRoot && !explorerResourceReadonly && !inputFocus"
+    },
+    {
+      "key": "f2",
+      "command": "-renameFile",
+      "when": "filesExplorerFocus && foldersViewVisible && !explorerResourceIsRoot && !explorerResourceReadonly && !inputFocus"
+    },
+    {
+      "key": "ctrl+w ctrl+o",
+      "command": "explorer.newFolder"
+    }
+  ]
+  
