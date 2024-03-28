@@ -1,11 +1,11 @@
 # 👋 Hi, I'm Do Nguyen Anh!
 
 
-👩🏻‍🎓 Currently, I am a fourth-year student majoring in Information Technology at Da Nang University of Science and Technology.<br/>
+👨‍🎓 Currently, I am a fourth-year student majoring in Information Technology at Da Nang University of Science and Technology.<br/>
 
 🌱 I’m currently learning about **`Software Development`** and **`Machine Learning`**.<br/>
 
-👩🏻‍💻 Currently, I am a **`Backend Development`** intern at **`Tekup`** company in Da Nang.<br/>
+👨‍💻 Currently, I am a **`Backend Development`** intern at **`Tekup`** company in Da Nang.<br/>
 
 <!-- GitHub stats from https://github.com/anuraghazra/github-readme-stats -->
 <div align="left">
