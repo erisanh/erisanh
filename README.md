@@ -5,13 +5,14 @@
 
 🌱 I’m currently learning about **`Software Development`** and **`Machine Learning`**.<br/>
 
-👨‍💻 Currently, I am a **`Backend Development`** intern at **`Tekup`** company in Da Nang.<br/>
+👨‍💻 Currently, I am a **`Backend Development`** intern at **`Tekup JSC`** company in Da Nang.<br/>
 
 <!-- GitHub stats from https://github.com/anuraghazra/github-readme-stats -->
-<div align="left">
-  <img src="https://github-readme-stats.vercel.app/api?hide_title=false&hide_rank=false&show_icons=true&include_all_commits=true&count_private=true&disable_animations=false&theme=merko&locale=en&hide_border=false&username=DNAnh01" height="150" alt="stats graph"  />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs?locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=merko&hide_border=false&username=DNAnh01" height="150" alt="languages graph"  />
-</div><br />
+<p float="left">
+  <img src="https://github-readme-stats.vercel.app/api/top-langs?locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=merko&hide_border=true&username=DNAnh01" height="150" alt="languages graph"  />
+  <img src="https://github-readme-stats.vercel.app/api?hide_title=false&hide_rank=false&show_icons=true&include_all_commits=true&count_private=true&disable_animations=false&theme=merko&locale=en&hide_border=true&username=DNAnh01" height="150" alt="stats graph"  />
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=DNAnh01&theme=merko&hide_border=true" height="150" alt="streak stats"/>
+</p>
 
 # 💻 Technologies and Tools
 
