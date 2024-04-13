@@ -1,4 +1,6 @@
-# 👋 Hi, I'm Do Nguyen Anh!
+<h1 float="left">
+    <img src="https://readme-typing-svg.herokuapp.com/?font=Righteous&size=35&center=true&vCenter=true&width=500&height=70&duration=4000&lines=Hi+There!+👋;+I'm+Do+Nguyen+Anh!;" />
+</h1>
 
 
 👨‍🎓 Currently, I am a fourth-year student majoring in Information Technology at Da Nang University of Science and Technology.<br/>
