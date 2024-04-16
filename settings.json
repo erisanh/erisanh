@@ -56,15 +56,14 @@
   "editor.wordWrap": "on",
   "redhat.telemetry.enabled": true,
   "background.windowBackgrounds": [],
-  "background.backgroundOpacity": [0.8, 0.8, 0.8, 0.6],
+  "background.backgroundOpacity": [0.8, 0.8, 0.8, 0.8],
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "git.openRepositoryInParentFolders": "never",
   "extensions.ignoreRecommendations": true,
   "workbench.colorTheme": "One Dark Pro Darker",
-  "files.autoSave": "off",
-  "cmake.showOptionsMovedNotification": false,
+  "files.autoSave": "afterDelay",
   "markdown-preview-enhanced.revealjsTheme": "black.css",
   "window.customTitleBarVisibility": "windowed",
   "terminal.integrated.fontFamily": "Consolas",
@@ -118,7 +117,8 @@
       {
         "scope": "entity.name.function",
         "settings": {
-          "foreground": "#15a2ee"
+          "foreground": "#15a2ee",
+          "fontStyle": "bold"
         }
       },
       {
@@ -130,13 +130,13 @@
       {
         "scope": "keyword",
         "settings": {
-          "foreground": "#f60b0b"
+          "foreground": "#ffd364"
         }
       },
       {
         "scope": "string",
         "settings": {
-          "foreground": "#046101"
+          "foreground": "#a1b481"
         }
       },
       {
@@ -156,8 +156,8 @@
     "editor.lineHighlightBackground": "#011609",
     "sideBar.background": "#011609",
     "minimap.background": "#011609",
-    "editor.foreground": "#36b73f",
-    "editorLineNumber.activeForeground": "#71d677",
+    "editor.foreground": "#dae9db",
+    "editorLineNumber.activeForeground": "#d2dcd3",
     "editorGutter.background": "#011609",
     "titleBar.activeBackground": "#031e0d",
     "activityBar.background": "#011609",
@@ -178,10 +178,10 @@
     "statusBarItem.remoteBackgroundHover": "#454545",
     "debugToolBar.background": "#454545",
     // customize the terminal settings
-    "terminal.foreground": "#4edf57",
+    "terminal.foreground": "#2deb39",
     "terminal.background": "#011609",
-    "terminalCursor.background": "#4edf57",
-    "terminalCursor.foreground": "#4edf57",
+    "terminalCursor.background": "#2deb39",
+    "terminalCursor.foreground": "#2deb39",
     "terminal.ansiBlack": "#ffffff",
     "terminal.ansiBlue": "#0000ff",
     "terminal.ansiBrightBlack": "#ffffff",
@@ -212,16 +212,17 @@
   "editor.fontFamily": "JetBrains Mono, Consolas, 'Courier New', monospace",
   // indent-rainbow settings
   "indentRainbow.colors": [
-    "rgba(234, 105, 139,0.2)",
-    "rgba(213, 93, 146,0.2)",
-    "rgba(192, 82, 153,0.2)",
-    "rgba(172, 70, 161,0.2)",
-    "rgba(151, 58, 168,0.2)",
-    "rgba(130, 47, 175,0.2)",
-    "rgba(109, 35, 182,0.2)",
-    "rgba(100, 17, 173,0.2)",
-    "rgba(87, 16, 137,0.2)",
-    "rgba(71, 18, 107,0.2)"
+    "rgba(234, 105, 139, 0.15)",
+    "rgba(213, 93, 146, 0.15)",
+    "rgba(192, 82, 153, 0.15)",
+    "rgba(172, 70, 161, 0.15)",
+    "rgba(151, 58, 168, 0.15)",
+    "rgba(130, 47, 175, 0.15)",
+    "rgba(109, 35, 182, 0.15)",
+    "rgba(100, 17, 173, 0.15)",
+    "rgba(87, 16, 137, 0.15)",
+    "rgba(71, 18, 107, 0.15)"
   ],
-  "workbench.activityBar.location": "hidden"
+  "workbench.activityBar.location": "hidden",
+  "jupyter.askForKernelRestart": false
 }
