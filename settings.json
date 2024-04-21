@@ -230,4 +230,9 @@
   // customize the drawio theme
   "hediet.vscode-drawio.theme": "dark",
   "hediet.vscode-drawio.codeLinkActivated": false
+
+  // save the installed extensions
+  // code --list-extensions > extensions.txt
+  // install extensions in vscode
+  // cat extensions.txt | xargs -n 1 code --install-extension
 }
