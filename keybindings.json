@@ -1,64 +1,117 @@
 // Place your key bindings in this file to override the defaultsauto[]
 [
-    {
-      "key": "alt+j alt+j",
-      "command": "javaProjectExplorer.focus"
-    },
-    {
-      "key": "alt+s alt+a",
-      "command": "editor.action.sourceAction"
-    },
-    {
-      "key": "ctrl+alt+e",
-      "command": "mithrilEmmet.expand"
-    },
-    {
-      "key": "alt+t alt+t",
-      "command": "workbench.action.terminal.toggleTerminal",
-      "when": "terminal.active"
-    },
-    {
-      "key": "ctrl+`",
-      "command": "-workbench.action.terminal.toggleTerminal",
-      "when": "terminal.active"
-    },
-    {
-      "key": "alt+f alt+f",
-      "command": "workbench.action.closeAuxiliaryBar"
-    },
-    {
-      "key": "alt+r alt+r",
-      "command": "java.debug.runJavaFile"
-    },
-    {
-      "key": "alt+c alt+c",
-      "command": "workbench.action.closeOtherEditors"
-    },
-    {
-      "key": "shift+alt+pagedown",
-      "command": "cursorLineEnd"
-    },
-    {
-      "key": "alt+a alt+i",
-      "command": "workbench.panel.chat.view.copilot.focus"
-    },
-    {
-      "key": "ctrl+w ctrl+i",
-      "command": "explorer.newFile"
-    },
-    {
-      "key": "ctrl+r ctrl+n",
-      "command": "renameFile",
-      "when": "filesExplorerFocus && foldersViewVisible && !explorerResourceIsRoot && !explorerResourceReadonly && !inputFocus"
-    },
-    {
-      "key": "f2",
-      "command": "-renameFile",
-      "when": "filesExplorerFocus && foldersViewVisible && !explorerResourceIsRoot && !explorerResourceReadonly && !inputFocus"
-    },
-    {
-      "key": "ctrl+w ctrl+o",
-      "command": "explorer.newFolder"
-    }
-  ]
-  
+  {
+    "key": "alt+j alt+j",
+    "command": "javaProjectExplorer.focus"
+  },
+  {
+    "key": "alt+s alt+a",
+    "command": "editor.action.sourceAction"
+  },
+  {
+    "key": "alt+t alt+t",
+    "command": "workbench.action.terminal.toggleTerminal",
+    "when": "terminal.active"
+  },
+  {
+    "key": "ctrl+`",
+    "command": "-workbench.action.terminal.toggleTerminal",
+    "when": "terminal.active"
+  },
+  {
+    "key": "alt+f alt+f",
+    "command": "workbench.action.closeAuxiliaryBar"
+  },
+  {
+    "key": "alt+r alt+r",
+    "command": "java.debug.runJavaFile"
+  },
+  {
+    "key": "alt+c alt+c",
+    "command": "workbench.action.closeOtherEditors"
+  },
+  {
+    "key": "shift+alt+pagedown",
+    "command": "cursorLineEnd"
+  },
+  {
+    "key": "ctrl+alt+w",
+    "command": "workbench.panel.chat.view.copilot.focus"
+  },
+  {
+    "key": "ctrl+w ctrl+i",
+    "command": "explorer.newFile"
+  },
+  {
+    "key": "ctrl+r ctrl+n",
+    "command": "renameFile",
+    "when": "filesExplorerFocus && foldersViewVisible && !explorerResourceIsRoot && !explorerResourceReadonly && !inputFocus"
+  },
+  {
+    "key": "f2",
+    "command": "-renameFile",
+    "when": "filesExplorerFocus && foldersViewVisible && !explorerResourceIsRoot && !explorerResourceReadonly && !inputFocus"
+  },
+  {
+    "key": "ctrl+w ctrl+o",
+    "command": "explorer.newFolder"
+  },
+  {
+    "key": "alt+s alt+q",
+    "command": "workbench.view.extension.github-cweijan-mysql"
+  },
+  {
+    "key": "ctrl+alt+e",
+    "command": "workbench.view.explorer",
+    "when": "viewContainer.workbench.view.explorer.enabled"
+  },
+  {
+    "key": "ctrl+shift+e",
+    "command": "-workbench.view.explorer",
+    "when": "viewContainer.workbench.view.explorer.enabled"
+  },
+  {
+    "key": "ctrl+alt+e",
+    "command": "workbench.action.quickOpenNavigatePreviousInFilePicker",
+    "when": "inFilesPicker && inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+e",
+    "command": "-workbench.action.quickOpenNavigatePreviousInFilePicker",
+    "when": "inFilesPicker && inQuickOpen"
+  },
+  {
+    "key": "ctrl+alt+space",
+    "command": "editor.action.triggerParameterHints",
+    "when": "editorHasSignatureHelpProvider && editorTextFocus"
+  },
+  {
+    "key": "ctrl+shift+space",
+    "command": "-editor.action.triggerParameterHints",
+    "when": "editorHasSignatureHelpProvider && editorTextFocus"
+  },
+  {
+    "key": "ctrl+/",
+    "command": "-github.copilot.acceptCursorPanelSolution",
+    "when": "github.copilot.activated && github.copilot.panelVisible"
+  },
+  {
+    "key": "ctrl+/",
+    "command": "-editor.action.accessibleViewAcceptInlineCompletion",
+    "when": "accessibleViewIsShown && accessibleViewCurrentProviderId == 'inlineCompletions'"
+  },
+  {
+    "key": "ctrl+/",
+    "command": "-toggleExplainMode",
+    "when": "suggestWidgetVisible"
+  },
+  {
+    "key": "ctrl+/",
+    "command": "-workbench.action.terminal.sendSequence",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+r ctrl+p",
+    "command": "python.execInTerminal-icon"
+  }
+]
