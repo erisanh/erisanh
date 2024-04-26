@@ -55,14 +55,16 @@
   },
   "editor.wordWrap": "on",
   "redhat.telemetry.enabled": true,
-  "background.windowBackgrounds": [],
-  "background.backgroundOpacity": [0.8, 0.8, 0.8, 0.8],
+  "background.windowBackgrounds": [
+    "https://raw.githubusercontent.com/DNAnh01/assets/main/134377_desktop-themes-black-currency-money-wallpapers.jpg"
+  ],
+  "background.backgroundOpacity": [0.95, 0.95, 0.95, 0.95],
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "git.openRepositoryInParentFolders": "never",
   "extensions.ignoreRecommendations": true,
-  "workbench.colorTheme": "One Dark Pro Darker",
+  "workbench.colorTheme": "Bearded Theme Monokai Black",
   "files.autoSave": "afterDelay",
   "markdown-preview-enhanced.revealjsTheme": "black.css",
   "window.customTitleBarVisibility": "windowed",
@@ -73,7 +75,9 @@
     "markdown": true,
     "scminput": false
   },
-  "background.backgroundChangeTime": [0, 0, 0, 0],
+  "background.backgroundChangeTime": [0.7, 0.7, 0.7, 0.7],
+  // customize the editor settings
+  "editor.cursorSmoothCaretAnimation": "on",
 
   // customize the java environment settings
   "java.compile.nullAnalysis.mode": "automatic",
@@ -130,7 +134,7 @@
       {
         "scope": "keyword",
         "settings": {
-          "foreground": "#ffd364"
+          "foreground": "#2cab05"
         }
       },
       {
@@ -147,57 +151,59 @@
       }
     ]
   },
-  "workbench.colorCustomizations": {
-    "tab.activeBackground": "#011609",
-    "breadcrumb.background": "#011609",
-    "panel.background": "#011609",
-    "editor.background": "#011609",
-    "editor.selectionBackground": "#454545",
-    "editor.lineHighlightBackground": "#011609",
-    "sideBar.background": "#011609",
-    "minimap.background": "#011609",
-    "editor.foreground": "#dae9db",
-    "editorLineNumber.activeForeground": "#d2dcd3",
-    "editorGutter.background": "#011609",
-    "titleBar.activeBackground": "#031e0d",
-    "activityBar.background": "#011609",
-    "activityBar.foreground": "#ffffff",
-    "activityBar.activeBorder": "#011609",
-    "activityBar.inactiveForeground": "#6c6c6c",
-    "editorGroupHeader.tabsBackground": "#011609",
-    "editorGroupHeader.tabsBorder": "#011609",
-    "editorGroupHeader.tab.activeBackground": "#011609",
-    "editorGroupHeader.tab.activeForeground": "#ffffff",
-    "editorGroupHeader.tab.inactiveForeground": "#6c6c6c",
-    "statusBar.background": "#011609",
-    "statusBar.noFolderBackground": "#011609",
-    "statusBar.debuggingBackground": "#011609",
-    "statusBarItem.prominentForeground": "#ffffff",
-    "statusBarItem.remoteBackground": "#011609",
-    "statusBarItem.remoteForeground": "#ffffff",
-    "statusBarItem.remoteBackgroundHover": "#454545",
-    "debugToolBar.background": "#454545",
-    // customize the terminal settings
-    "terminal.foreground": "#2deb39",
-    "terminal.background": "#011609",
-    "terminalCursor.background": "#2deb39",
-    "terminalCursor.foreground": "#2deb39",
-    "terminal.ansiBlack": "#ffffff",
-    "terminal.ansiBlue": "#0000ff",
-    "terminal.ansiBrightBlack": "#ffffff",
-    "terminal.ansiBrightBlue": "#0000ff",
-    "terminal.ansiBrightCyan": "#00ffff",
-    "terminal.ansiBrightGreen": "#00ff00",
-    "terminal.ansiBrightMagenta": "#ff00ff",
-    "terminal.ansiBrightRed": "#ff0000",
-    "terminal.ansiBrightWhite": "#ffffff",
-    "terminal.ansiBrightYellow": "#ffff00",
-    "terminal.ansiCyan": "#00ffff",
-    "terminal.ansiGreen": "#00ff00",
-    "terminal.ansiMagenta": "#ff00ff",
-    "terminal.ansiRed": "#ff0000",
-    "terminal.ansiWhite": "#ffffff"
-  },
+  // "workbench.colorCustomizations": {
+  //   "tab.activeBackground": "#0c4c25",
+  //   "tab.inactiveBackground": "#011609",
+  //   "tab.activeForeground": "#c6ed7e",
+  //   "breadcrumb.background": "#011609",
+  //   "panel.background": "#011609",
+  // "editor.background": "#000000"
+  //   "editor.selectionBackground": "#454545",
+  //   "editor.lineHighlightBackground": "#011609",
+  //   "sideBar.background": "#011609",
+  //   "minimap.background": "#011609",
+  //   "editor.foreground": "#dae9db",
+  //   "editorLineNumber.activeForeground": "#d2dcd3",
+  //   "editorGutter.background": "#011609",
+  //   "titleBar.activeBackground": "#031e0d",
+  //   "activityBar.background": "#011609",
+  //   "activityBar.foreground": "#ffffff",
+  //   "activityBar.activeBorder": "#011609",
+  //   "activityBar.inactiveForeground": "#6c6c6c",
+  //   "editorGroupHeader.tabsBackground": "#011609",
+  //   "editorGroupHeader.tabsBorder": "#011609",
+  //   "editorGroupHeader.tab.activeBackground": "#011609",
+  //   "editorGroupHeader.tab.activeForeground": "#ffffff",
+  //   "editorGroupHeader.tab.inactiveForeground": "#6c6c6c",
+  //   "statusBar.background": "#011609",
+  //   "statusBar.noFolderBackground": "#011609",
+  //   "statusBar.debuggingBackground": "#011609",
+  //   "statusBarItem.prominentForeground": "#ffffff",
+  //   "statusBarItem.remoteBackground": "#011609",
+  //   "statusBarItem.remoteForeground": "#ffffff",
+  //   "statusBarItem.remoteBackgroundHover": "#454545",
+  //   "debugToolBar.background": "#454545",
+  //   // customize the terminal settings
+  //   "terminal.foreground": "#2deb39",
+  //   "terminal.background": "#011609",
+  //   "terminalCursor.background": "#2deb39",
+  //   "terminalCursor.foreground": "#2deb39",
+  //   "terminal.ansiBlack": "#ffffff",
+  //   "terminal.ansiBlue": "#0000ff",
+  //   "terminal.ansiBrightBlack": "#ffffff",
+  //   "terminal.ansiBrightBlue": "#0000ff",
+  //   "terminal.ansiBrightCyan": "#00ffff",
+  //   "terminal.ansiBrightGreen": "#00ff00",
+  //   "terminal.ansiBrightMagenta": "#ff00ff",
+  //   "terminal.ansiBrightRed": "#ff0000",
+  //   "terminal.ansiBrightWhite": "#ffffff",
+  //   "terminal.ansiBrightYellow": "#ffff00",
+  //   "terminal.ansiCyan": "#00ffff",
+  //   "terminal.ansiGreen": "#00ff00",
+  //   "terminal.ansiMagenta": "#ff00ff",
+  //   "terminal.ansiRed": "#ff0000",
+  //   "terminal.ansiWhite": "#ffffff"
+  // },
 
   // customize the extension settings
   "powermode.enabled": true,
@@ -206,7 +212,7 @@
   "powermode.combo.threshold": 0.1,
   "powermode.shake.enabled": false,
   "powermode.combo.location": "off",
-  "powermode.explosions.maxExplosions": 10,
+  "powermode.explosions.maxExplosions": 20,
   // emmet settings
   "emmet.extensionsPath": ["./emmet"],
   "editor.fontFamily": "JetBrains Mono, Consolas, 'Courier New', monospace",
@@ -226,10 +232,11 @@
   "jupyter.askForKernelRestart": false,
   "git.confirmSync": false,
   "hediet.vscode-drawio.resizeImages": null,
-  "workbench.activityBar.location": "hidden",
   // customize the drawio theme
   "hediet.vscode-drawio.theme": "dark",
-  "hediet.vscode-drawio.codeLinkActivated": false
+  "hediet.vscode-drawio.codeLinkActivated": false,
+  "workbench.activityBar.location": "hidden",
+  "background.autoInstall": false
 
   // save the installed extensions
   // code --list-extensions > extensions.txt
