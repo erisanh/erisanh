@@ -2,7 +2,6 @@ adpyke.codesnap
 ajithgopi.css-snippets
 angelorafael.jsx-html-tags
 aykutsarac.jsoncrack-vscode
-beardedbear.beardedtheme
 bierner.color-info
 bradgashler.htmltagwrap
 bradlc.vscode-tailwindcss
@@ -19,8 +18,12 @@ docsmsft.docs-images
 donjayamanne.jquerysnippets
 dracula-theme.theme-dracula
 dsznajder.es7-react-js-snippets
+eamodio.gitlens
 ecmel.vscode-html-css
+eliverlara.andromeda
+enkia.tokyo-night
 esbenp.prettier-vscode
+figma.figma-vscode-extension
 formulahendry.auto-rename-tag
 formulahendry.code-runner
 github.copilot
@@ -32,9 +35,9 @@ hediet.vscode-drawio
 hoovercj.vscode-power-mode
 jzmstrjp.color-the-tag-name
 katsute.code-background
+kevinrose.vsc-python-indent
 mechatroner.rainbow-csv
 mgmcdermott.vscode-language-babel
-mhutchie.git-graph
 ms-azuretools.vscode-docker
 ms-dotnettools.vscode-dotnet-runtime
 ms-python.debugpy
@@ -52,6 +55,7 @@ ms-vscode-remote.remote-ssh-edit
 ms-vscode-remote.remote-wsl
 ms-vscode.cpptools-themes
 ms-vscode.js-atom-grammar
+naumovs.color-highlight
 negokaz.live-server-preview
 oderwat.indent-rainbow
 peterhdd.firebase-firestore-snippets
@@ -64,9 +68,12 @@ redhat.vscode-xml
 ritwickdey.liveserver
 rtg.py-snippets
 sburg.vscode-javascript-booster
+shahilkumar.docxreader
 shd101wyy.markdown-preview-enhanced
 steoates.autoimport
 streetsidesoftware.code-spell-checker
+styled-components.vscode-styled-components
+tomoki1207.pdf
 visualstudioexptteam.intellicode-api-usage-examples
 visualstudioexptteam.vscodeintellicode
 visualstudioexptteam.vscodeintellicode-completions
