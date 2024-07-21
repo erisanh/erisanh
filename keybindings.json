@@ -1,6 +1,27 @@
 // Place your key bindings in this file to override the defaultsauto[]
 [
   {
+    "key": "ctrl+shift+]",
+    "command": "workbench.action.terminal.split",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+[",
+    "command": "workbench.action.terminal.kill"
+  },
+  {
+    "key": "ctrl+alt+1",
+    "command": "workbench.action.terminal.focusAtIndex1"
+  },
+  {
+    "key": "ctrl+alt+2",
+    "command": "workbench.action.terminal.focusAtIndex2"
+  },
+  {
+    "key": "ctrl+alt+3",
+    "command": "workbench.action.terminal.focusAtIndex3"
+  },
+  {
     "key": "alt+j alt+j",
     "command": "javaProjectExplorer.focus"
   },
@@ -113,5 +134,32 @@
   {
     "key": "ctrl+r ctrl+p",
     "command": "python.execInTerminal-icon"
+  },
+  {
+    "key": "ctrl+7",
+    "command": "workbench.view.extension.figma"
+  },
+  {
+    "key": "shift+alt+t",
+    "command": "  ",
+    "when": "terminalProcessSupported || terminalWebExtensionContributedProfile"
+  },
+  {
+    "key": "ctrl+shift+`",
+    "command": "-workbench.action.terminal.new",
+    "when": "terminalProcessSupported || terminalWebExtensionContributedProfile"
+  },
+  {
+    "key": "alt+f4",
+    "command": "-workbench.action.closeWindow"
+  },
+  {
+    "key": "ctrl+k ctrl+k",
+    "command": "-editor.action.defineKeybinding",
+    "when": "resource == 'vscode-userdata:/c%3A/Users/dongu/AppData/Roaming/Code/User/keybindings.json'"
+  },
+  {
+    "key": "ctrl+[ ctrl+[",
+    "command": "openEditors.closeAll"
   }
 ]

@@ -1,6 +1,5 @@
 {
   "markdown-preview-enhanced.scrollSync": false,
-  "workbench.iconTheme": "material-icon-theme",
   "terminal.integrated.defaultProfile.windows": "Command Prompt",
   "terminal.integrated.env.windows": {
     "LANG": "en_US.UTF-8"
@@ -54,17 +53,16 @@
     "editor.defaultFormatter": "vscode.json-language-features"
   },
   "editor.wordWrap": "on",
+  "editor.fontSize": 13.4,
+
   "redhat.telemetry.enabled": true,
-  "background.windowBackgrounds": [
-    "https://raw.githubusercontent.com/DNAnh01/assets/main/personal/black-currency-money-wallpapers.jpg"
-  ],
+  "background.windowBackgrounds": [],
   "background.backgroundOpacity": [0.95, 0.95, 0.95, 0.95],
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "git.openRepositoryInParentFolders": "never",
   "extensions.ignoreRecommendations": true,
-  "workbench.colorTheme": "Bearded Theme Monokai Black",
   "files.autoSave": "afterDelay",
   "markdown-preview-enhanced.revealjsTheme": "black.css",
   "window.customTitleBarVisibility": "windowed",
@@ -76,6 +74,10 @@
     "scminput": false
   },
   "background.backgroundChangeTime": [0.7, 0.7, 0.7, 0.7],
+
+  "workbench.colorCustomizations": {
+    "editorLineNumber.activeForeground": "#a1ffaa"
+  },
   // customize the editor settings
   "editor.cursorSmoothCaretAnimation": "on",
 
@@ -104,62 +106,62 @@
   "terminal.integrated.cursorStyle": "line",
   "markdown-preview-enhanced.previewColorScheme": "selectedPreviewTheme",
   "workbench.view.alwaysShowHeaderActions": false,
-  "editor.tokenColorCustomizations": {
-    "textMateRules": [
-      {
-        "scope": "variable",
-        "settings": {
-          "foreground": "#37ca9b"
-        }
-      },
-      {
-        "scope": "variable.parameter",
-        "settings": {
-          "foreground": "#388b50"
-        }
-      },
-      {
-        "scope": "entity.name.function",
-        "settings": {
-          "foreground": "#15a2ee",
-          "fontStyle": "bold"
-        }
-      },
-      {
-        "scope": "constant.numeric",
-        "settings": {
-          "foreground": "#cafe96"
-        }
-      },
-      {
-        "scope": "keyword",
-        "settings": {
-          "foreground": "#2cab05"
-        }
-      },
-      {
-        "scope": "string",
-        "settings": {
-          "foreground": "#a1b481"
-        }
-      },
-      {
-        "scope": "comment",
-        "settings": {
-          "foreground": "#888888"
-        }
-      }
-    ]
-  },
+  // "editor.tokenColorCustomizations": {
+  //   "textMateRules": [
+  //     {
+  //       "scope": "variable",
+  //       "settings": {
+  //         "foreground": "#37ca9b"
+  //       }
+  //     },
+  //     {
+  //       "scope": "variable.parameter",
+  //       "settings": {
+  //         "foreground": "#388b50"
+  //       }
+  //     },
+  //     {
+  //       "scope": "entity.name.function",
+  //       "settings": {
+  //         "foreground": "#15a2ee",
+  //         "fontStyle": "bold"
+  //       }
+  //     },
+  //     {
+  //       "scope": "constant.numeric",
+  //       "settings": {
+  //         "foreground": "#cafe96"
+  //       }
+  //     },
+  //     {
+  //       "scope": "keyword",
+  //       "settings": {
+  //         "foreground": "#2cab05"
+  //       }
+  //     },
+  //     {
+  //       "scope": "string",
+  //       "settings": {
+  //         "foreground": "#a1b481"
+  //       }
+  //     },
+  //     {
+  //       "scope": "comment",
+  //       "settings": {
+  //         "foreground": "#888888"
+  //       }
+  //     }
+  //   ]
+  // },
 
   // customize the extension settings
-  "powermode.enabled": true,
-  "powermode.combo.counterEnabled": "hide",
-  "powermode.combo.counterSize": 30,
-  "powermode.combo.threshold": 0.1,
-  "powermode.shake.enabled": false,
-  "powermode.combo.location": "off",
-  "powermode.explosions.maxExplosions": 20,
+  // "powermode.enabled": true,
+  // "powermode.combo.counterEnabled": "hide",
+  // "powermode.combo.counterSize": 30,
+  // "powermode.combo.threshold": 0.1,
+  // "powermode.shake.enabled": false,
+  // "powermode.combo.location": "off",
+  // "powermode.explosions.maxExplosions": 20,
   // emmet settings
   "emmet.extensionsPath": ["./emmet"],
   "editor.fontFamily": "JetBrains Mono, Consolas, 'Courier New', monospace",
@@ -174,7 +176,18 @@
     "rgba(64, 145, 108, 0.08)",
     "rgba(45, 106, 79, 0.08)",
     "rgba(27, 67, 50, 0.08)",
-    "rgba(8, 28, 21, 0.08)"
+    "rgba(8, 28, 21, 0.08)",
+    "rgba(21, 8, 28, 0.08)",
+    "rgba(50, 27, 67, 0.08)",
+    "rgba(79, 45, 106, 0.08)",
+    "rgba(108, 64, 145, 0.08)",
+    "rgba(136, 82, 183, 0.08)",
+    "rgba(157, 116, 198, 0.08)",
+    "rgba(178, 149, 213, 0.08)",
+    "rgba(199, 183, 228, 0.08)",
+    "rgba(220, 216, 243, 0.08)",
+    "rgba(243, 220, 216, 0.08)",
+    "rgba(228, 199, 183, 0.08)"
   ],
   "jupyter.askForKernelRestart": false,
   "git.confirmSync": false,
@@ -183,7 +196,18 @@
   "hediet.vscode-drawio.theme": "dark",
   "hediet.vscode-drawio.codeLinkActivated": false,
   "background.autoInstall": false,
-  "workbench.activityBar.location": "hidden"
+  "explorer.compactFolders": false,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "chatgpt.lang": "en",
+  "workbench.colorTheme": "Andromeda Bordered",
+  "workbench.iconTheme": "material-icon-theme",
+  "dineug.erd-editor.theme.appearance": "dark",
+  "dineug.erd-editor.theme.grayColor": "sage",
+  "dineug.erd-editor.theme.accentColor": "lime",
+  "workbench.activityBar.location": "hidden",
+  "[markdown]": {
+    "diffEditor.ignoreTrimWhitespace": false
+  }
 
   // save the installed extensions
   // code --list-extensions > extensions.txt
