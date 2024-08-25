@@ -161,5 +161,25 @@
   {
     "key": "ctrl+[ ctrl+[",
     "command": "openEditors.closeAll"
+  },
+  {
+    "key": "ctrl+alt+p",
+    "command": "powershell.showWinFormDesigner"
+  },
+  {
+    "key": "ctrl+alt+q",
+    "command": "workbench.files.action.collapseExplorerFolders"
+  },
+  {
+    "key": "ctrl+m ctrl+m",
+    "command": "postman-for-vscode.sidebar-panel.focus"
+  },
+  {
+    "key": "unknown",
+    "command": "-postman-for-vscode.sidebar-panel.focus"
+  },
+  {
+    "key": "ctrl+m",
+    "command": "-editor.action.toggleTabFocusMode"
   }
 ]
