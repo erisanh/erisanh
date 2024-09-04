@@ -4,6 +4,7 @@ ajithgopi.css-snippets
 angelorafael.jsx-html-tags
 anysphere.pyright
 aykutsarac.jsoncrack-vscode
+be5invis.vscode-custom-css
 bierner.color-info
 bradgashler.htmltagwrap
 bradlc.vscode-tailwindcss
@@ -15,6 +16,7 @@ christian-kohler.path-intellisense
 cweijan.dbclient-jdbc
 cweijan.vscode-postgresql-client2
 dbaeumer.vscode-eslint
+digitalbrainstem.javascript-ejs-support
 dineug.vuerd-vscode
 docsmsft.docs-images
 donjayamanne.jquerysnippets
