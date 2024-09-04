@@ -1,6 +1,8 @@
+FaroSystemAppender constructor
 adpyke.codesnap
 ajithgopi.css-snippets
 angelorafael.jsx-html-tags
+anysphere.pyright
 aykutsarac.jsoncrack-vscode
 bierner.color-info
 bradgashler.htmltagwrap

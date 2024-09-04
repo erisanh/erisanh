@@ -181,5 +181,9 @@
   {
     "key": "ctrl+m",
     "command": "-editor.action.toggleTabFocusMode"
+  },
+  {
+    "key": "alt+g",
+    "command": "gitlens.views.graph.openInTab"
   }
 ]
