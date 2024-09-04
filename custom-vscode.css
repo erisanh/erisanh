@@ -1,3 +1,45 @@
+/* Border Tab Animation for Active Tab */
+.monaco-workbench .part.editor>.content .editor-group-container>.title .tabs-container>.tab.sizing-fit.active {
+    border-bottom: 3px solid transparent;
+    position: relative;
+}
+
+.monaco-workbench .part.editor>.content .editor-group-container>.title .tabs-container>.tab.sizing-fit.active::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-image: linear-gradient(-45deg,
+            #fc6c8f,
+            #ff2ced,
+            #ffb86c,
+            #2cccff,
+            #20e3b2,
+            #ffcc70,
+            #c850c0,
+            #4158d0);
+    background-size: 400% 400%;
+    animation: gradient 5s ease alternate infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+
 /* Code comment style */
 .mtk3 {
     font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace !important;
@@ -31,7 +73,7 @@
 
 /* File Explorer Selected Item */
 .monaco-list.list_id_1 .monaco-list-row.selected {
-    background-color: #4f5971 !important;
+    background-color: #5e8051 !important;
     opacity: 1 !important;
     border-top: 1px #727b90 solid;
     border-bottom: 1px #727b90 solid;
@@ -82,7 +124,7 @@
     display: inline-block;
     margin-right: 6px;
     font-size: 1.1rem;
-    content: '🚀';
+    content: '🚬';
 }
 
 /* Scroll Bar */
@@ -104,7 +146,7 @@
 .monaco-hover {
     box-shadow: 0px 8px 32px rgba(0, 0, 0, .45) !important;
     padding: 10px !important;
-    background-image: linear-gradient(#3c3c50 0%, #2a2b38 100%) !important;
+    background-image: linear-gradient(#32323c 0%, #2a2b38 100%) !important;
     backdrop-filter: blur(3px) !important;
     border-radius: 20px !important;
     border: none !important
@@ -156,8 +198,20 @@
     box-shadow: 0px 8px 20px rgba(0, 0, 0, .45) !important;
     padding: 10px 10px 18px 10px !important;
     background-image: linear-gradient(#32323c 0%, #2a2b38 100%) !important;
-    backdrop-filter: blur(3px) !important;
     border-radius: 20px !important;
+    z-index: 10000;
+}
+
+/* Blur effect for the background when the command palette is active */
+#command-blur {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
 }
 
 /* Remove background for lists */

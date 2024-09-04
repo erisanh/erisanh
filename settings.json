@@ -1,7 +1,8 @@
 {
   // Import custom CSS
   "vscode_custom_css.imports": [
-    "file:///C:/Users/dongu/AppData/Roaming/Code/User/custom-vscode.css"
+    "file:///C:/Users/dongu/AppData/Roaming/Code/User/custom-vscode.css",
+    "file:///C:/Users/dongu/AppData/Roaming/Code/User/vscode-script.js"
   ],
 
   // Disable minimap in the editor
@@ -208,7 +209,10 @@
   "workbench.layoutControl.enabled": false,
   "workbench.activityBar.location": "hidden",
   "markdown-preview-enhanced.enablePreviewZenMode": true,
-  "workbench.statusBar.visible": false
+  "workbench.statusBar.visible": false,
+  "background.windowBackgrounds": [
+    "https://private-user-images.githubusercontent.com/96216102/364510554-9fbc94d2-d4e2-47ee-9248-8a6eba63f191.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjU0NzY1NzcsIm5iZiI6MTcyNTQ3NjI3NywicGF0aCI6Ii85NjIxNjEwMi8zNjQ1MTA1NTQtOWZiYzk0ZDItZDRlMi00N2VlLTkyNDgtOGE2ZWJhNjNmMTkxLmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MDQlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTA0VDE4NTc1N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWMxY2QzZjg5MzdkMDgwOTY0ZjY3ZWE3MDk3Y2ViODVkMjNhMDBlODA5Njc1ZDZhZjRjNTkxMmI5ZmNmOWU2NDEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.IzMwD7nhbbyTAeqsEjaokNgGUQLboOrouJxfW2AMXNE"
+  ]
 
   // Save installed extensions
   // Run this command in the terminal:
