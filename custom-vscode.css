@@ -62,9 +62,9 @@
 }
 
 /* Toolbars when tabs are enabled */
-.monaco-workbench .part.editor>.content .editor-group-container>.title .editor-actions {
+/* .monaco-workbench .part.editor>.content .editor-group-container>.title .editor-actions {
     display: none !important;
-}
+} */
 
 /* Side bar */
 .part.sidebar {
@@ -86,9 +86,9 @@
 }
 
 /* File explorer action buttons */
-.monaco-workbench .part.sidebar .title-actions .actions-container {
+/* .monaco-workbench .part.sidebar .title-actions .actions-container {
     display: none;
-}
+} */
 
 /* File Explorer Item Label */
 .monaco-tree .monaco-tree-row .label-name,
