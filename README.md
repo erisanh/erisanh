@@ -3,7 +3,7 @@
 </h1>
 
 🚀 Currently, I am a **`Backend Development`** at **`AvocaAI`** company in Da Nang.<br/>
-
+<!--
 ### 🌱 My favorite tools and technologies
 
 <div style="display: flex; align-items: flex-start; align: center">
@@ -181,6 +181,7 @@
 
 [![Demo Sole Mate AI](https://ytcards.demolab.com/?id=V6HKYMzLA9E&title=Demo+Sole+Mate+AI&lang=en&timestamp=1717520400&background_color=%230d1117&title_color=%23ffffff&stats_color=%23dedede&max_title_lines=1&width=200&border_radius=5&duration=285 "Demo Sole Mate AI")](https://youtu.be/V6HKYMzLA9E?si=3JZ_D3ELwOQ)[![Demo PBL5-smart-home](https://ytcards.demolab.com/?id=dvwq9WvmDM4&title=Demo+PBL5+-+smart+-+home&lang=en&timestamp=1686330000&background_color=%230d1117&title_color=%23ffffff&stats_color=%23dedede&max_title_lines=1&width=200&border_radius=5&duration=141 "Demo PBL5-smart-home")](https://youtu.be/dvwq9WvmDM4?si=j_HNg1IWzRyvVOu7)[![Demo PBL4-mess](https://ytcards.demolab.com/?id=vbQYvhYEAqE&title=Demo+PBL4+-+mess&lang=en&timestamp=1687971600&background_color=%230d1117&title_color=%23ffffff&stats_color=%23dedede&max_title_lines=1&width=200&border_radius=5&duration=97 "Demo PBL4-mess")](https://youtu.be/vbQYvhYEAqE?si=XCB6huKvwUSE45MP)
 
+-->
 ### 🌱 My GitHub Stats
 
 <p align="center">
