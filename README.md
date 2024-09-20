@@ -1,5 +1,5 @@
 <h1 style="font-size: 20px; text-align: left;">
-    <img src="https://readme-typing-svg.herokuapp.com/?font=Righteous&size=25&center=true&vCenter=true&width=350&height=50&duration=4000&lines=Hi+There!+👋;+I'm+Do+Nguyen+Anh!;" />
+    <img src="https://readme-typing-svg.herokuapp.com/?font=Righteous&size=25&color=2da989&center=true&vCenter=true&width=350&height=50&duration=4000&lines=Hi+There!+👋;+I'm+Do+Nguyen+Anh!;" />
 </h1>
 
 🚀 Currently, I am a **`Backend Development`** at **`AvocaAI`** company in Da Nang.<br/>
