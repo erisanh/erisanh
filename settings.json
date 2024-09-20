@@ -1,8 +1,11 @@
 {
+  // open custom_montys.omp.json
+  // notepad $HOME\custom_montys.omp.json
+
   // Import custom CSS
   "vscode_custom_css.imports": [
-    "file:///C:/Users/dongu/AppData/Roaming/Code/User/custom-vscode.css",
-    "file:///C:/Users/dongu/AppData/Roaming/Code/User/vscode-script.js"
+    "file:///C:/Users/dongu/AppData/Roaming/Code/User/custom-vscode.css"
+    // "file:///C:/Users/dongu/AppData/Roaming/Code/User/vscode-script.js"
   ],
 
   // Disable minimap in the editor
@@ -21,7 +24,7 @@
   "markdown-preview-enhanced.scrollSync": false,
 
   // Set default terminal profile and environment on Windows
-  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  "terminal.integrated.defaultProfile.windows": "Windows PowerShell",
   "terminal.integrated.env.windows": {
     "LANG": "en_US.UTF-8"
   },
@@ -85,11 +88,13 @@
   // Font settings for editor and terminal
   "editor.fontSize": 13.4,
   "terminal.integrated.fontSize": 13,
-  "terminal.integrated.fontFamily": "Consolas",
+  // "terminal.integrated.fontFamily": "Consolas",
   "terminal.integrated.fontWeight": "600",
   "terminal.integrated.fontWeightBold": "bold",
   "terminal.integrated.lineHeight": 0.7,
   "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.fontFamily": "MesloLGM Nerd Font Mono",
+  "terminal.integrated.shellArgs.windows": "-nologo",
 
   // Enable Red Hat telemetry
   "redhat.telemetry.enabled": true,
@@ -164,7 +169,7 @@
   "git.confirmSync": false,
 
   // Draw.io settings
-  "hediet.vscode-drawio.theme": "dark",
+  "hediet.vscode-drawio.theme": "min",
   "hediet.vscode-drawio.codeLinkActivated": false,
 
   // Disable background extension auto-install
@@ -178,7 +183,8 @@
     "*": true,
     "plaintext": false,
     "markdown": true,
-    "scminput": false
+    "scminput": false,
+    "javascript": true
   },
 
   // GitLens settings
@@ -198,17 +204,18 @@
     "pullRequests"
   ],
   "gitlens.graph.minimap.enabled": false,
-
-  // Workbench and theme settings
-  "workbench.colorTheme": "Andromeda Italic",
   "workbench.iconTheme": "vscode-icons",
   "workbench.view.alwaysShowHeaderActions": false,
 
   // Disable Command Center and layout control
   "window.commandCenter": true,
   "workbench.layoutControl.enabled": true,
-  "workbench.activityBar.location": "hidden",
   "markdown-preview-enhanced.enablePreviewZenMode": true,
+  "workbench.activityBar.location": "hidden",
+  "background.windowBackgrounds": [
+    "c:/Users/dongu/OneDrive/Tài liệu/Images/wp9355922.png"
+  ],
+  "workbench.colorTheme": "Andromeda",
   "workbench.statusBar.visible": false
 
   // Save installed extensions
