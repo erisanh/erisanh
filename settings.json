@@ -1,7 +1,8 @@
 {
   // open custom_montys.omp.json
-  // notepad $HOME\custom_montys.omp.json
+  // `notepad $HOME\custom_montys.omp.json`
 
+  "window.zoomLevel": 0.8,
   // Import custom CSS
   "vscode_custom_css.imports": [
     "file:///C:/Users/dongu/AppData/Roaming/Code/User/custom-vscode.css"
@@ -9,7 +10,7 @@
   ],
 
   // Disable minimap in the editor
-  "editor.minimap.enabled": false,
+  "editor.minimap.enabled": true,
 
   // Emmet settings for JavaScript React
   "emmet.includeLanguages": {
@@ -66,17 +67,22 @@
   "git.autofetch": true,
 
   // Default formatters for different languages
+  "editor.formatOnPaste": true,
+
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features"
   },
   "[javascript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[css]": {
     "editor.defaultFormatter": "vscode.css-language-features"
   },
   "[json]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -107,7 +113,11 @@
 
   // Editor color customizations
   "workbench.colorCustomizations": {
-    "editorLineNumber.activeForeground": "#cafe96"
+    "editorLineNumber.activeForeground": "#cafe96",
+    "statusBar.background": "#282c34",
+    "statusBar.foreground": "#7deb90",
+    // "editorCursorForeground": "#ffffff",
+    "editor.lineHighlightBackground": "#282c34"
   },
 
   // Enable smooth caret animation
@@ -168,22 +178,15 @@
   "jupyter.askForKernelRestart": false,
   "git.confirmSync": false,
 
-  // Draw.io settings
-  "hediet.vscode-drawio.theme": "min",
-  "hediet.vscode-drawio.codeLinkActivated": false,
-
-  // Disable background extension auto-install
-  "background.autoInstall": false,
-
   // Disable compact folder display in explorer
   "explorer.compactFolders": false,
 
   // GitHub Copilot settings
   "github.copilot.enable": {
     "*": true,
-    "plaintext": false,
+    "plaintext": true,
     "markdown": true,
-    "scminput": false,
+    "scminput": true,
     "javascript": true
   },
 
@@ -211,13 +214,16 @@
   "window.commandCenter": true,
   "workbench.layoutControl.enabled": true,
   "markdown-preview-enhanced.enablePreviewZenMode": true,
-  "workbench.activityBar.location": "hidden",
-  "background.windowBackgrounds": [
-    "c:/Users/dongu/OneDrive/Tài liệu/Images/wp9355922.png"
-  ],
-  "workbench.colorTheme": "Andromeda",
-  "workbench.statusBar.visible": false
+  "workbench.colorTheme": "Dobri Next -B01- Hard",
 
+  // Enable tab wrapping
+  "workbench.editor.wrapTabs": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "git.openRepositoryInParentFolders": "never",
+  "remote.SSH.remotePlatform": {
+    "0.tcp.ap.ngrok.io": "linux"
+  },
+  "workbench.activityBar.location": "hidden"
   // Save installed extensions
   // Run this command in the terminal:
   // code --list-extensions > extensions.txt

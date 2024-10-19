@@ -185,5 +185,44 @@
   {
     "key": "alt+g",
     "command": "gitlens.views.graph.openInTab"
+  },
+  {
+    "key": "ctrl+alt+r",
+    "command": "-reactSnippets.search",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+alt+r",
+    "command": "-workbench.action.terminal.runRecentCommand",
+    "when": "terminalFocus && terminalHasBeenCreated && !accessibilityModeEnabled || terminalFocus && terminalProcessSupported && !accessibilityModeEnabled"
+  },
+  {
+    "key": "ctrl+alt+r",
+    "command": "-workbench.action.terminal.sendSequence",
+    "when": "accessibilityModeEnabled && terminalFocus"
+  },
+  {
+    "key": "ctrl+alt+r",
+    "command": "codeium.openChatView",
+    "when": "true"
+  },
+  {
+    "key": "ctrl+shift+a",
+    "command": "-codeium.openChatView",
+    "when": "true"
+  },
+  {
+    "key": "ctrl+alt+i",
+    "command": "-workbench.action.chat.open"
+  },
+  {
+    "key": "win+i",
+    "command": "-inlineChat.startWithCurrentLine",
+    "when": "editorFocus && github.copilot.chat.editor.enableLineTrigger && inlineChatHasProvider && !editorReadonly && !inlineChatVisible"
+  },
+  {
+    "key": "ctrl+alt+u",
+    "command": "inlineChat.startWithCurrentLine",
+    "when": "editorFocus && github.copilot.chat.editor.enableLineTrigger && inlineChatHasProvider && !editorReadonly && !inlineChatVisible"
   }
 ]

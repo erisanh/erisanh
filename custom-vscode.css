@@ -57,14 +57,14 @@
 }
 
 /* Line numbers */
-.line-numbers {
+/* .line-numbers {
     position: relative !important;
     width: 20px !important;
     font-size: 13px !important;
     font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace !important;
     opacity: .3;
     color: var(--vscode-editorLineNumber-foreground) !important;
-}
+} */
 
 /* Code canvas top shadow */
 .monaco-editor .scroll-decoration {
@@ -79,12 +79,18 @@
 }
 
 /* File Explorer Selected Item */
+/* File Explorer Selected Item */
 .monaco-list.list_id_1 .monaco-list-row.selected {
     background-color: var(--vscode-list-activeSelectionBackground) !important;
     opacity: 0.6 !important;
-    border-top: 1px var(--vscode-list-hoverBackground) solid !important;
-    border-bottom: 1px var(--vscode-list-hoverBackground) solid !important;
+    border-width: 3px !important;
+    border-style: solid !important;
+    border-image: linear-gradient(45deg, #4caf50, #388e3c, #ffca28, #ffffff) 1 !important;
+    border-image-slice: 1 !important;
 }
+
+
+
 
 /* List item label name */
 .monaco-list.list_id_1 .monaco-list-row.selected .label-name {
