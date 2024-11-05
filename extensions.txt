@@ -1,8 +1,6 @@
-FaroSystemAppender constructor
 adpyke.codesnap
 ajithgopi.css-snippets
 angelorafael.jsx-html-tags
-anysphere.pyright
 aykutsarac.jsoncrack-vscode
 be5invis.vscode-custom-css
 bierner.color-info
@@ -17,7 +15,6 @@ cweijan.dbclient-jdbc
 cweijan.vscode-postgresql-client2
 dbaeumer.vscode-eslint
 digitalbrainstem.javascript-ejs-support
-dineug.vuerd-vscode
 docsmsft.docs-images
 donjayamanne.jquerysnippets
 dracula-theme.theme-dracula
@@ -34,14 +31,13 @@ github.copilot
 github.copilot-chat
 glenn2223.live-sass
 grapecity.gc-excelviewer
-greatjiang.h5-code
+gruntfuggly.todo-tree
 hansuxdev.bootstrap5-snippets
-hediet.vscode-drawio
 hoovercj.vscode-power-mode
 jmrog.vscode-nuget-package-manager
 jzmstrjp.color-the-tag-name
-katsute.code-background
 kevinrose.vsc-python-indent
+lehni.vscode-fix-checksums
 mechatroner.rainbow-csv
 mgmcdermott.vscode-language-babel
 ms-azuretools.vscode-docker
@@ -65,9 +61,9 @@ ms-vscode-remote.remote-wsl
 ms-vscode.cpptools-themes
 ms-vscode.js-atom-grammar
 naumovs.color-highlight
-negokaz.live-server-preview
+nimda.deepdark-material
+nur.just-black
 oderwat.indent-rainbow
-peterhdd.firebase-firestore-snippets
 postman.postman-for-vscode
 pranaygp.vscode-css-peek
 quicktype.quicktype
