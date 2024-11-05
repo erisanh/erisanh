@@ -117,7 +117,9 @@
     "statusBar.background": "#282c34",
     "statusBar.foreground": "#7deb90",
     // "editorCursorForeground": "#ffffff",
-    "editor.lineHighlightBackground": "#282c34"
+    "editor.lineHighlightBackground": "#282c34",
+    "statusBarItem.remoteBackground": "#282c34",
+    "statusBarItem.remoteForeground": "#7deb90"
   },
 
   // Enable smooth caret animation
@@ -143,6 +145,13 @@
     }
   },
   "isort.args": ["--profile", "black"],
+  "python.analysis.autoImportCompletions": true,
+  "python.autoComplete.extraPaths": ["${workspaceFolder}/app"],
+  "python.analysis.extraPaths": ["${workspaceFolder}/app"],
+  "python.analysis.indexing": true,
+  "python.analysis.packageIndexDepths": [
+    { "name": "", "depth": 20, "includeAllSymbols": true }
+  ],
 
   // Enable format on save globally
   "editor.formatOnSave": true,
@@ -211,10 +220,9 @@
   "workbench.view.alwaysShowHeaderActions": false,
 
   // Disable Command Center and layout control
-  "window.commandCenter": true,
-  "workbench.layoutControl.enabled": true,
+  "window.commandCenter": false,
+  "workbench.layoutControl.enabled": false,
   "markdown-preview-enhanced.enablePreviewZenMode": true,
-  "workbench.colorTheme": "Dobri Next -B01- Hard",
 
   // Enable tab wrapping
   "workbench.editor.wrapTabs": true,
@@ -223,7 +231,49 @@
   "remote.SSH.remotePlatform": {
     "0.tcp.ap.ngrok.io": "linux"
   },
-  "workbench.activityBar.location": "hidden"
+  /* todo-tree.general.tags */
+  "todo-tree.general.tags": ["TODO", "FIXME", "README", "REF", "WARN"],
+  "todo-tree.tree.autoRefresh": true,
+  "todo-tree.highlights.customHighlight": {
+    "TODO": {
+      "icon": "check",
+      "gutterIcon": true,
+      "foreground": "#000000",
+      "background": "#ad7d13"
+    },
+    "FIXME": {
+      "icon": "alert",
+      "gutterIcon": true,
+      "foreground": "#000000",
+      "background": "#f34e2e"
+    },
+    "README": {
+      "foreground": "#000000",
+      "background": "#648843",
+      "iconColour": "#122B3A",
+      "icon": "eye"
+    },
+    "REF": {
+      "icon": "link",
+      "gutterIcon": true,
+      "foreground": "#000000",
+      "background": "#4a7beb"
+    },
+    "WARN": {
+      "icon": "warning",
+      "gutterIcon": true,
+      "foreground": "#000000",
+      "background": "#d0f42c"
+    }
+  },
+  "todo-tree.highlights.useColourScheme": true,
+  "terminal.integrated.tabs.location": "left",
+  "jupyter.interactiveWindow.textEditor.executeSelection": true,
+  "python.analysis.logLevel": "Error",
+  "jupyter.logging.level": "error",
+  "workbench.activityBar.location": "hidden",
+  "workbench.colorTheme": "Just Black"
+
   // Save installed extensions
   // Run this command in the terminal:
   // code --list-extensions > extensions.txt
