@@ -24,166 +24,148 @@
       <td align="center" width="60">
         <img
           src="https://techstack-generator.vercel.app/java-icon.svg"
-          alt="icon"
+          alt="Java Icon"
           width="38"
           height="38"
         />
-        <br />Java
       </td>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=spring"
-          alt="icon"
+          alt="Spring Icon"
           width="38"
           height="38"
         />
-        <br />Spring
       </td>
       <td align="center" width="60">
         <img
           src="https://techstack-generator.vercel.app/python-icon.svg"
-          alt="icon"
+          alt="Python Icon"
           width="38"
           height="38"
         />
-        <br />Python
       </td>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=fastapi"
-          alt="icon"
+          alt="FastAPI Icon"
           width="38"
           height="38"
         />
-        <br />FastAPI
       </td>
       <td align="center" width="60">
         <img
           src="https://techstack-generator.vercel.app/mysql-icon.svg"
-          alt="icon"
+          alt="MySQL Icon"
           width="38"
           height="38"
         />
-        <br />MySQL
       </td>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=postgres"
+          alt="PostgreSQL Icon"
           width="38"
           height="38"
-          alt="PostgreSQL"
         />
-        <br />PostgreSQL
       </td>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=html"
+          alt="HTML5 Icon"
           width="38"
           height="38"
-          alt="HTML5"
         />
-        <br />HTML5
       </td>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=css"
+          alt="CSS3 Icon"
           width="38"
           height="38"
-          alt="CSS3"
         />
-        <br />CSS3
       </td>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=sass"
+          alt="SASS Icon"
           width="38"
           height="38"
-          alt="SASS"
         />
-        <br />SASS
       </td>
     </tr>
     <tr>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=tailwind"
+          alt="TailwindCSS Icon"
           width="38"
           height="38"
-          alt="TailwindCSS"
         />
-        <br />TailwindCSS
       </td>
       <td align="center" width="60">
         <img
           src="https://techstack-generator.vercel.app/js-icon.svg"
-          alt="icon"
+          alt="JavaScript Icon"
           width="38"
           height="38"
         />
-        <br />JavaScript
       </td>
       <td align="center" width="60">
         <img
           src="https://techstack-generator.vercel.app/ts-icon.svg"
-          alt="icon"
+          alt="TypeScript Icon"
           width="38"
           height="38"
         />
-        <br />TypeScript
       </td>
       <td align="center" width="60">
         <img
           src="https://techstack-generator.vercel.app/react-icon.svg"
-          alt="icon"
+          alt="React Icon"
           width="38"
           height="38"
         />
-        <br />React
       </td>
       <td align="center" width="60">
         <img
           src="https://techstack-generator.vercel.app/docker-icon.svg"
-          alt="icon"
+          alt="Docker Icon"
           width="38"
           height="38"
         />
-        <br />Docker
       </td>
       <td align="center" width="60">
         <img
           src="https://techstack-generator.vercel.app/github-icon.svg"
-          alt="icon"
+          alt="GitHub Icon"
           width="38"
           height="38"
         />
-        <br />GitHub
       </td>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=idea"
-          alt="icon"
+          alt="IntelliJ IDEA Icon"
           width="38"
           height="38"
         />
-        <br />IntelliJ IDEA
       </td>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=vscode"
+          alt="VS Code Insiders Icon"
           width="38"
           height="38"
-          alt="VS Code Insiders"
         />
-        <br />VS Code Insiders
       </td>
       <td align="center" width="60">
         <img
           src="https://skillicons.dev/icons?i=postman"
-          alt="icon"
+          alt="Postman Icon"
           width="38"
           height="38"
         />
-        <br />Postman
       </td>
     </tr>
   </table>
