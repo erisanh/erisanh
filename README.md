@@ -5,8 +5,8 @@
     </h1>
 </div>
 
----
 
+<!-- 
 ### 🚀 About Me
 - 🌍 <span style="color: #C2FFC7;">Based in **Da Nang**, Vietnam.</span>
 - 💼 <span style="color: #9EDF9C;">Currently working as a **Backend Developer** at **[Ally AI JSC](https://allyai.ai/)**.</span>
@@ -17,7 +17,7 @@
 ---
 
 ### 🌱 My favorite tools and technologies
-
+-->
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=plastic&logo=java&logoColor=white)
 ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=plastic&logo=spring&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3670A0?style=plastic&logo=python&logoColor=ffdd54)
@@ -44,7 +44,7 @@
 ![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=plastic&logo=visual-studio-code&logoColor=white)
 ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=plastic&logo=postman&logoColor=white)
 ---
-
+<!-- 
 ### 🌱 Featured YouTube Videos
 
 [![Demo T-beauty-center](https://ytcards.demolab.com/?id=0y7ylm8sBxk&title=Demo+T-beauty-center&lang=en&timestamp=1714435200&background_color=%230d1117&title_color=%23ffffff&stats_color=%23dedede&max_title_lines=1&width=200&border_radius=5&duration=179 "Demo T-beauty-center")](https://youtu.be/0y7ylm8sBxk?si=qzhz1HdX0WZCBj8h)
