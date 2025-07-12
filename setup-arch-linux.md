@@ -1,4 +1,4 @@
-[Link](https://youtu.be/si4-fSNZ-6g?si=Zdti6j5EygtfP8pq)
+[Link](https://www.youtube.com/watch?v=uv8iLwUPV9A)
 [Neovim](https://www.youtube.com/watch?v=i04sSQjd-qo&t=134s)
 
 ### Lưu ý trước khi bắt đầu
