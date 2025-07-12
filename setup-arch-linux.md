@@ -1,4 +1,5 @@
 [Link](https://youtu.be/si4-fSNZ-6g?si=Zdti6j5EygtfP8pq)
+[Neovim](https://www.youtube.com/watch?v=i04sSQjd-qo&t=134s)
 
 ### Lưu ý trước khi bắt đầu
 1. **Sao lưu dữ liệu quan trọng**:
