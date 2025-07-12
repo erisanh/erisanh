@@ -1,3 +1,5 @@
+[Link](https://youtu.be/si4-fSNZ-6g?si=Zdti6j5EygtfP8pq)
+
 ### Lưu ý trước khi bắt đầu
 1. **Sao lưu dữ liệu quan trọng**:
    - Việc cài đặt Arch Linux sẽ **xóa toàn bộ dữ liệu** trên ổ đĩa được chọn, bao gồm Windows 11 và tất cả tệp cá nhân. Hãy sao lưu mọi dữ liệu quan trọng (tài liệu, ảnh, video, v.v.) vào ổ cứng ngoài, USB, hoặc dịch vụ đám mây (Google Drive, OneDrive, v.v.).
