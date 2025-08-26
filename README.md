@@ -40,9 +40,9 @@
 ![AWS S3](https://img.shields.io/badge/AWS%20S3-%23569A31.svg?style=plastic&logo=amazon-s3&logoColor=white)
 ![Firebase](https://img.shields.io/badge/firebase-%23FFCA28.svg?style=plastic&logo=firebase&logoColor=black)
 ![Sentry](https://img.shields.io/badge/sentry-%23FB4226.svg?style=plastic&logo=sentry&logoColor=white)
-![IntelliJ IDEA](https://img.shields.io/badge/IntelliJIDEA-000000.svg?style=plastic&logo=intellij-idea&logoColor=white)
-![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=plastic&logo=visual-studio-code&logoColor=white)
 ![Postman](https://img.shields.io/badge/Postman-FF6C37?style=plastic&logo=postman&logoColor=white)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=plastic&logo=ubuntu&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=plastic&logo=linux&logoColor=black)
 ---
 <!-- 
 ### 🌱 Featured YouTube Videos
