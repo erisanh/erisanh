@@ -1,82 +1,66 @@
 {
-  // open custom_montys.omp.json
-  // `notepad $HOME\custom_montys.omp.json`
-
+  /* ===============================
+       🌟 UI / Window Settings
+    =============================== */
   "window.zoomLevel": 0.8,
-  // Import custom CSS
-  "vscode_custom_css.imports": [
-    "file:///C:/Users/dongu/AppData/Roaming/Code/User/custom-vscode.css"
-    // "file:///C:/Users/dongu/AppData/Roaming/Code/User/vscode-script.js"
-  ],
-
-  // Disable minimap in the editor
+  "window.customTitleBarVisibility": "windowed",
+  "window.commandCenter": false,
+  "workbench.layoutControl.enabled": false,
+  "workbench.editor.wrapTabs": true,
+  "workbench.view.alwaysShowHeaderActions": false,
+  "workbench.iconTheme": "vscode-icons",
+  "workbench.activityBar.location": "bottom",
+  "explorer.compactFolders": false,
+  /* ===============================
+       🎨 Editor Appearance
+    =============================== */
   "editor.minimap.enabled": true,
-
-  // Emmet settings for JavaScript React
-  "emmet.includeLanguages": {
-    "javascript": "javascriptreact"
-  },
-
-  // Editor tab and space settings
+  "editor.wordWrap": "on",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.lineNumbers": "on",
   "editor.tabSize": 4,
   "editor.insertSpaces": true,
-
-  // Disable scroll sync in Markdown Preview Enhanced
-  "markdown-preview-enhanced.scrollSync": false,
-
-  // Set default terminal profile and environment on Windows
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  // Fonts
+  "editor.fontSize": 13.4,
+  // Font cho editor
+  "editor.fontFamily": "'FiraCode Nerd Font Mono', monospace",
+  "editor.fontLigatures": true,
+  /* ===============================
+       🖥️ Terminal Settings
+    =============================== */
+  "terminal.integrated.env.linux": {
+    "NVM_DIR": "/home/iuhane/.nvm",
+    "PATH": "/home/iuhane/.nvm/versions/node/v22.*/bin:${env:PATH}",
+    "LANG": "en_US.UTF-8"
+  },
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "terminal.integrated.profiles.linux": {
+    "zsh": {
+      "path": "/usr/bin/zsh"
+    },
+    "bash": {
+      "path": "/usr/bin/bash"
+    }
+  },
   "terminal.integrated.defaultProfile.windows": "Windows PowerShell",
   "terminal.integrated.env.windows": {
     "LANG": "en_US.UTF-8"
   },
-
-  // Configure terminal profiles for Windows
-  "terminal.integrated.profiles.windows": {
-    "PowerShell": {
-      "source": "PowerShell",
-      "icon": "terminal-powershell"
-    },
-    "Command Prompt": {
-      "path": [
-        "${env:windir}\\Sysnative\\cmd.exe",
-        "${env:windir}\\System32\\cmd.exe"
-      ],
-      "args": ["/K", "chcp 65001"],
-      "icon": "terminal-cmd",
-      "name": "Command Prompt",
-      "suppressApplicationTitle": true,
-      "env": {
-        "LANG": "en_US.UTF-8"
-      }
-    },
-    "Git Bash": {
-      "source": "Git Bash"
-    },
-    "Windows PowerShell": {
-      "path": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
-    }
-  },
-
-  // Set theme for Markdown Preview Enhanced
-  "markdown-preview-enhanced.previewTheme": "one-dark.css",
-
-  // Disable notifications from Live Server
-  "liveServer.settings.donotShowInfoMsg": true,
-
-  // Enable auto-fetch for Git
-  "git.autofetch": true,
-
-  // Default formatters for different languages
-  "editor.formatOnPaste": true,
-
+  // Terminal font
+  "terminal.integrated.fontFamily": "Hack Nerd Font",
+  "terminal.integrated.fontWeightBold": "bold",
+  "terminal.integrated.lineHeight": 1.2,
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.tabs.location": "left",
+  "terminal.integrated.fontSize": 10,
+  "terminal.integrated.fontWeight": "normal",
+  /* ===============================
+       📑 Language Formatters
+    =============================== */
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[css]": {
     "editor.defaultFormatter": "vscode.css-language-features"
@@ -87,56 +71,15 @@
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-
-  // Enable word wrap in the editor
-  "editor.wordWrap": "on",
-
-  // Font settings for editor and terminal
-  "editor.fontSize": 13.4,
-  "terminal.integrated.fontSize": 13,
-  // "terminal.integrated.fontFamily": "Consolas",
-  "terminal.integrated.fontWeight": "600",
-  "terminal.integrated.fontWeightBold": "bold",
-  "terminal.integrated.lineHeight": 0.7,
-  "terminal.integrated.cursorStyle": "line",
-  "terminal.integrated.fontFamily": "MesloLGM Nerd Font Mono",
-  "terminal.integrated.shellArgs.windows": "-nologo",
-
-  // Enable Red Hat telemetry
-  "redhat.telemetry.enabled": true,
-
-  // Set Reveal.js theme for Markdown Preview Enhanced
-  "markdown-preview-enhanced.revealjsTheme": "black.css",
-
-  // Custom title bar visibility
-  "window.customTitleBarVisibility": "windowed",
-
-  // Editor color customizations
-  "workbench.colorCustomizations": {
-    "editorLineNumber.activeForeground": "#cafe96",
-    "statusBar.background": "#282c34",
-    "statusBar.foreground": "#7deb90",
-    // "editorCursorForeground": "#ffffff",
-    "editor.lineHighlightBackground": "#282c34",
-    "statusBarItem.remoteBackground": "#282c34",
-    "statusBarItem.remoteForeground": "#7deb90"
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-
-  // Enable smooth caret animation
-  "editor.cursorSmoothCaretAnimation": "on",
-
-  // Java environment settings
-  "java.compile.nullAnalysis.mode": "automatic",
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.dependency.packagePresentation": "hierarchical",
-  "java.project.sourcePaths": ["src"],
-  "java.project.outputPath": "bin",
-  "java.project.referencedLibraries": ["lib/**/*.jar"],
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[java]": {
     "editor.defaultFormatter": "redhat.java"
   },
-
-  // Python environment settings
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnSave": true,
@@ -144,62 +87,37 @@
       "source.organizeImports": "explicit"
     }
   },
+  /* ===============================
+       🐍 Python Settings
+    =============================== */
   "isort.args": ["--profile", "black"],
   "python.analysis.autoImportCompletions": true,
+  "python.analysis.indexing": true,
+  "python.analysis.logLevel": "Error",
   "python.autoComplete.extraPaths": ["${workspaceFolder}/app"],
   "python.analysis.extraPaths": ["${workspaceFolder}/app"],
-  "python.analysis.indexing": true,
   "python.analysis.packageIndexDepths": [
-    { "name": "", "depth": 20, "includeAllSymbols": true }
+    {
+      "name": "",
+      "depth": 20,
+      "includeAllSymbols": true
+    }
   ],
-
-  // Enable format on save globally
-  "editor.formatOnSave": true,
-
-  // Custom font family for the editor
-  "editor.fontFamily": "JetBrains Mono, Consolas, 'Courier New', monospace",
-
-  // Indent-Rainbow color configuration
-  "indentRainbow.colors": [
-    "rgba(216, 243, 220, 0.08)",
-    "rgba(183, 228, 199, 0.08)",
-    "rgba(149, 213, 178, 0.08)",
-    "rgba(116, 198, 157, 0.08)",
-    "rgba(82, 183, 136, 0.08)",
-    "rgba(64, 145, 108, 0.08)",
-    "rgba(45, 106, 79, 0.08)",
-    "rgba(27, 67, 50, 0.08)",
-    "rgba(8, 28, 21, 0.08)",
-    "rgba(21, 8, 28, 0.08)",
-    "rgba(50, 27, 67, 0.08)",
-    "rgba(79, 45, 106, 0.08)",
-    "rgba(108, 64, 145, 0.08)",
-    "rgba(136, 82, 183, 0.08)",
-    "rgba(157, 116, 198, 0.08)",
-    "rgba(178, 149, 213, 0.08)",
-    "rgba(199, 183, 228, 0.08)",
-    "rgba(220, 216, 243, 0.08)",
-    "rgba(243, 220, 216, 0.08)",
-    "rgba(228, 199, 183, 0.08)"
-  ],
-
-  // Jupyter and Git settings
-  "jupyter.askForKernelRestart": false,
+  /* ===============================
+       ☕ Java Settings
+    =============================== */
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.dependency.packagePresentation": "hierarchical",
+  "java.project.sourcePaths": ["src"],
+  "java.project.outputPath": "bin",
+  "java.project.referencedLibraries": ["lib/**/*.jar"],
+  /* ===============================
+       📦 Git & GitLens
+    =============================== */
+  "git.autofetch": true,
   "git.confirmSync": false,
-
-  // Disable compact folder display in explorer
-  "explorer.compactFolders": false,
-
-  // GitHub Copilot settings
-  "github.copilot.enable": {
-    "*": true,
-    "plaintext": true,
-    "markdown": true,
-    "scminput": true,
-    "javascript": true
-  },
-
-  // GitLens settings
+  "git.openRepositoryInParentFolders": "never",
   "gitlens.views.commitDetails.files.layout": "tree",
   "gitlens.graph.minimap.additionalTypes": [
     "localBranches",
@@ -216,24 +134,56 @@
     "pullRequests"
   ],
   "gitlens.graph.minimap.enabled": false,
-  "workbench.iconTheme": "vscode-icons",
-  "workbench.view.alwaysShowHeaderActions": false,
-
-  // Disable Command Center and layout control
-  "window.commandCenter": false,
-  "workbench.layoutControl.enabled": false,
+  /* ===============================
+       📒 Markdown & Jupyter
+    =============================== */
+  "markdown-preview-enhanced.scrollSync": false,
+  "markdown-preview-enhanced.previewTheme": "one-dark.css",
+  "markdown-preview-enhanced.revealjsTheme": "black.css",
   "markdown-preview-enhanced.enablePreviewZenMode": true,
-
-  // Enable tab wrapping
-  "workbench.editor.wrapTabs": true,
-  "typescript.updateImportsOnFileMove.enabled": "always",
-  "git.openRepositoryInParentFolders": "never",
-  "remote.SSH.remotePlatform": {
-    "0.tcp.ap.ngrok.io": "linux"
+  "jupyter.askForKernelRestart": false,
+  "jupyter.interactiveWindow.textEditor.executeSelection": true,
+  "jupyter.logging.level": "error",
+  /* ===============================
+       🛠 Extensions / Plugins
+    =============================== */
+  "vscode_custom_css.imports": [
+    "file:///C:/Users/dongu/AppData/Roaming/Code/User/custom-vscode.css"
+  ],
+  "liveServer.settings.donotShowInfoMsg": true,
+  "redhat.telemetry.enabled": true,
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": false,
+    "scminput": true,
+    "javascript": true
   },
-  /* todo-tree.general.tags */
+  "indentRainbow.colors": [
+    "rgba(216,243,220,0.08)",
+    "rgba(183,228,199,0.08)",
+    "rgba(149,213,178,0.08)",
+    "rgba(116,198,157,0.08)",
+    "rgba(82,183,136,0.08)",
+    "rgba(64,145,108,0.08)",
+    "rgba(45,106,79,0.08)",
+    "rgba(27,67,50,0.08)",
+    "rgba(8,28,21,0.08)",
+    "rgba(21,8,28,0.08)",
+    "rgba(50,27,67,0.08)",
+    "rgba(79,45,106,0.08)",
+    "rgba(108,64,145,0.08)",
+    "rgba(136,82,183,0.08)",
+    "rgba(157,116,198,0.08)",
+    "rgba(178,149,213,0.08)",
+    "rgba(199,183,228,0.08)",
+    "rgba(220,216,243,0.08)",
+    "rgba(243,220,216,0.08)",
+    "rgba(228,199,183,0.08)"
+  ],
   "todo-tree.general.tags": ["TODO", "FIXME", "README", "REF", "WARN"],
   "todo-tree.tree.autoRefresh": true,
+  "todo-tree.highlights.useColourScheme": true,
   "todo-tree.highlights.customHighlight": {
     "TODO": {
       "icon": "check",
@@ -248,10 +198,9 @@
       "background": "#f34e2e"
     },
     "README": {
+      "icon": "eye",
       "foreground": "#000000",
-      "background": "#648843",
-      "iconColour": "#122B3A",
-      "icon": "eye"
+      "background": "#648843"
     },
     "REF": {
       "icon": "link",
@@ -266,17 +215,44 @@
       "background": "#d0f42c"
     }
   },
-  "todo-tree.highlights.useColourScheme": true,
-  "terminal.integrated.tabs.location": "left",
-  "jupyter.interactiveWindow.textEditor.executeSelection": true,
-  "python.analysis.logLevel": "Error",
-  "jupyter.logging.level": "error",
-  "workbench.activityBar.location": "hidden",
-  "workbench.colorTheme": "Just Black"
-
-  // Save installed extensions
-  // Run this command in the terminal:
-  // code --list-extensions > extensions.txt
-  // To reinstall extensions, use the following command:
-  // cat extensions.txt | xargs -n 1 code --install-extension
+  /* ===============================
+       🎨 Workbench Custom Colors
+    =============================== */
+  "workbench.colorCustomizations": {
+    "editorLineNumber.activeForeground": "#cafe96",
+    "statusBar.background": "#282c34",
+    "statusBar.foreground": "#7deb90",
+    "editor.lineHighlightBackground": "#282c34",
+    "statusBarItem.remoteBackground": "#282c34",
+    "statusBarItem.remoteForeground": "#7deb90"
+  },
+  /* ===============================
+       🌐 Remote & DB
+    =============================== */
+  "remote.SSH.remotePlatform": {
+    "0.tcp.ap.ngrok.io": "linux"
+  },
+  "database-client.autoSync": true,
+  "diffEditor.hideUnchangedRegions.enabled": true,
+  "explorer.confirmDelete": false,
+  "gitlens.ai.model": "vscode",
+  "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+  "git.enableSmartCommit": true,
+  /* ===============================
+       🌐 Language & Encoding Settings (for Vietnamese support)
+    =============================== */
+  "files.encoding": "utf8",
+  "files.autoGuessEncoding": true,
+  "editor.detectIndentation": true,
+  /* ===============================
+       🖥️ IBus Integration (Optional)
+    =============================== */
+  "terminal.integrated.shellArgs.linux": [],
+  "terminal.integrated.inheritEnv": true,
+  "workbench.editorAssociations": {
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "*.pptx": "default"
+  },
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "workbench.colorTheme": "Bearded Theme HC Ebony"
 }
