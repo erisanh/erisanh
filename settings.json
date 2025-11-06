@@ -1,19 +1,15 @@
 {
-  /* ===============================
-       🌟 UI / Window Settings
-    =============================== */
   "window.zoomLevel": 0.8,
   "window.customTitleBarVisibility": "windowed",
   "window.commandCenter": false,
   "workbench.layoutControl.enabled": false,
   "workbench.editor.wrapTabs": true,
   "workbench.view.alwaysShowHeaderActions": false,
-  "workbench.iconTheme": "vscode-icons",
+  "workbench.iconTheme": "vscode-great-icons",
+  "workbench.colorTheme": "One Dark Pro Monokai Darker",
   "workbench.activityBar.location": "bottom",
   "explorer.compactFolders": false,
-  /* ===============================
-       🎨 Editor Appearance
-    =============================== */
+
   "editor.minimap.enabled": true,
   "editor.wordWrap": "on",
   "editor.cursorSmoothCaretAnimation": "on",
@@ -22,14 +18,10 @@
   "editor.insertSpaces": true,
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
-  // Fonts
   "editor.fontSize": 13.4,
-  // Font cho editor
   "editor.fontFamily": "'FiraCode Nerd Font Mono', monospace",
   "editor.fontLigatures": true,
-  /* ===============================
-       🖥️ Terminal Settings
-    =============================== */
+
   "terminal.integrated.env.linux": {
     "NVM_DIR": "/home/iuhane/.nvm",
     "PATH": "/home/iuhane/.nvm/versions/node/v22.*/bin:${env:PATH}",
@@ -44,11 +36,6 @@
       "path": "/usr/bin/bash"
     }
   },
-  "terminal.integrated.defaultProfile.windows": "Windows PowerShell",
-  "terminal.integrated.env.windows": {
-    "LANG": "en_US.UTF-8"
-  },
-  // Terminal font
   "terminal.integrated.fontFamily": "Hack Nerd Font",
   "terminal.integrated.fontWeightBold": "bold",
   "terminal.integrated.lineHeight": 1.2,
@@ -56,9 +43,7 @@
   "terminal.integrated.tabs.location": "left",
   "terminal.integrated.fontSize": 10,
   "terminal.integrated.fontWeight": "normal",
-  /* ===============================
-       📑 Language Formatters
-    =============================== */
+
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features"
   },
@@ -66,7 +51,7 @@
     "editor.defaultFormatter": "vscode.css-language-features"
   },
   "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "vscode.json-language-features"
   },
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -87,15 +72,20 @@
       "source.organizeImports": "explicit"
     }
   },
-  /* ===============================
-       🐍 Python Settings
-    =============================== */
-  "isort.args": ["--profile", "black"],
+
+  "isort.args": [
+    "--profile",
+    "black"
+  ],
   "python.analysis.autoImportCompletions": true,
   "python.analysis.indexing": true,
   "python.analysis.logLevel": "Error",
-  "python.autoComplete.extraPaths": ["${workspaceFolder}/app"],
-  "python.analysis.extraPaths": ["${workspaceFolder}/app"],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/app"
+  ],
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/app"
+  ],
   "python.analysis.packageIndexDepths": [
     {
       "name": "",
@@ -103,18 +93,18 @@
       "includeAllSymbols": true
     }
   ],
-  /* ===============================
-       ☕ Java Settings
-    =============================== */
+
   "java.compile.nullAnalysis.mode": "automatic",
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.dependency.packagePresentation": "hierarchical",
-  "java.project.sourcePaths": ["src"],
+  "java.project.sourcePaths": [
+    "src"
+  ],
   "java.project.outputPath": "bin",
-  "java.project.referencedLibraries": ["lib/**/*.jar"],
-  /* ===============================
-       📦 Git & GitLens
-    =============================== */
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar"
+  ],
+
   "git.autofetch": true,
   "git.confirmSync": false,
   "git.openRepositoryInParentFolders": "never",
@@ -134,9 +124,7 @@
     "pullRequests"
   ],
   "gitlens.graph.minimap.enabled": false,
-  /* ===============================
-       📒 Markdown & Jupyter
-    =============================== */
+
   "markdown-preview-enhanced.scrollSync": false,
   "markdown-preview-enhanced.previewTheme": "one-dark.css",
   "markdown-preview-enhanced.revealjsTheme": "black.css",
@@ -144,18 +132,12 @@
   "jupyter.askForKernelRestart": false,
   "jupyter.interactiveWindow.textEditor.executeSelection": true,
   "jupyter.logging.level": "error",
-  /* ===============================
-       🛠 Extensions / Plugins
-    =============================== */
-  "vscode_custom_css.imports": [
-    "file:///C:/Users/dongu/AppData/Roaming/Code/User/custom-vscode.css"
-  ],
+
   "liveServer.settings.donotShowInfoMsg": true,
-  "redhat.telemetry.enabled": true,
   "github.copilot.enable": {
     "*": true,
     "plaintext": true,
-    "markdown": false,
+    "markdown": true,
     "scminput": true,
     "javascript": true
   },
@@ -181,7 +163,13 @@
     "rgba(243,220,216,0.08)",
     "rgba(228,199,183,0.08)"
   ],
-  "todo-tree.general.tags": ["TODO", "FIXME", "README", "REF", "WARN"],
+  "todo-tree.general.tags": [
+    "TODO",
+    "FIXME",
+    "README",
+    "REF",
+    "WARN"
+  ],
   "todo-tree.tree.autoRefresh": true,
   "todo-tree.highlights.useColourScheme": true,
   "todo-tree.highlights.customHighlight": {
@@ -215,9 +203,7 @@
       "background": "#d0f42c"
     }
   },
-  /* ===============================
-       🎨 Workbench Custom Colors
-    =============================== */
+
   "workbench.colorCustomizations": {
     "editorLineNumber.activeForeground": "#cafe96",
     "statusBar.background": "#282c34",
@@ -226,33 +212,45 @@
     "statusBarItem.remoteBackground": "#282c34",
     "statusBarItem.remoteForeground": "#7deb90"
   },
-  /* ===============================
-       🌐 Remote & DB
-    =============================== */
+
   "remote.SSH.remotePlatform": {
     "0.tcp.ap.ngrok.io": "linux"
   },
   "database-client.autoSync": true,
   "diffEditor.hideUnchangedRegions.enabled": true,
   "explorer.confirmDelete": false,
-  "gitlens.ai.model": "vscode",
+  "gitlens.ai.model": "gitkraken",
   "gitlens.ai.vscode.model": "copilot:gpt-4.1",
   "git.enableSmartCommit": true,
-  /* ===============================
-       🌐 Language & Encoding Settings (for Vietnamese support)
-    =============================== */
+
   "files.encoding": "utf8",
   "files.autoGuessEncoding": true,
   "editor.detectIndentation": true,
-  /* ===============================
-       🖥️ IBus Integration (Optional)
-    =============================== */
+
   "terminal.integrated.shellArgs.linux": [],
   "terminal.integrated.inheritEnv": true,
+
   "workbench.editorAssociations": {
     "*.copilotmd": "vscode.markdown.preview.editor",
     "*.pptx": "default"
   },
-  "github.copilot.nextEditSuggestions.enabled": true,
-  "workbench.colorTheme": "Bearded Theme HC Ebony"
+
+  "cSpell.words": [
+    "Agoda",
+    "CDNURL",
+    "Checkin",
+    "Criterias",
+    "dtos",
+    "gorm",
+    "Klook",
+    "noti",
+    "pgvector",
+    "tcent",
+    "topup",
+    "Tripc",
+    "unaccent",
+    "varchar"
+  ],
+
+  "liveServer.settings.port": 5501
 }
