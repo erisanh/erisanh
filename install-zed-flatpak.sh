@@ -1,44 +1,88 @@
 #!/bin/bash
-# === install-zed-flatpak.sh ===
-# Install Zed Editor via Flatpak + FULL fix: menu + global command + desktop shortcut
-# Run: sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/erisanh/erisanh/refs/heads/main/install-zed-flatpak.sh)"
+# install-zed.sh - Cài Zed Editor trên Ubuntu 20.04 (x86_64 / aarch64)
+# Tác giả: ChatGPT (dựa trên tài liệu chính thức zed.dev)
+# Chạy: bash install-zed.sh          # stable
+#       bash install-zed.sh preview  # preview channel
 
-set -e
+set -e  # Dừng nếu có lỗi
 
-echo "=== Refresh Flathub ==="
-flatpak remote-delete flathub || true
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+# Màu sắc
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-echo "=== Installing Zed Editor ==="
-flatpak install flathub dev.zed.Zed -y
+log() { echo -e "${GREEN}[INFO]${NC} $1"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
 
-echo "=== Fixing XDG_DATA_DIRS ==="
-sudo tee /etc/profile.d/flatpak.sh > /dev/null <<'EOF'
-export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:/home/$USER/.local/share/flatpak/exports/share:/usr/local/share:/usr/share:$XDG_DATA_DIRS"
-EOF
-export XDG_DATA_DIRS="/var/lib/flatpak/exports/share:/home/$USER/.local/share/flatpak/exports/share:/usr/local/share:/usr/share:$XDG_DATA_DIRS"
+# Kiểm tra kiến trúc
+ARCH=$(uname -m)
+case $ARCH in
+  x86_64)   GLIBC_MIN="2.31" ;;
+  aarch64)  GLIBC_MIN="2.35" ;;
+  *) error "Kiến trúc không được hỗ trợ: $ARCH"; exit 1 ;;
+esac
 
-echo "=== Updating desktop database ==="
-sudo update-desktop-database
+log "Kiến trúc: $ARCH (yêu cầu glibc >= $GLIBC_MIN)"
 
-echo "=== Creating global 'zed' command ==="
-sudo rm -f /usr/local/bin/zed
-sudo ln -sf /var/lib/flatpak/app/dev.zed.Zed/current/active/files/bin/zed /usr/local/bin/zed
+# Kiểm tra glibc
+GLIBC_VER=$(ldd --version | head -n1 | awk '{print $NF}')
+if [ -z "$(printf '%s\n' "$GLIBC_MIN" "$GLIBC_VER" | sort -V | head -n1)" ]; then
+  error "glibc $GLIBC_VER < $GLIBC_MIN → Không hỗ trợ. Cần Ubuntu 22.04+ cho ARM."
+  exit 1
+fi
+log "glibc $GLIBC_VER → OK"
 
-echo "=== Creating Desktop shortcut ==="
-cat > ~/Desktop/Zed.desktop <<'EOF'
-[Desktop Entry]
-Name=Zed Editor
-Exec=zed %F
-Icon=dev.zed.Zed
-Type=Application
-Categories=Development;IDE;
-Terminal=false
-EOF
-chmod +x ~/Desktop/Zed.desktop
+# Xác định channel
+CHANNEL="stable"
+if [ "$1" = "preview" ]; then
+  CHANNEL="preview"
+  log "Cài đặt kênh: $CHANNEL"
+fi
 
-echo "=== All done! Launching Zed... ==="
-zed
+# Thư mục cài đặt
+INSTALL_DIR="$HOME/.local/zed.app"
+BIN_DIR="$HOME/.local/bin"
+DESKTOP_DIR="$HOME/.local/share/applications"
+ICON_DIR="$HOME/.local/share/icons/hicolor/512x512/apps"
+
+log "Tải và cài Zed ($CHANNEL) vào $INSTALL_DIR..."
+
+# Tải script cài đặt và chạy
+export ZED_CHANNEL="$CHANNEL"
+curl -f https://zed.dev/install.sh | sh
+
+# Kiểm tra cài đặt thành công
+if [ ! -f "$INSTALL_DIR/bin/zed" ]; then
+  error "Cài đặt thất bại: Không tìm thấy $INSTALL_DIR/bin/zed"
+  exit 1
+fi
+
+# Tạo symlink
+mkdir -p "$BIN_DIR"
+ln -sf "$INSTALL_DIR/bin/zed" "$BIN_DIR/zed"
+log "Tạo symlink: $BIN_DIR/zed → zed.app"
+
+# Cài .desktop file (tích hợp menu)
+mkdir -p "$DESKTOP_DIR" "$ICON_DIR"
+cp "$INSTALL_DIR/share/applications/zed.desktop" "$DESKTOP_DIR/dev.zed.Zed.desktop"
+
+# Sửa đường dẫn Exec và Icon
+sed -i "s|Exec=zed|Exec=$INSTALL_DIR/libexec/zed-editor %F|g" "$DESKTOP_DIR/dev.zed.Zed.desktop"
+sed -i "s|Icon=zed|Icon=$INSTALL_DIR/share/icons/hicolor/512x512/apps/zed.png|g" "$DESKTOP_DIR/dev.zed.Zed.desktop"
+
+log "Cài .desktop → có thể tìm Zed trong menu"
+
+# Hoàn tất
+echo
+echo -e "${GREEN}Zed đã được cài đặt thành công!${NC}"
+echo
+echo "   • Chạy: ${GREEN}zed${NC} hoặc tìm trong menu"
+echo "   • Gỡ cài đặt: ${GREEN}zed --uninstall${NC}"
+echo "   • Preview: ${GREEN}bash install-zed.sh preview${NC}"
+echo
+echo "Mở thử ngay: ${GREEN}zed .${NC}"
 
 
 # sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/erisanh/erisanh/refs/heads/main/install-zed-flatpak.sh)"
