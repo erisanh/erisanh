@@ -124,7 +124,6 @@ echo -e "${GREEN}Zed installed – NO CRASH GUARANTEED!${NC}"
 echo " • Run: ${GREEN}zed .${NC}"
 echo " • Force software: ${GREEN}zed --software .${NC}"
 echo " • Menu: search 'Zed'"
-echo " • Uninstall: ${GREEN}bash ~/.local/bin/uninstall-zed.sh${NC}"
 echo
 echo -e " ${YELLOW}Using llvmpipe (software rendering) – safe & stable${NC}"
 echo -e " ${BLUE}Try now: zed .${NC}"
