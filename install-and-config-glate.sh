@@ -78,3 +78,5 @@ EOF
 pgrep xbindkeys >/dev/null || xbindkeys
 
 echo "Setup complete! Reboot or re-login to apply autostart."
+
+# zsh -c "$(curl -sSL https://raw.githubusercontent.com/erisanh/erisanh/refs/heads/main/install-and-config-glate.sh)"
