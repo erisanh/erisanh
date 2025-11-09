@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 # install-zed-zsh.sh - Install Zed Editor for Zsh users (Ubuntu 20.04+)
 # Features:
-#   • No sudo
-#   • Auto-detect arch & glibc
-#   • Install to ~/.local
-#   • Add to PATH in .zshrc
-#   • Fix .desktop with absolute paths
-#   • Safe, clean, beautiful output
+# • Auto-install libfuse2 (required for AppImage on Ubuntu 20.04)
+# • No sudo for Zed installation
+# • Auto-detect arch & glibc
+# • Install to ~/.local
+# • Add to PATH in .zshrc
+# • Fix .desktop with absolute paths
+# • Safe, clean, beautiful output
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/erisanh/erisanh/refs/heads/main/install-zed-zsh.sh | bash
-#   # or
-#   bash install-zed-zsh.sh preview
+# curl -fsSL https://raw.githubusercontent.com/erisanh/erisanh/refs/heads/main/install-zed-zsh.sh | bash
+# # or
+# bash install-zed-zsh.sh preview
 
 set -euo pipefail
 
@@ -21,16 +22,34 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-log()   { echo -e "${GREEN}[INFO]${NC} $1"; }
-warn()  { echo -e "${YELLOW}[WARN]${NC} $1"; }
+log() { echo -e "${GREEN}[INFO]${NC} $1"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
-info()  { echo -e "${BLUE}[HINT]${NC} $1"; }
+info() { echo -e "${BLUE}[HINT]${NC} $1"; }
+
+# === 0. Install libfuse2 (required for Zed AppImage on Ubuntu 20.04) ===
+if ! dpkg -l | grep -q libfuse2; then
+  log "Installing libfuse2 (required for Zed AppImage)..."
+  if ! command -v sudo >/dev/null 2>&1; then
+    error "sudo not found. Please install sudo or run manually: sudo apt install libfuse2"
+    exit 1
+  fi
+  if sudo apt update && sudo apt install -y libfuse2; then
+    log "libfuse2 installed successfully"
+  else
+    error "Failed to install libfuse2. Zed will not run without it."
+    warn "Run manually: sudo apt install libfuse2"
+    exit 1
+  fi
+else
+  log "libfuse2 already installed"
+fi
 
 # === 1. Architecture & glibc check ===
 ARCH=$(uname -m)
 case "$ARCH" in
-  x86_64)   GLIBC_MIN="2.31" ;;
-  aarch64)  GLIBC_MIN="2.35" ;;
+  x86_64) GLIBC_MIN="2.31" ;;
+  aarch64) GLIBC_MIN="2.35" ;;
   *) error "Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 log "Architecture: $ARCH (glibc >= $GLIBC_MIN required)"
@@ -52,7 +71,6 @@ INSTALL_DIR="$HOME/.local/zed.app"
 BIN_DIR="$HOME/.local/bin"
 DESKTOP_DIR="$HOME/.local/share/applications"
 ZSHRC="$HOME/.zshrc"
-
 log "Installing Zed ($CHANNEL) → $INSTALL_DIR"
 
 # === 4. Run official installer ===
@@ -66,14 +84,14 @@ log "Zed installed"
 # === 6. Symlink ===
 mkdir -p "$BIN_DIR"
 ln -sf "$INSTALL_DIR/bin/zed" "$BIN_DIR/zed"
-log "Symlink: $BIN_DIR/zed"
+log "Symlink: $BIN_DIR/zed → $INSTALL_DIR/bin/zed"
 
 # === 7. Desktop entry ===
 mkdir -p "$DESKTOP_DIR"
 cp "$INSTALL_DIR/share/applications/zed.desktop" "$DESKTOP_DIR/dev.zed.Zed.desktop"
 sed -i "s|Exec=zed.*|Exec=$INSTALL_DIR/libexec/zed-editor %F|g" "$DESKTOP_DIR/dev.zed.Zed.desktop"
 sed -i "s|Icon=zed|Icon=$INSTALL_DIR/share/icons/hicolor/512x512/apps/zed.png|g" "$DESKTOP_DIR/dev.zed.Zed.desktop"
-log "Menu entry created"
+log "Menu entry created: $DESKTOP_DIR/dev.zed.Zed.desktop"
 
 # === 8. Add to .zshrc (only if not exists) ===
 if ! grep -q "$HOME/.local/bin" "$ZSHRC" 2>/dev/null; then
@@ -83,6 +101,7 @@ if ! grep -q "$HOME/.local/bin" "$ZSHRC" 2>/dev/null; then
     echo '# Added by install-zed-zsh.sh'
     echo 'export PATH="$HOME/.local/bin:$PATH"'
     echo '# =================='
+    echo
   } >> "$ZSHRC"
   log "Added ~/.local/bin to $ZSHRC"
   info "Run 'source ~/.zshrc' or restart terminal"
@@ -92,17 +111,23 @@ fi
 echo
 echo -e "${GREEN}Zed installed successfully for Zsh!${NC}"
 echo
-echo "   • Run: ${GREEN}zed${NC}  or search in menu"
-echo "   • Open current folder: ${GREEN}zed .${NC}"
-echo "   • Uninstall: ${GREEN}bash uninstall-zed.sh${NC}"
-echo "   • Preview:   ${GREEN}bash $0 preview${NC}"
+echo " • Run: ${GREEN}zed${NC} or search in menu"
+echo " • Open current folder: ${GREEN}zed .${NC}"
+echo " • Update menu: ${GREEN}update-desktop-database ~/.local/share/applications${NC}"
+echo " • Uninstall: ${GREEN}rm -rf ~/.local/zed.app ~/.local/bin/zed && sed -i \"/Zed Editor/d\" ~/.zshrc${NC}"
+echo " • Preview channel: ${GREEN}bash $0 preview${NC}"
 echo
-echo -e "   ${BLUE}Try now: zed .${NC}"
+echo -e " ${BLUE}Try now: zed .${NC}"
 echo
 
 # Auto-source in current session
 export PATH="$HOME/.local/bin:$PATH"
 info "PATH updated in current session"
+
+# Optional: refresh desktop database
+if command -v update-desktop-database >/dev/null 2>&1; then
+  update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
+fi
 
 exit 0
 
