@@ -3,7 +3,7 @@
 # Features:
 # • Auto-install libfuse2 + mesa-utils + vulkan-tools
 # • Upgrade Mesa via kisak PPA (fix Intel GPU Vulkan)
-# • Smart wrapper: auto ZED_RENDERER=software if Vulkan fails
+# • Smart wrapper: auto ZED_RENDERER=software if Vulkan fails or missing extensions
 # • Install to ~/.local (no sudo for Zed)
 # • Fix .desktop + PATH + menu
 # • Safe, clean, beautiful output
@@ -98,24 +98,44 @@ mkdir -p "$BIN_DIR"
 
 cat > "$WRAPPER" << 'EOF'
 #!/usr/bin/env bash
-# Smart Zed wrapper: auto software rendering if Vulkan fails
+# Smart Zed wrapper: auto software rendering if Vulkan fails or missing extensions
 ZED_BINARY="$HOME/.local/zed.app/libexec/zed-editor"
 
 warn() { echo -e "\033[1;33m[WARN]\033[0m $1" >&2; }
 
-# Force software rendering
-if [[ " $* " == *" --software "* ]]; then
-  ZED_RENDERER=software exec "$ZED_BINARY" "$@"
+USE_SOFTWARE=0
+ARGS=()
+for arg in "$@"; do
+  if [[ "$arg" == "--software" ]]; then
+    USE_SOFTWARE=1
+  else
+    ARGS+=("$arg")
+  fi
+done
+
+if [[ $USE_SOFTWARE -eq 1 ]]; then
+  warn "Forcing software rendering"
+  ZED_RENDERER=software exec "$ZED_BINARY" "${ARGS[@]}"
 fi
 
-# Auto fallback: no Vulkan
+# Auto fallback: basic Vulkan check
 if ! command -v vulkaninfo >/dev/null 2>&1 || ! vulkaninfo >/dev/null 2>&1; then
   warn "Vulkan not available → using software rendering"
-  ZED_RENDERER=software exec "$ZED_BINARY" "$@"
+  ZED_RENDERER=software exec "$ZED_BINARY" "${ARGS[@]}"
 fi
 
-# Normal GPU path
-exec "$ZED_BINARY" "$@"
+# Check required extensions (from Blade logs)
+VULKAN_OUTPUT=$(vulkaninfo 2>/dev/null)
+if echo "$VULKAN_OUTPUT" | grep -q "VK_KHR_dynamic_rendering" && echo "$VULKAN_OUTPUT" | grep -q "VK_EXT_inline_uniform_block"; then
+  # Optional: Check for Intel perf warning hint
+  if lspci | grep -iq intel && ! sysctl -n dev.i915.perf_stream_paranoid >/dev/null 2>&1; then
+    warn "Intel GPU detected: For better perf, run 'sudo sysctl dev.i915.perf_stream_paranoid=0'"
+  fi
+  exec "$ZED_BINARY" "${ARGS[@]}"
+else
+  warn "Required Vulkan extensions missing → using software rendering"
+  ZED_RENDERER=software exec "$ZED_BINARY" "${ARGS[@]}"
+fi
 EOF
 
 chmod +x "$WRAPPER"
@@ -146,7 +166,7 @@ if ! grep -q "$BIN_DIR" "$ZSHRC" 2>/dev/null; then
     echo '# Added by install-zed-zsh.sh'
     echo 'export PATH="$HOME/.local/bin:$PATH"'
     echo '# Run with software rendering: zed --software'
-    echo '# Auto fallback if no Vulkan'
+    echo '# Auto fallback if no Vulkan or missing extensions'
     echo '# =================='
     echo
   } >> "$ZSHRC"
@@ -169,10 +189,11 @@ echo " • Uninstall: ${GREEN}bash ~/.local/bin/uninstall-zed.sh${NC}"
 echo " • Preview: ${GREEN}bash $0 preview${NC}"
 echo
 
-if command -v vulkaninfo >/dev/null 2>&1 && vulkaninfo >/dev/null 2>&1; then
-  echo -e " ${GREEN}Vulkan: OK – Zed will use GPU!${NC}"
+VULKAN_OUTPUT=$(vulkaninfo 2>/dev/null || true)
+if command -v vulkaninfo >/dev/null 2>&1 && vulkaninfo >/dev/null 2>&1 && echo "$VULKAN_OUTPUT" | grep -q "VK_KHR_dynamic_rendering" && echo "$VULKAN_OUTPUT" | grep -q "VK_EXT_inline_uniform_block"; then
+  echo -e " ${GREEN}Vulkan: OK (extensions supported) – Zed will use GPU!${NC}"
 else
-  echo -e " ${YELLOW}Vulkan: Not available – Zed will use software rendering${NC}"
+  echo -e " ${YELLOW}Vulkan: Not available or missing extensions – Zed will use software rendering${NC}"
   info "Recommended: sudo reboot"
 fi
 
@@ -180,9 +201,4 @@ echo
 echo -e " ${BLUE}Try now: zed .${NC}"
 echo
 
-exit 0
-
 # curl -fsSL https://raw.githubusercontent.com/erisanh/erisanh/refs/heads/main/install-zed-zsh.sh | bash
-
-
-
