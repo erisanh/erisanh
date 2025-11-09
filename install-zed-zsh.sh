@@ -183,3 +183,6 @@ echo
 exit 0
 
 # curl -fsSL https://raw.githubusercontent.com/erisanh/erisanh/refs/heads/main/install-zed-zsh.sh | bash
+
+
+
