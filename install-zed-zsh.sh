@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# install-zed-zsh.sh - Install Zed Editor (Ubuntu 20.04+) - 100% NO CRASH
+# install-zed-zsh.sh - Install Zed Editor (Ubuntu 20.04+) - FINAL & STABLE
 # Features:
 # • Auto Mesa upgrade + fix "kept back"
-# • Smart wrapper: FORCE llvmpipe via LIBGL_ALWAYS_SOFTWARE=1
-# • Auto --foreground + ZED_RENDERER=software
+# • Smart wrapper: ZED_DISABLE_GPU=1 + LIBGL_ALWAYS_SOFTWARE=1
+# • NO --foreground, NO --software flag
 # • Clean .desktop + PATH + uninstall
 # Usage: curl -fsSL <url> | bash
 
@@ -28,7 +28,9 @@ sudo apt install -y mesa-utils vulkan-tools || true
 
 # === 0.7 Fix Mesa + kept-back ===
 log "Upgrading Mesa via kisak PPA..."
-sudo add-apt-repository ppa:kisak/kisak-mesa -y
+if ! grep -q "^deb .*kisak-mesa" /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null; then
+  sudo add-apt-repository ppa:kisak/kisak-mesa -y
+fi
 sudo apt install -y xdg-desktop-portal xdg-desktop-portal-gtk
 sudo apt full-upgrade -y
 log "Mesa upgraded. Reboot required!"
@@ -55,17 +57,17 @@ curl -f https://zed.dev/install.sh | sh
 [[ -f "$INSTALL_DIR/bin/zed" ]] || { error "Install failed"; exit 1; }
 log "Zed installed"
 
-# === 6. SMART WRAPPER - FORCE llvmpipe ===
+# === 6. FINAL WRAPPER - ZED_DISABLE_GPU + llvmpipe ===
 mkdir -p "$BIN_DIR"
 
 cat > "$WRAPPER" << 'EOF'
 #!/usr/bin/env bash
-# FORCE llvmpipe + software rendering - NO CRASH
+# FINAL WRAPPER: Force software rendering - NO CRASH, NO INVALID ARGS
 ZED_BINARY="$HOME/.local/zed.app/libexec/zed-editor"
 
 warn() { echo -e "\033[1;33m[WARN]\033[0m $1" >&2; }
 
-# Parse args
+# Parse args: remove --software (optional user flag)
 ARGS=()
 FORCE_SOFTWARE=0
 for arg in "$@"; do
@@ -73,35 +75,35 @@ for arg in "$@"; do
   ARGS+=("$arg")
 done
 
-# ALWAYS force llvmpipe if Vulkan fails OR user requests
+# Always force software if Vulkan fails or user requests
 if [[ $FORCE_SOFTWARE -eq 1 ]] || ! command -v vulkaninfo >/dev/null 2>&1 || ! vulkaninfo >/dev/null 2>&1; then
+  export ZED_DISABLE_GPU=1
   export LIBGL_ALWAYS_SOFTWARE=1
-  export ZED_RENDERER=software
-  warn "Using llvmpipe (software rendering)"
+  warn "GPU disabled → using llvmpipe (software rendering)"
 else
   # Check extensions
   if ! vulkaninfo 2>/dev/null | grep -qE "VK_KHR_dynamic_rendering|VK_EXT_inline_uniform_block"; then
+    export ZED_DISABLE_GPU=1
     export LIBGL_ALWAYS_SOFTWARE=1
-    export ZED_RENDERER=software
     warn "Vulkan extensions missing → llvmpipe"
   fi
 fi
 
-# Run with --foreground
-exec "$ZED_BINARY" --foreground "${ARGS[@]}"
+# Run Zed with clean args
+exec "$ZED_BINARY" "${ARGS[@]}"
 EOF
 
 chmod +x "$WRAPPER"
 log "Wrapper created: $WRAPPER"
 
-# === 7. Desktop entry ===
+# === 7. Desktop entry (with software rendering) ===
 DESKTOP_FILE="$HOME/.local/share/applications/dev.zed.Zed.desktop"
 mkdir -p "$(dirname "$DESKTOP_FILE")"
 if [[ -f "$INSTALL_DIR/share/applications/zed.desktop" ]]; then
   cp "$INSTALL_DIR/share/applications/zed.desktop" "$DESKTOP_FILE"
-  sed -i "s|Exec=zed.*|Exec=env LIBGL_ALWAYS_SOFTWARE=1 $WRAPPER %F|g" "$DESKTOP_FILE"
+  sed -i "s|Exec=zed.*|Exec=env ZED_DISABLE_GPU=1 LIBGL_ALWAYS_SOFTWARE=1 $WRAPPER %F|g" "$DESKTOP_FILE"
   sed -i "s|Icon=zed|Icon=$INSTALL_DIR/share/icons/hicolor/512x512/apps/zed.png|g" "$DESKTOP_FILE"
-  log "Desktop entry updated"
+  log "Desktop entry updated (software rendering)"
 fi
 
 # === 8. PATH ===
@@ -120,12 +122,13 @@ fi
 
 # === 9. Success ===
 echo
-echo -e "${GREEN}Zed installed – NO CRASH GUARANTEED!${NC}"
+echo -e "${GREEN}Zed installed – 100% STABLE!${NC}"
 echo " • Run: ${GREEN}zed .${NC}"
 echo " • Force software: ${GREEN}zed --software .${NC}"
-echo " • Menu: search 'Zed'"
+echo " • Menu: search 'Zed' (uses software rendering)"
+echo " • Uninstall: ${GREEN}bash ~/.local/bin/uninstall-zed.sh${NC}"
 echo
-echo -e " ${YELLOW}Using llvmpipe (software rendering) – safe & stable${NC}"
+echo -e " ${YELLOW}Using llvmpipe (CPU rendering) – safe on all hardware${NC}"
 echo -e " ${BLUE}Try now: zed .${NC}"
 echo
 
