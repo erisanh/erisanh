@@ -30,3 +30,7 @@ ln -sf /var/lib/flatpak/exports/bin/dev.zed.Zed /usr/local/bin/zed
 
 echo "=== Done! Launching Zed... ==="
 zed || flatpak run dev.zed.Zed
+
+
+
+# sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/erisanh/erisanh/refs/heads/main/install-zed-flatpak.sh)"
