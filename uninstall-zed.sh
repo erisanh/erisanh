@@ -53,3 +53,5 @@ echo
 echo -e "${GREEN}Zed has been COMPLETELY removed!${NC}"
 echo "   • No files left behind"
 echo "   • Safe to reinstall"
+
+# curl -fsSL https://raw.githubusercontent.com/erisanh/erisanh/refs/heads/main/uninstall-zed.sh | bash
