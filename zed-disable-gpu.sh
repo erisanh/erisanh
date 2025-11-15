@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# zed-disable-gpu.sh - Disable GPU for Zed on Ubuntu 20.04.6
+# zed-disable-gpu.sh - Disable GPU for Zed (Ubuntu 20.04.6, user local install)
 # Usage: bash zed-disable-gpu.sh
 
 set -e
@@ -13,12 +13,15 @@ echo "=== Disabling GPU for Zed ==="
 # Detect Zed binary
 if [ -x "/opt/zed/zed" ]; then
     ZED_BIN="/opt/zed/zed"
+elif [ -x "$HOME/.local/bin/zed" ]; then
+    ZED_BIN="$HOME/.local/bin/zed"
 elif command -v zed &>/dev/null; then
     ZED_BIN="$(command -v zed)"
 else
     echo "❌ Zed Editor not found. Please check your installation."
     exit 1
 fi
+
 echo "✔ Found Zed at: $ZED_BIN"
 
 # Create wrapper
