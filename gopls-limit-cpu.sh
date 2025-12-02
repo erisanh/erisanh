@@ -1,7 +1,5 @@
 #!/bin/bash
-# gopls-limit-cpu.sh
-# Permanently limit all gopls processes via cpulimit + systemd user service
-
+# gopls-limit-cpu.sh – fixed version
 set -e
 
 LIMIT="${1:-30}"
@@ -39,7 +37,6 @@ remove() {
 
 case "$LIMIT" in
     off|disable|remove) remove ;;
-    ''|[0-9]* ) create "$LIMIT" ;;
-    *) echo "Usage: $(basename "$0") [10-100]|off" ; exit 1 ;;
-esac
+    ''|[0-9]* )         create "$LIMIT" ;;
+    *)                  echo "Usage: $(basename "$0") [10-100]|off" ; exit 1 ;;
 esac
