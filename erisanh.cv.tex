@@ -28,115 +28,75 @@
 
 \section*{Professional Summary}
 Backend Developer with over 2 years of experience designing and building scalable, high-performance systems using Golang and Python.
-Experienced in RESTful API development, Clean Architecture, concurrency patterns, transaction management, and third-party integrations including payment gateways, email services, cloud storage, and external reservation APIs.
-Proficient in applying modern architectural patterns (Repository/Service, Dependency Injection, CQRS) in production environments.
-Seeking a backend role in a dynamic team environment.
+Strong background in RESTful API development, database design, concurrency handling, transaction management, and third-party integrations.
+Experienced in applying Clean Architecture, CQRS, and robust database strategies in production systems.
+Seeking a backend engineering role focused on system design and performance optimization.
 
 \section*{Technical Skills}
 
 \textbf{Languages:} Golang (primary, 2+ years), Python. \\
 
-\textbf{Golang Stack:} Echo, Gin, GORM, Cobra, Asynq, Gorilla; concurrency (goroutines, channels, sync primitives), pgx. \\
+\textbf{Frameworks \& Libraries:} Echo, Gin, GORM, pgx, Cobra, Asynq, FastAPI, SQLAlchemy. \\
 
-\textbf{Python Stack:} FastAPI, SQLAlchemy. \\
+\textbf{Databases:} PostgreSQL (PGVector, JSONB, indexing strategy), MySQL, Redis. \\
 
-\textbf{Databases:} PostgreSQL (pgx, GORM, PGVector, JSONB, indexing strategy), MySQL, Redis. \\
+\textbf{Architecture \& Patterns:} RESTful API, Clean Architecture, Repository/Service Pattern, CQRS, Dependency Injection, Transaction Management (ACID, optimistic/pessimistic locking). \\
 
-\textbf{Integrations:} Yoyaku API, SendGrid, Google Cloud Storage, VNPay, PayOS, MISA Invoice, AWS S3, Firebase, Mailgun, Slack/Telegram Bot, FCM, OpenAI API. \\
+\textbf{Integrations:} Yoyaku API, VNPay, PayOS, MISA Invoice, SendGrid, Mailgun, Firebase, AWS S3, Google Cloud Storage, OpenAI API. \\
 
-\textbf{Architecture:} RESTful API, Clean Architecture, Repository/Service Pattern, CQRS, Dependency Injection, Transaction Management (ACID, optimistic/pessimistic locking, deadlock prevention). \\
-
-\textbf{DevOps:} Git/GitHub, Docker, Google Cloud Build (CI/CD). \\
-
-\textbf{Practices:} OOP/SOLID, Design Patterns, API Documentation (Swagger), Code Review, AI-assisted development (Cursor, Copilot, n8n), Database Migration Management.
+\textbf{Practices:} OOP/SOLID, Design Patterns, Swagger Documentation, Code Review, Database Migration Management.
 
 \section*{Work Experience}
 
 \textbf{Backend Developer (Golang)} --- RikkeiSort, Da Nang \hfill Mar 2025 -- Present
 \begin{itemize}[leftmargin=*]
     \item Core developer of a multi-brand restaurant reservation platform serving multiple shop chains;
-    architected with Clean Architecture (Domain, Application, Infrastructure layers) and CQRS pattern.
-    \item Designed and implemented comprehensive booking management: create, edit, cancel, check-in flows
-    with conflict detection, table slot management, optimistic/pessimistic locking, and ACID transaction retry logic.
-    \item Built inventory management system with bulk update capabilities, block-time setting, shop off-day import, and promotion/coupon processing.
-    \item Integrated Yoyaku external reservation API (table statuses, table overlap settings) and SendGrid email service
-    with multi-template HTML mail system supporting Japanese locale.
-    \item Implemented QR code generation (go-qrcode) and PDF generation (gofpdf) for booking confirmations.
-    \item Managed 17+ versioned database migrations with performance indexing strategy (50+ indexes) on PostgreSQL;
-    applied BIGSERIAL primary keys and composite/partial indexes.
-    \item Deployed on Google Cloud with Cloud Build CI/CD pipeline; containerized with Docker.
-    \item Tech Stack: Golang (Echo, GORM, pgx), PostgreSQL, Google Cloud Storage, SendGrid, Docker, Google Cloud Build.
+    designed using Clean Architecture and CQRS pattern.
+    \item Implemented full booking lifecycle (create/edit/cancel/check-in) with conflict detection, table slot management, and ACID-safe transaction retry mechanisms.
+    \item Built inventory management system supporting bulk updates, block-time configuration, shop off-day import, and coupon processing.
+    \item Integrated Yoyaku reservation API and SendGrid email service with multi-template HTML support (Japanese locale).
+    \item Implemented QR code and PDF generation for booking confirmations.
+    \item Managed 17+ database migrations and optimized PostgreSQL with 50+ indexes (composite/partial indexing strategies).
+    \item Tech Stack: Golang (Echo, GORM, pgx), PostgreSQL.
 \end{itemize}
 
 \textbf{Backend Developer (Golang)} --- AllyAI JSC, Da Nang \hfill Oct 2024 -- Feb 2025
 \begin{itemize}[leftmargin=*]
-    \item Core contributor to TripC (Play Store): developed 200+ RESTful APIs using Golang with Repository/Service pattern and Dependency Injection.
-    \item Implemented modular system featuring short-lived content feeds (Reels-like), real-time interactions, promotions, multi-type orders, and payment/invoicing integrations (VNPay, PayOS, MISA).
-    \item Designed separate entry points: REST API (Gin), CLI administration (Cobra), and asynchronous workers (Asynq).
-    \item Integrated AI capabilities (OpenAI, PGVector embeddings) and third-party services (Firebase, AWS S3, Mailgun, Slack).
+    \item Developed 200+ RESTful APIs for TripC (Play Store) using Repository/Service pattern and Dependency Injection.
+    \item Built modular backend supporting short-lived content feeds, real-time interactions, multi-type orders, promotions, and payment/invoicing integrations.
+    \item Designed REST APIs (Gin), CLI tools (Cobra), and background workers (Asynq).
+    \item Integrated AI features using PGVector embeddings and OpenAI.
+    \item Tech Stack: Golang (Gin, Cobra, Asynq), GORM, PostgreSQL, Redis.
 \end{itemize}
 
 \textbf{Backend Developer (Python)} --- AllyAI JSC, Da Nang \hfill Oct 2024 -- Feb 2025
 \begin{itemize}[leftmargin=*]
-    \item Developed backend services for AI Agent projects using Python FastAPI.
-    \item Built efficient API endpoints and integrated AI models.
+    \item Developed backend services for AI Agent systems using FastAPI.
+    \item Designed scalable API endpoints and integrated AI models.
 \end{itemize}
 
 \textbf{Backend Developer} --- Tekup JSC, Da Nang \hfill Feb 2024 -- Oct 2024
 \begin{itemize}[leftmargin=*]
-    \item Built and maintained APIs primarily in Python.
-    \item Integrated authentication and external services; optimized database queries.
-    \item Participated in Agile processes and code reviews.
+    \item Built and maintained backend APIs primarily in Python.
+    \item Optimized database queries and improved API performance.
+    \item Participated in Agile development and peer code reviews.
 \end{itemize}
 
 \textbf{Backend Developer Intern} --- TANAAKK, Da Nang \hfill Aug 2023 -- Dec 2023
 \begin{itemize}[leftmargin=*]
-    \item Implemented CRUD operations and basic API development using Python.
-    \item Supported testing and documentation.
-\end{itemize}
-
-\section*{Highlighted Projects}
-
-\textbf{Multi-Brand Restaurant Reservation System} --- RikkeiSort
-\begin{itemize}[leftmargin=*]
-    \item High-performance booking API for multi-brand restaurant chains with full booking lifecycle management.
-    \item Designed Clean Architecture with CQRS, Repository/Service pattern, and Dependency Injection; managed 17+ DB migrations.
-    \item Key features: booking conflict resolution, table slot management, inventory bulk updates, shop off-day import, coupon management, email notifications, QR/PDF generation, and Yoyaku API integration.
-    \item Tech Stack: Golang (Echo, GORM), PostgreSQL, Google Cloud Storage, SendGrid, Docker, Google Cloud Build.
-\end{itemize}
-
-\textbf{TripC -- Travel \& E-commerce Platform with Social Features} --- AllyAI JSC
-\begin{itemize}[leftmargin=*]
-    \item Engineered backend for promotions, QR bookings, payments, invoicing, and short-lived video feeds.
-    \item Integrated AI-driven recommendations and chatbots using PGVector and OpenAI.
-    \item Tech Stack: Golang (Gin, Cobra, Asynq), GORM, PostgreSQL, Redis, AWS S3, Firebase, OpenAI, MISA.
-\end{itemize}
-
-\textbf{AI Agent Platform} --- AllyAI JSC
-\begin{itemize}[leftmargin=*]
-    \item Designed scalable backend APIs for intelligent agents.
-    \item Tech Stack: Python (FastAPI), PostgreSQL, OpenAI.
-\end{itemize}
-
-\textbf{Culinary Passport System} --- AllyAI JSC
-\begin{itemize}[leftmargin=*]
-    \item Developed photo check-ins, gift redemption, and e-commerce features.
-    \item Tech Stack: Golang, PostgreSQL, Firebase Storage.
+    \item Implemented CRUD APIs and supported backend testing/documentation.
 \end{itemize}
 
 \section*{Education}
 
-\textbf{Bachelor of Software Engineering} --- University of Science and Technology, Da Nang \hfill 2020 -- 2024 \\
-
-Relevant courses: Data Structures, Database Systems, Software Engineering, OOP, Computer Networks.
+\textbf{Bachelor of Software Engineering} --- University of Science and Technology, Da Nang \hfill 2020 -- 2024
 
 \section*{Additional Skills}
 
-Strong problem-solving, teamwork, and rapid learning abilities (PGVector, OpenAI, concurrency patterns, distributed systems). \\
-Comfortable with remote collaboration, Agile methodology, and AI-enhanced workflows. \\
+Strong analytical thinking and system design mindset. \\
+Comfortable working in Agile teams and collaborative code review environments. \\
 
 \textbf{Languages:} English (Technical). \\
-\textbf{References:} Available upon request. \\
 \textbf{Portfolio:} \href{https://github.com/erisanh}{github.com/erisanh}
 
 \end{document}
