@@ -1,0 +1,37 @@
+{
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "gitlens.ai.model": "gitkraken",
+    "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+    "workbench.activityBar.location": "hidden",
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "gitlens.views.commitDetails.files.compact": true,
+    "gitlens.views.commitDetails.files.icon": "type",
+    "gitlens.views.commitDetails.files.layout": "auto",
+    "gitlens.views.commitDetails.files.threshold": 5,
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "workbench.panel.showLabels": false,
+    "[typescript]": {},
+    "makefile.configureOnOpen": true,
+    "markdown-preview-enhanced.revealjsTheme": "vscode.css",
+    "markdown-preview-enhanced.codeBlockTheme": "vscode.css",
+    "markdown-preview-enhanced.previewTheme": "vscode.css",
+    "window.customTitleBarVisibility": "windowed",
+    "gitlens.ai.largePromptWarningThreshold": 1000000,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "claudeCode.preferredLocation": "panel",
+    "terminal.integrated.mouseWheelScrollSensitivity": 3,
+    "terminal.integrated.gpuAcceleration": "off",
+    "gitlens.ai.gitkraken.model": "gemini:gemini-2.5-flash-lite",
+    "workbench.colorTheme": "Andromeda Italic Bordered",
+    "workbench.editorAssociations": {
+        "*.copilotmd": "vscode.markdown.preview.editor",
+        "*.mp4": "xueshi.io.avprobe"
+    },
+    "workbench.iconTheme": "office-material-icon-theme",
+    "avprobe.ffprobePath": "/home/iubeha/miniconda3/bin/ffprobe",
+    "avprobe.ffmpegPath": "/home/iubeha/miniconda3/bin/ffmpeg"
+}
