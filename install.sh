@@ -364,7 +364,28 @@ case "${1:-auto}" in
   --provision) provision no ;;
   --firstboot) provision yes ;;
   auto)
-    if [ -d /run/archiso ] && [ "$(id -u)" -eq 0 ]; then bootstrap; else provision no; fi
+    if [ -d /run/archiso ]; then
+      bootstrap                                   # Arch live ISO -> full reinstall
+    elif command -v pacman >/dev/null 2>&1; then
+      provision no                                # already-installed Arch -> provision
+    else
+      die "Wrong environment — this is not Arch Linux and not the Arch live ISO.
+
+install.sh CANNOT reinstall the OS it is currently running from (e.g. your
+Ubuntu). To reinstall this machine into the Arch + Hyprland setup:
+
+  1. Download the ISO:  https://archlinux.org/download/
+  2. Write it to a USB stick (>= 2 GB), e.g.:
+       sudo dd if=archlinux-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
+  3. Reboot and boot that USB in UEFI mode.
+  4. On the ISO, get online (wired = automatic; Wi-Fi: 'iwctl'), then:
+       pacman -Sy --noconfirm git
+       git clone https://github.com/erisanh/erisanh.git
+       cd erisanh
+       bash install.sh        # <- runs the disk-wipe install from here
+
+Always use 'bash install.sh' (not 'sh') — the script needs bash."
+    fi
     ;;
   *) die "Unknown option: $1  (use --bootstrap | --provision, or no argument)";;
 esac
