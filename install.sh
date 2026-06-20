@@ -1,0 +1,370 @@
+#!/usr/bin/env bash
+# =============================================================================
+# install.sh — reinstall this machine from the dotfiles in this repo.
+#
+# Two stages, auto-detected:
+#
+#   STAGE 1  BOOTSTRAP  (run from the Arch live ISO, as root)
+#     Wipes a disk you confirm by name, then fully installs Arch:
+#       • GPT + UEFI: 1 GiB ESP (FAT32) + Btrfs root with @,@home,@log,@pkg,@snapshots
+#       • pacstrap base system, fstab, timezone/locale/hostname, initramfs
+#       • create your user, set passwords, GRUB (UEFI) bootloader
+#       • copy this repo into your new home and arm a first-boot service
+#     Then it AUTO-REBOOTS and runs Stage 2 on first boot — no manual step.
+#
+#   STAGE 2  PROVISION  (runs on the installed system)
+#     • install an AUR helper (yay), then every package in pacman.txt
+#     • symlink all dotfiles from this repo into $HOME (existing files backed up)
+#     • restore the 6 VSCode profiles + extensions
+#     • enable services + configure zram (plan section 8)
+#
+# Usage:
+#   From the Arch ISO:   bash install.sh            (auto -> bootstrap)
+#   On an installed box: bash install.sh            (auto -> provision)
+#   Force a stage:       bash install.sh --bootstrap | --provision
+#
+# Defaults are already baked in for THIS machine (no prompts except the disk
+# confirmation): user 'iubeha', disk '/dev/nvme0n1', password '123123' for both
+# the user and root. Any of these can be overridden via env vars:
+#   DISK, USER_NAME, USER_PASSWORD, ROOT_PASSWORD, HOSTNAME, TIMEZONE, LOCALE, KEYMAP
+#
+#   Override example:
+#     DISK=/dev/sda USER_PASSWORD='...' ROOT_PASSWORD='...' bash install.sh
+#
+#   WARNING: '123123' is a weak default password — change it after install with
+#   `passwd` and `sudo passwd root`.
+#
+# SAFETY:
+#   • Bootstrap runs with NO typed confirmation: `bash install.sh` will wipe
+#     $DISK after a 5-second countdown, then AUTO-REBOOT. Press Ctrl-C during a
+#     countdown to abort (nothing is touched on the disk before the first one).
+#   • Passwords (default or pre-seeded) are handed to the chroot only as base64
+#     in /root/install.env, applied with chpasswd, then that file is deleted
+#     immediately after configuration — no password is left on disk.
+# =============================================================================
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+log()  { printf '\n\033[1;32m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
+info() { printf '    %s\n' "$*"; }
+warn() { printf '\033[1;33m  ! %s\033[0m\n' "$*"; }
+die()  { printf '\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
+
+# =============================================================================
+# STAGE 1 — BOOTSTRAP (disk wipe + partition + pacstrap + base config)
+# =============================================================================
+bootstrap() {
+  [ "$(id -u)" -eq 0 ]              || die "Bootstrap must run as root from the Arch live ISO."
+  command -v pacstrap >/dev/null    || die "pacstrap not found — run this from the Arch live ISO."
+  [ -d /sys/firmware/efi ]          || die "Not booted in UEFI mode — this installer only does UEFI/GRUB."
+
+  # ---- configuration: defaults detected for THIS machine; override via env ----
+  local HOSTNAME="${HOSTNAME:-arch}"
+  local TIMEZONE="${TIMEZONE:-Asia/Ho_Chi_Minh}"
+  local LOCALE="${LOCALE:-en_US.UTF-8}"
+  local KEYMAP="${KEYMAP:-us}"
+  local USER_NAME="${USER_NAME:-iubeha}"          # this machine's user
+  local DISK="${DISK:-/dev/nvme0n1}"              # this machine's only disk (238 GB NVMe SK hynix)
+  # NOTE: 123123 is a weak default password for both the user and root — change it
+  # after the install with `passwd` (and `sudo passwd root`).
+  local UPW="${USER_PASSWORD:-123123}"
+  local RPW="${ROOT_PASSWORD:-123123}"
+
+  # ---- target disk ----
+  log "Detected disks:"
+  lsblk -dpno NAME,SIZE,MODEL | grep -vE 'loop|/dev/sr' || true
+  info "Target disk: $DISK   (override with DISK=/dev/... if this is wrong)"
+  [ -b "$DISK" ] || die "Not a block device: $DISK"
+
+  # ---- last-chance warning (auto-continues; no typing needed) ----
+  warn "EVERYTHING on $DISK will be PERMANENTLY ERASED."
+  warn "Starting in 5s — press Ctrl-C now to abort."
+  for i in 5 4 3 2 1; do printf '\r    continuing in %ds ' "$i"; sleep 1; done; printf '\r%30s\r\n' ' '
+
+  [ -n "$UPW" ] && [ -n "$RPW" ] || die "Passwords must not be empty."
+
+  # ---- partition naming (nvme/mmc need a 'p' before the number) ----
+  local P=""; case "$DISK" in *nvme*|*mmcblk*|*loop*) P="p";; esac
+  local ESP="${DISK}${P}1" ROOTP="${DISK}${P}2"
+
+  timedatectl set-ntp true || true
+
+  log "Partitioning $DISK (GPT: 1 GiB ESP + Btrfs root)"
+  wipefs -af "$DISK"
+  sgdisk --zap-all "$DISK"
+  sgdisk -n1:0:+1GiB -t1:ef00 -c1:EFI   "$DISK"
+  sgdisk -n2:0:0     -t2:8300 -c2:root  "$DISK"
+  partprobe "$DISK"; sleep 1
+
+  log "Formatting"
+  mkfs.fat -F32 -n EFI "$ESP"
+  mkfs.btrfs -f -L arch "$ROOTP"
+
+  log "Creating Btrfs subvolumes"
+  mount "$ROOTP" /mnt
+  local sv; for sv in @ @home @log @pkg @snapshots; do btrfs subvolume create "/mnt/$sv"; done
+  umount /mnt
+
+  local OPTS="noatime,compress=zstd:3,ssd,space_cache=v2,discard=async"
+  mount -o "subvol=@,$OPTS" "$ROOTP" /mnt
+  mkdir -p /mnt/{home,var/log,var/cache/pacman/pkg,.snapshots,boot}
+  mount -o "subvol=@home,$OPTS"      "$ROOTP" /mnt/home
+  mount -o "subvol=@log,$OPTS"       "$ROOTP" /mnt/var/log
+  mount -o "subvol=@pkg,$OPTS"       "$ROOTP" /mnt/var/cache/pacman/pkg
+  mount -o "subvol=@snapshots,$OPTS" "$ROOTP" /mnt/.snapshots
+  mount "$ESP" /mnt/boot
+
+  log "Installing base system (pacstrap)"
+  pacstrap -K /mnt base linux linux-firmware base-devel intel-ucode btrfs-progs \
+                   grub efibootmgr grub-btrfs networkmanager sudo git vim
+
+  genfstab -U /mnt >> /mnt/etc/fstab
+
+  log "Copying this repo into /home/$USER_NAME/erisanh"
+  mkdir -p "/mnt/home/$USER_NAME/erisanh"
+  cp -a "$REPO/." "/mnt/home/$USER_NAME/erisanh/"
+
+  # ---- hand config values to the chroot script via a file (base64 for passwords) ----
+  {
+    printf 'USER_NAME=%q\n' "$USER_NAME"
+    printf 'HOSTNAME=%q\n'  "$HOSTNAME"
+    printf 'TIMEZONE=%q\n'  "$TIMEZONE"
+    printf 'LOCALE=%q\n'    "$LOCALE"
+    printf 'KEYMAP=%q\n'    "$KEYMAP"
+    printf 'USER_PW_B64=%s\n' "$(printf '%s' "$UPW" | base64 -w0)"
+    printf 'ROOT_PW_B64=%s\n' "$(printf '%s' "$RPW" | base64 -w0)"
+  } > /mnt/root/install.env
+  chmod 600 /mnt/root/install.env
+
+  cat > /mnt/root/chroot-setup.sh <<'CHROOT'
+#!/usr/bin/env bash
+set -euo pipefail
+source /root/install.env
+
+# time / locale / console
+ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
+hwclock --systohc
+grep -q "^$LOCALE UTF-8" /etc/locale.gen || echo "$LOCALE UTF-8" >> /etc/locale.gen
+locale-gen
+echo "LANG=$LOCALE"   > /etc/locale.conf
+echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
+
+# hostname / hosts
+echo "$HOSTNAME" > /etc/hostname
+cat > /etc/hosts <<HOSTS
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   $HOSTNAME.localdomain $HOSTNAME
+HOSTS
+
+# initramfs
+mkinitcpio -P
+
+# accounts
+printf 'root:%s\n' "$(echo "$ROOT_PW_B64" | base64 -d)" | chpasswd
+id "$USER_NAME" &>/dev/null || \
+  useradd -m -G wheel,video,audio,storage,input,network -s /bin/bash "$USER_NAME"
+printf '%s:%s\n' "$USER_NAME" "$(echo "$USER_PW_B64" | base64 -d)" | chpasswd
+chown -R "$USER_NAME:$USER_NAME" "/home/$USER_NAME"
+
+# sudo: wheel can sudo; plus a TEMP passwordless rule so first-boot provisioning
+# is unattended. Stage 2 deletes 99-dotfiles-install when it finishes.
+echo '%wheel ALL=(ALL:ALL) ALL'            > /etc/sudoers.d/10-wheel
+echo "$USER_NAME ALL=(ALL) NOPASSWD: ALL"  > /etc/sudoers.d/99-dotfiles-install
+chmod 440 /etc/sudoers.d/10-wheel /etc/sudoers.d/99-dotfiles-install
+
+# bootloader (UEFI)
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# networking on next boot
+systemctl enable NetworkManager
+
+# arm Stage 2 to run automatically once the network is up after first boot
+cat > /etc/systemd/system/dotfiles-firstboot.service <<UNIT
+[Unit]
+Description=First-boot dotfiles provisioning (Stage 2 of install.sh)
+Wants=network-online.target
+After=network-online.target NetworkManager-wait-online.service
+
+[Service]
+Type=oneshot
+User=$USER_NAME
+Environment=HOME=/home/$USER_NAME
+WorkingDirectory=/home/$USER_NAME/erisanh
+ExecStart=/bin/bash /home/$USER_NAME/erisanh/install.sh --firstboot
+StandardOutput=append:/var/log/dotfiles-firstboot.log
+StandardError=append:/var/log/dotfiles-firstboot.log
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+systemctl enable dotfiles-firstboot.service
+systemctl enable NetworkManager-wait-online.service || true
+CHROOT
+
+  log "Configuring the installed system (arch-chroot)"
+  arch-chroot /mnt bash /root/chroot-setup.sh
+
+  # scrub the password file, then unmount
+  rm -f /mnt/root/install.env /mnt/root/chroot-setup.sh
+  umount -R /mnt
+
+  log "Base install complete — rebooting into the new system."
+  cat <<EOF
+
+Stage 2 (packages + dotfiles + VSCode profiles) runs automatically on first boot.
+If you use Wi-Fi, connect after login so it can finish (wired DHCP needs nothing).
+Watch it with:   journalctl -u dotfiles-firstboot -f
+                  tail -f /var/log/dotfiles-firstboot.log
+
+Rebooting in 5s — press Ctrl-C to stay in the live environment, then remove the media.
+EOF
+  for i in 5 4 3 2 1; do printf '\r    rebooting in %ds ' "$i"; sleep 1; done; printf '\n'
+  systemctl reboot
+}
+
+# =============================================================================
+# STAGE 2 — PROVISION (packages + dotfiles + profiles + services)
+# Runs on the installed system; also invoked by the first-boot service.
+# =============================================================================
+provision() {
+  local FIRSTBOOT="${1:-no}"
+  local ME; ME="$(id -un)"
+  [ "$(id -u)" -ne 0 ] || die "Provision must run as your normal user, not root."
+  command -v pacman >/dev/null 2>&1 || die "pacman not found — this only supports Arch Linux."
+  ping -c1 -W3 archlinux.org >/dev/null 2>&1 || \
+    die "No internet. Connect first (e.g. 'nmtui'), then re-run. (First-boot will retry on next boot.)"
+
+  local TS BACKUP
+  TS="$(date +%Y%m%d-%H%M%S)"; BACKUP="$HOME/.dotfiles-backup/$TS"
+  log "Provisioning from: $REPO"
+  info "Replaced files are backed up to: $BACKUP"
+
+  # ---- 1. yay (AUR helper) ----
+  log "Ensuring base-devel, git and yay are present"
+  sudo pacman -S --needed --noconfirm base-devel git
+  if ! command -v yay >/dev/null 2>&1; then
+    info "Building yay from the AUR…"
+    local tmp; tmp="$(mktemp -d)"
+    git clone --depth 1 https://aur.archlinux.org/yay.git "$tmp/yay"
+    ( cd "$tmp/yay" && makepkg -si --noconfirm )
+    rm -rf "$tmp"
+  else
+    info "yay already installed."
+  fi
+
+  # ---- 2. install everything in pacman.txt (official repos + AUR) ----
+  log "Installing packages from pacman.txt"
+  local PKGS; mapfile -t PKGS < <(grep -vE '^\s*(#|$)' "$REPO/pacman.txt")
+  info "${#PKGS[@]} packages requested."
+  yay -S --needed --noconfirm "${PKGS[@]}"
+
+  # ---- 3. deploy dotfiles via symlink (backing up anything real) ----
+  link() {
+    local src="$1" dest="$2"
+    [ -e "$src" ] || { warn "missing in repo, skipped: $src"; return; }
+    if [ -L "$dest" ] && [ "$(readlink -f "$dest")" = "$(readlink -f "$src")" ]; then return; fi
+    if [ -e "$dest" ] || [ -L "$dest" ]; then
+      mkdir -p "$BACKUP/$(dirname "${dest#"$HOME"/}")"
+      mv "$dest" "$BACKUP/${dest#"$HOME"/}"
+    fi
+    mkdir -p "$(dirname "$dest")"
+    ln -s "$src" "$dest"
+    info "linked ${dest/#$HOME/~}"
+  }
+
+  log "Linking dotfiles into \$HOME"
+  mkdir -p "$HOME/.config"
+  local path name
+  for path in "$REPO"/config/* "$REPO"/config/.[!.]*; do
+    [ -e "$path" ] || continue
+    name="$(basename "$path")"
+    case "$name" in
+      .gitconfig) link "$path" "$HOME/.gitconfig" ;;   # home dotfile
+      code)       : ;;                                  # handled below
+      *)          link "$path" "$HOME/.config/$name" ;;
+    esac
+  done
+  link "$REPO/nvim"       "$HOME/.config/nvim"
+  link "$REPO/quickshell" "$HOME/.config/quickshell"
+
+  # ---- 4. VSCode: shared settings/keybindings + restore profiles ----
+  log "Setting up VSCode (stable)"
+  mkdir -p "$HOME/.config/Code/User"
+  link "$REPO/config/code/settings.json"    "$HOME/.config/Code/User/settings.json"
+  link "$REPO/config/code/keybindings.json" "$HOME/.config/Code/User/keybindings.json"
+  if command -v code >/dev/null 2>&1; then
+    bash "$REPO/config/code/profiles/restore-profiles.sh"
+  else
+    warn "'code' not found — open VSCode once, then run config/code/profiles/restore-profiles.sh"
+  fi
+
+  # ---- 5. enable services ----
+  log "Enabling system services"
+  enable_unit() {
+    if pacman -Qq "$2" >/dev/null 2>&1; then
+      sudo systemctl enable "$1" >/dev/null 2>&1 && info "enabled $1" || warn "could not enable $1"
+    fi
+  }
+  enable_unit NetworkManager.service        networkmanager
+  enable_unit bluetooth.service             bluez
+  enable_unit sddm.service                  sddm
+  enable_unit docker.service                docker
+  enable_unit cronie.service                cronie
+  enable_unit power-profiles-daemon.service power-profiles-daemon
+  if pacman -Qq docker >/dev/null 2>&1; then
+    sudo usermod -aG docker "$ME" && info "added $ME to the docker group (re-login to apply)"
+  fi
+
+  # ---- 6. zram (plan section 8) ----
+  log "Configuring zram"
+  if pacman -Qq zram-generator >/dev/null 2>&1 && [ ! -f /etc/systemd/zram-generator.conf ]; then
+    sudo tee /etc/systemd/zram-generator.conf >/dev/null <<'ZRAM'
+[zram0]
+zram-size = min(ram, 8192)
+compression-algorithm = zstd
+ZRAM
+    info "wrote /etc/systemd/zram-generator.conf"
+  else
+    info "zram already configured or zram-generator not installed — skipped."
+  fi
+
+  # ---- first-boot finalisation: switch shell, then disarm and re-secure sudo ----
+  if [ "$FIRSTBOOT" = "yes" ]; then
+    log "Finalising first-boot provisioning"
+    if command -v fish >/dev/null 2>&1; then
+      sudo chsh -s /usr/bin/fish "$ME" && info "login shell set to fish"
+    fi
+    sudo systemctl disable dotfiles-firstboot.service >/dev/null 2>&1 || true
+    sudo rm -f /etc/systemd/system/dotfiles-firstboot.service
+    sudo rm -f /etc/sudoers.d/99-dotfiles-install   # restore password-protected sudo
+    info "first-boot service removed; passwordless sudo revoked."
+  fi
+
+  log "All done."
+  cat <<EOF
+
+Next steps (one-time):
+  • Reboot to start SDDM / Hyprland and activate zram.
+  • Set Brave as default browser and sign in to your apps.
+  • GPU: desktop runs on the Intel iGPU; use 'prime-run <app>' for NVIDIA offload.
+
+Replaced files (if any) were backed up to: $BACKUP
+EOF
+}
+
+# =============================================================================
+# Dispatch: pick the stage (explicit flag wins, else auto-detect)
+# =============================================================================
+case "${1:-auto}" in
+  --bootstrap) bootstrap ;;
+  --provision) provision no ;;
+  --firstboot) provision yes ;;
+  auto)
+    if [ -d /run/archiso ] && [ "$(id -u)" -eq 0 ]; then bootstrap; else provision no; fi
+    ;;
+  *) die "Unknown option: $1  (use --bootstrap | --provision, or no argument)";;
+esac
