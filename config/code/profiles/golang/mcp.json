@@ -1,0 +1,19 @@
+{
+	"servers": {
+		"ticket": {
+			"type": "stdio",
+			"command": "docker",
+			"args": [
+				"exec",
+				"-i",
+				"mcp_server",
+				"uv",
+				"run",
+				"python",
+				"-m",
+				"mcp_server.server"
+			]
+		}
+	},
+	"inputs": []
+}
