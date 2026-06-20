@@ -1,0 +1,18 @@
+configuration {
+
+  font               : "FiraCode Nerd Font 12";
+  modi               : "drun";
+  disable-history    : false;
+  display-run        : " ";
+  display-drun       : " ";
+  display-window     : "󰕰 ";
+  display-clipboard  : " ";
+  drun-display-format: "{icon} {name}";
+  clipboard-display-format: "{name}";
+  hide-scrollbar     : true;
+  location           : 0;
+  show-icons         : true;
+  terminal           : "ghostty";
+}
+
+@theme "/usr/share/rofi/themes/Arc-Dark.rasi"
