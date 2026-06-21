@@ -50,8 +50,13 @@ hl.config({
 		gaps_out = 10,
 		border_size = 2,
 		col = {
-			active_border = "rgba(07b5efff)",
-			inactive_border = "rgba(292e42ff)",
+			-- Static multi-color gradient border (plan.theme.md §1): alive, ZERO
+			-- animation cost. The "playful" anim preset adds a borderangle loop to
+			-- rotate it (opt-in only — keeps default battery-friendly, §10).
+			-- primary #95CDF7 -> tertiary #CEC0E8 -> secondary #B7C9D9, 45deg.
+			active_border = "rgba(95cdf7ff) rgba(cec0e8ff) rgba(b7c9d9ff) 45deg",
+			-- Subtle hairline tone-matched to the #0f120e base (not a 2nd hue).
+			inactive_border = "rgba(2b302aff)",
 		},
 		layout = "scrolling",
 
@@ -76,6 +81,9 @@ hl.config({
 	-- Misc
 	-- -------------------------------------------------------------------------
 	misc = {
+		-- Flat dark base behind windows / where no wallpaper paints (plan §9.2 / §4).
+		-- Single background hue #0f120e for the whole desktop.
+		background_color = "rgb(0f120e)",
 		disable_hyprland_logo = true,
 		disable_splash_rendering = true,
 		mouse_move_enables_dpms = true,
