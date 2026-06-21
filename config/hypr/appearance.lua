@@ -46,6 +46,38 @@ hl.config({
 })
 
 -- -------------------------------------------------------------------------
+-- Animation preset selector (plan.theme.md §2)
+--   default  -> Material 3 expressive (curves/animations below) — battery-safe
+--   playful  -> bouncy preset + rotating gradient border (animations-playful.lua)
+--   off      -> all animations disabled (max battery)
+-- Switch with: ~/.config/hypr/scripts/anim-preset.sh [default|playful|off|cycle]
+-- (writes ~/.cache/hypr/anim-preset — kept out of the repo — then `hyprctl reload`).
+-- -------------------------------------------------------------------------
+local home = os.getenv("HOME")
+local anim_preset = "default"
+do
+	local f = io.open(home .. "/.cache/hypr/anim-preset", "r")
+	if f then
+		local v = (f:read("*l") or ""):gsub("%s+", "")
+		f:close()
+		if v == "playful" or v == "off" then
+			anim_preset = v
+		end
+	end
+end
+
+if anim_preset == "off" then
+	hl.config({ animations = { enabled = false } })
+	return
+elseif anim_preset == "playful" then
+	-- dofile (not require) so it re-runs on every reload, picking up the switch.
+	if pcall(dofile, home .. "/.config/hypr/animations-playful.lua") then
+		return
+	end
+	-- if it failed for any reason, fall through to the safe default below.
+end
+
+-- -------------------------------------------------------------------------
 -- Bezier Curves
 -- -------------------------------------------------------------------------
 hl.curve("expressiveFastSpatial", { type = "bezier", points = { { 0.42, 1.67 }, { 0.21, 0.90 } } })

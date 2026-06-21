@@ -1,20 +1,20 @@
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": {
-    "type": "chafa",
-    "width": 60,
-    "printRemaining": false,
-    // "source": "~/.config/wall.png",
-    // "recache": true,
-    "chafa": {
-      "symbols": "-block-border-space+vhalf",
-    },
+    // Canonical Arch ASCII logo shipped with this repo (matches preview.html).
+    // Colored via $1 placeholders -> cyan (tokyonight #7dcfff).
+    "type": "file",
+    "source": "~/.config/fastfetch/arch.txt",
+    "color": { "1": "cyan" },
     "padding": {
       "top": 1,
       "left": 2,
-      "right": 2,
+      "right": 3,
       "bottom": 0,
     },
+    // Previous image logo (kept for reference):
+    // "type": "chafa", "width": 60, "source": "~/.config/wall.png",
+    // "chafa": { "symbols": "-block-border-space+vhalf" },
   },
   "display": {
     "separator": "",

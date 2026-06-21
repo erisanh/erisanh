@@ -32,6 +32,7 @@ fcitx5
 fcitx5-bamboo
 fcitx5-configtool
 fd
+ffmpegthumbnailer
 figma-linux
 fish
 fisher
@@ -61,6 +62,7 @@ intel-media-driver
 intel-ucode
 iwd
 journalctl-desktop-notification
+jq
 keyd
 kvantum
 lazydocker
@@ -90,6 +92,7 @@ nvidia-settings
 nvidia-utils
 obs-studio
 openbsd-netcat
+p7zip
 pandoc
 papirus-icon-theme
 pavucontrol-qt
@@ -101,6 +104,7 @@ plasma-browser-integration
 plasma-nm
 playerctl
 polkit-kde-agent
+poppler
 power-profiles-daemon
 proton-vpn-gtk-app
 qt5-wayland
@@ -109,6 +113,7 @@ qt6-imageformats
 qt6-wayland
 qt6ct
 quickshell
+ripgrep
 rofi
 sddm
 shellcheck
@@ -151,6 +156,7 @@ xorg-server
 xorg-xinit
 yay
 yay-debug
+yazi
 zalo
 zathura
 zathura-pdf-mupdf

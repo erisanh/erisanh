@@ -12,12 +12,14 @@ hl.bind("SUPER + Return", hl.dsp.exec_cmd("ghostty"))
 hl.bind("SUPER + B", hl.dsp.exec_cmd("zen-browser"))
 hl.bind("SUPER + E", hl.dsp.exec_cmd("dolphin"))
 hl.bind("SUPER + D", hl.dsp.exec_cmd("discord"))
+hl.bind("SUPER + Y", hl.dsp.exec_cmd("ghostty -e yazi")) -- yazi TUI file manager (plan §11)
 
 -- -------------------------------------------------------------------------
 -- Session Actions
 -- -------------------------------------------------------------------------
 hl.bind(meh .. " + L", hl.dsp.exec_cmd("hyprlock"))
 hl.bind(meh .. " + N", hl.dsp.exec_cmd("makoctl dismiss -a"))
+hl.bind(meh .. " + A", hl.dsp.exec_cmd(shared.scripts_path .. "/anim-preset.sh cycle")) -- cycle anim preset (plan §2)
 
 -- -------------------------------------------------------------------------
 -- Screenshots (grimblast)
