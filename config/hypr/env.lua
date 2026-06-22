@@ -24,9 +24,11 @@ hl.env("GTK_THEME", shared.system_theme)
 hl.env("QT_QPA_PLATFORMTHEME", "kde")
 hl.env("XDG_MENU_PREFIX", "plasma-")
 
--- Nvidia
-hl.env("LIBVA_DRIVER_NAME", "nvidia")
-hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+-- GPU: Intel iGPU (intel-media-driver provides the iHD VA-API driver).
+-- This machine has no usable NVIDIA driver; forcing "nvidia" here would break
+-- hardware video decode and OpenGL. If you ever add the MX230 back, switch
+-- LIBVA_DRIVER_NAME to "nvidia" and set __GLX_VENDOR_LIBRARY_NAME=nvidia.
+hl.env("LIBVA_DRIVER_NAME", "iHD")
 
 -- Cursors
 hl.env("HYPRCURSOR_SIZE", tostring(shared.cursor_size))
