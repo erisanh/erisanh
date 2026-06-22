@@ -348,6 +348,28 @@ provision() {
     warn "'code' not found — open VSCode once, then run config/code/profiles/restore-profiles.sh"
   fi
 
+  # ---- 4b. Hyprland scrolling-layout plugin (hyprscrolling via hyprpm) ----
+  # compositor.lua uses layout="scrolling", provided by the official
+  # hyprscrolling plugin. hyprpm builds it from source against the installed
+  # Hyprland. Best-effort + non-fatal: if the build fails here (hyprpm can be
+  # finicky headless), Hyprland just falls back to dwindle and you can retry
+  # after first login with:  hyprpm update && hyprpm enable hyprscrolling
+  # The plugin is loaded each session by 'hyprpm reload -n' in autostart.lua.
+  if command -v hyprpm >/dev/null 2>&1 && command -v Hyprland >/dev/null 2>&1; then
+    log "Building the hyprscrolling layout plugin (hyprpm)"
+    hyprpm update </dev/null >/dev/null 2>&1 || warn "hyprpm update failed — retry after first login"
+    hyprpm add https://github.com/hyprwm/hyprland-plugins </dev/null >/dev/null 2>&1 || true
+    if hyprpm enable hyprscrolling </dev/null >/dev/null 2>&1; then
+      info "hyprscrolling enabled"
+    else
+      warn "could not enable hyprscrolling now — after first login run:"
+      warn "    hyprpm update && hyprpm enable hyprscrolling"
+      warn "(until then the scrolling layout falls back to dwindle)"
+    fi
+  else
+    warn "hyprpm/Hyprland not present — scrolling layout will fall back to dwindle"
+  fi
+
   # ---- 5. enable services ----
   log "Enabling system services"
   enable_unit() {
