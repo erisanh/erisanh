@@ -1,0 +1,10 @@
+[General]
+Background="Backgrounds/background-dark.png"
+PartialBlur=true
+BlurRadius=32
+ScreenWidth=1920
+ScreenHeight=1080
+AccentColor="#95cdf7"
+BackgroundColor="#101417"
+FontFamily=Inter
+FontSize=12

@@ -417,6 +417,27 @@ provision() {
   enable_unit bluetooth.service             bluez
   enable_unit sddm.service                  sddm
   enable_unit docker.service                docker
+
+  # ---- SDDM theme configuration ----
+  # Install sddm.conf system-wide (requires sudo) and link the theme config.
+  if pacman -Qq sddm >/dev/null 2>&1; then
+    # System-wide SDDM config (not per-user)
+    sudo mkdir -p /etc/sddm.conf.d
+    sudo tee /etc/sddm.conf.d/10-theme.conf >/dev/null <<SDDMCONF
+[Theme]
+Current=astronaut
+SDDMCONF
+    info "SDDM theme set to astronaut"
+
+    # Link astronaut theme user overrides if theme is installed
+    if [ -d /usr/share/sddm/themes/astronaut ]; then
+      sudo mkdir -p /usr/share/sddm/themes/astronaut
+      sudo cp -f "$REPO/config/sddm/astronaut/theme.conf.user"         /usr/share/sddm/themes/astronaut/theme.conf.user 2>/dev/null || true
+      info "astronaut theme.conf.user applied"
+    else
+      warn "sddm-astronaut-theme not installed yet — run: yay -S sddm-astronaut-theme"
+    fi
+  fi
   enable_unit cronie.service                cronie
   enable_unit power-profiles-daemon.service power-profiles-daemon
   if pacman -Qq docker >/dev/null 2>&1; then

@@ -115,6 +115,7 @@ quickshell
 ripgrep
 rofi
 sddm
+sddm-astronaut-theme
 shellcheck
 smartmontools
 sof-firmware
