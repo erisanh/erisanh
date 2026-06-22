@@ -1,0 +1,4 @@
+
+# Telegram credentials — never commit
+boot-report.env
+*.env

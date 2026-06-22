@@ -410,6 +410,21 @@ ZRAM
     sudo rm -f /etc/systemd/system/dotfiles-firstboot.service
     sudo rm -f /etc/sudoers.d/99-dotfiles-install   # restore password-protected sudo
     info "first-boot service removed; passwordless sudo revoked."
+
+    # ---- 7. remote boot report (Telegram) ----
+    # Sends a summary of errors/failures to Telegram so you can debug
+    # a headless first-boot without needing to be at the machine.
+    # Requires ~/.config/boot-report.env with TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID.
+    # See config/hypr/scripts/boot-report.sh for setup instructions.
+    local REPORT_SCRIPT="$HOME/.config/hypr/scripts/boot-report.sh"
+    if [ -f "$REPORT_SCRIPT" ] && [ -f "$HOME/.config/boot-report.env" ]; then
+      log "Sending boot report to Telegram"
+      bash "$REPORT_SCRIPT" --firstboot || warn "boot-report failed (non-fatal)"
+    else
+      info "Skipping remote boot report (no ~/.config/boot-report.env found)."
+      info "To enable: create that file with TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID."
+      info "See: config/hypr/scripts/boot-report.sh"
+    fi
   fi
 
   log "All done."
@@ -419,6 +434,11 @@ Next steps (one-time):
   • Reboot to start SDDM / Hyprland and activate zram.
   • Set Brave as default browser and sign in to your apps.
   • GPU: desktop runs on the Intel iGPU (no NVIDIA driver installed by default).
+  • [Optional] Enable Telegram boot reports — run once after first login:
+      cp ~/erisanh/boot-report.env.example ~/.config/boot-report.env
+      nano ~/.config/boot-report.env   # điền BOT_TOKEN + CHAT_ID
+      chmod 600 ~/.config/boot-report.env
+    Hướng dẫn lấy token/chat_id: xem boot-report.env.example
 
 Replaced files (if any) were backed up to: $BACKUP
 EOF
