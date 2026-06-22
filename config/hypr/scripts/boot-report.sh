@@ -72,6 +72,79 @@ uptime_str() { uptime -p 2>/dev/null || uptime; }
 kernel_str()  { uname -r; }
 disk_usage()  { df -h / 2>/dev/null | awk 'NR==2{print $3 " used / " $2 " total (" $5 ")"}'; }
 
+collect_hardware_info() {
+  # CPU: model + core count + max freq
+  local cpu cores freq
+  cpu=$(grep -m1 "model name" /proc/cpuinfo 2>/dev/null         | sed 's/model name\s*:\s*//'         | sed 's/(R)\|(TM)//g'         | xargs)
+  cores=$(nproc 2>/dev/null || grep -c "^processor" /proc/cpuinfo 2>/dev/null || echo "?")
+  freq=$(awk '/cpu MHz/{sum+=$4; n++} END{if(n) printf "%.0f MHz", sum/n}'          /proc/cpuinfo 2>/dev/null || echo "")
+  printf '  <b>CPU:</b> %s (%s cores%s)
+'     "${cpu:-unknown}" "$cores" "${freq:+ @ $freq}"
+
+  # RAM: used / total
+  local mem_total mem_avail mem_used
+  mem_total=$(awk '/MemTotal/{printf "%.1f", $2/1024/1024}' /proc/meminfo 2>/dev/null)
+  mem_avail=$(awk '/MemAvailable/{printf "%.1f", $2/1024/1024}' /proc/meminfo 2>/dev/null)
+  mem_used=$(awk -v t="$mem_total" -v a="$mem_avail" 'BEGIN{printf "%.1f", t-a}')
+  printf '  <b>RAM:</b> %s GiB used / %s GiB total
+' "$mem_used" "$mem_total"
+
+  # GPU: prefer lspci, fallback to /sys
+  local gpu
+  gpu=$(lspci 2>/dev/null         | grep -i "VGA\|3D\|Display"         | sed 's/.*: //'         | sed 's/ (rev [0-9a-f]*//'         | head -3         | sed 's/^/    /')
+  [ -n "$gpu" ] && printf '  <b>GPU:</b>
+%s
+' "$gpu"                 || printf '  <b>GPU:</b> (lspci not available)
+'
+
+  # Motherboard / product name
+  local board
+  board=$(cat /sys/class/dmi/id/product_name 2>/dev/null           || cat /sys/class/dmi/id/board_name 2>/dev/null           || echo "unknown")
+  local vendor
+  vendor=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null | xargs || echo "")
+  printf '  <b>Board:</b> %s %s
+' "$vendor" "$board"
+
+  # BIOS version
+  local bios
+  bios=$(cat /sys/class/dmi/id/bios_version 2>/dev/null | xargs || echo "unknown")
+  printf '  <b>BIOS:</b> %s
+' "$bios"
+
+  # Storage: all block devices, size + model
+  local storage
+  storage=$(lsblk -dno NAME,SIZE,MODEL,TRAN 2>/dev/null             | grep -v "^loop\|^sr"             | awk '{printf "    %s: %s %s (%s)
+", $1, $2, $3, $4}'             | head -5)
+  [ -n "$storage" ] && printf '  <b>Storage:</b>
+%s
+' "$storage"
+
+  # Display resolution(s)
+  local displays
+  displays=$(hyprctl monitors -j 2>/dev/null              | python3 -c "
+import sys, json
+try:
+    mons = json.load(sys.stdin)
+    for m in mons:
+        w = m.get('width', '?')
+        h = m.get('height', '?')
+        hz = m.get('refreshRate', 0)
+        name = m.get('name', '?')
+        print(f'    {name}: {w}x{h}@{hz:.0f}Hz')
+except: pass
+" 2>/dev/null)
+  [ -n "$displays" ] && printf '  <b>Display:</b>
+%s
+' "$displays"
+
+  # Keyboard connected via Bluetooth/USB (lsusb if available)
+  local kb
+  kb=$(lsusb 2>/dev/null        | grep -i "keyboard\|Dareu\|HID"        | sed 's/Bus [0-9]* Device [0-9]*: ID [0-9a-f:]*  */    /'        | head -3)
+  [ -n "$kb" ] && printf '  <b>HID devices:</b>
+%s
+' "$kb"
+}
+
 # ── Collectors ────────────────────────────────────────────────────────────────
 collect_failed_units() {
   systemctl --failed --no-legend --no-pager 2>/dev/null \
@@ -197,6 +270,9 @@ build_message() {
   printf '<b>Uptime:</b> %s\n' "$(uptime_str)"
   printf '<b>Kernel:</b> %s\n' "$(kernel_str)"
   printf '<b>Disk /:</b> %s\n' "$(disk_usage)"
+
+  section "$(printf '\xf0\x9f\x96\xa5') Hardware"
+  collect_hardware_info
 
   section "$(printf '\xe2\x9d\x8c') Failed systemd units"
   printf '%s\n' "$failed_units"
