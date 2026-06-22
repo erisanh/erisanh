@@ -13,6 +13,20 @@ Rectangle {
 
     signal closePanel
 
+    // Auto-discover when panel is shown so BlueZ can resolve device names.
+    // Names are fetched lazily by BlueZ only during an active scan — without
+    // this, nearby devices appear as raw MAC addresses.
+    Component.onCompleted: {
+        const adapter = Bluetooth.defaultAdapter;
+        if (adapter && adapter.enabled && !adapter.discovering)
+            adapter.discovering = true;
+    }
+    Component.onDestruction: {
+        const adapter = Bluetooth.defaultAdapter;
+        if (adapter && adapter.discovering)
+            adapter.discovering = false;
+    }
+
     color: Appearance.m3colors.m3background
     radius: 20
     border.width: 1
@@ -67,22 +81,28 @@ Rectangle {
             spacing: 0
 
             model: ScriptModel {
-                values: [...Bluetooth.devices.values].sort((a, b) => {
-                    // Connected -> paired -> others
-                    let conn = (b.connected - a.connected) || (b.paired - a.paired);
-                    if (conn !== 0)
-                        return conn;
+                id: deviceModel
 
-                    // Ones with meaningful names before MAC addresses
-                    const macRegex = /^([0-9A-Fa-f]{2}-){5}[0-9A-Fa-f]{2}$/;
-                    const aIsMac = macRegex.test(a.name);
-                    const bIsMac = macRegex.test(b.name);
-                    if (aIsMac !== bIsMac)
-                        return aIsMac ? 1 : -1;
+                readonly property var macRegex: /^([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}$/
 
-                    // Alphabetical by name
-                    return a.name.localeCompare(b.name);
-                })
+                values: [...Bluetooth.devices.values]
+                    .filter(d => {
+                        // Always show paired/connected devices regardless of name
+                        if (d.paired || d.connected) return true;
+                        // Hide devices whose "name" is just a raw MAC address —
+                        // BlueZ uses the MAC as a placeholder until it resolves
+                        // the real name via a device info request. These unnamed
+                        // entries clutter the list without being actionable.
+                        return !deviceModel.macRegex.test(d.name);
+                    })
+                    .sort((a, b) => {
+                        // Connected first, then paired, then others
+                        const conn = (b.connected - a.connected) || (b.paired - a.paired);
+                        if (conn !== 0)
+                            return conn;
+                        // Alphabetical by name
+                        return a.name.localeCompare(b.name);
+                    })
             }
             delegate: BluetoothDeviceItem {
                 required property BluetoothDevice modelData
@@ -107,7 +127,7 @@ Rectangle {
             spacing: 4
 
             RippleButton {
-                id: detailButton
+                id: scanButton
                 implicitHeight: 36
                 implicitWidth: 80
                 padding: 14
@@ -116,14 +136,20 @@ Rectangle {
 
                 contentItem: Text {
                     anchors.fill: parent
-                    anchors.leftMargin: detailButton.padding
-                    anchors.rightMargin: detailButton.padding
-                    text: "Details"
+                    anchors.leftMargin: scanButton.padding
+                    anchors.rightMargin: scanButton.padding
+                    text: (Bluetooth.defaultAdapter?.discovering ?? false) ? "Scanning…" : "Scan"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     font.pixelSize: 12
                     font.bold: true
-                    color: detailButton.enabled ? Appearance.colors.colOnLayer0 : Appearance.m3colors.m3background
+                    color: scanButton.enabled ? Appearance.colors.colOnLayer0 : Appearance.m3colors.m3background
+                }
+
+                onClicked: {
+                    const adapter = Bluetooth.defaultAdapter;
+                    if (!adapter || !adapter.enabled) return;
+                    adapter.discovering = !adapter.discovering;
                 }
             }
 

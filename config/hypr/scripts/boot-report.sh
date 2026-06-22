@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# boot-report.sh — gửi log boot/provision lên Telegram
+# boot-report.sh — send boot/provision log to Telegram
 #
-# Chạy cuối quá trình `install.sh --firstboot` (hoặc --provision) để report
-# kết quả về remote ngay khi máy có mạng, không cần display/Hyprland.
+# Called at the end of `install.sh --firstboot` (or --provision) to report
+# results remotely as soon as the machine has network — no display required.
 #
-# Cách dùng:
+# Usage:
 #   bash boot-report.sh [--firstboot|--provision|--boot]
 #
 # Modes:
-#   --firstboot  : tóm tắt toàn bộ provision + các lỗi (default khi gọi từ install.sh)
-#   --provision  : như firstboot nhưng label "manual provision"
-#   --boot       : report systemd failed units sau mỗi lần reboot bình thường
-#                  (cài vào systemd user service nếu muốn monitor ongoing)
+#   --firstboot  full provision summary + errors (default when called from install.sh)
+#   --provision  same as --firstboot but labelled "manual provision"
+#   --boot       systemd failed units + journal errors/warnings after a normal reboot
+#                (install as a systemd user service for ongoing monitoring)
 #
-# Config: đọc từ ~/.config/boot-report.env (không commit lên git)
+# Config: read from ~/.config/boot-report.env (never committed to git)
 #   TELEGRAM_BOT_TOKEN=123456:ABC...
 #   TELEGRAM_CHAT_ID=9876543
 #
-# Tạo bot: https://t.me/BotFather → /newbot
-# Lấy chat_id: gửi tin nhắn cho bot rồi truy cập
+# Create a bot: https://t.me/BotFather → /newbot
+# Get chat_id:  send any message to the bot, then open
 #   https://api.telegram.org/bot<TOKEN>/getUpdates
 # ==============================================================================
 set -euo pipefail
@@ -28,16 +28,13 @@ MODE="${1:---firstboot}"
 CONFIG_FILE="${HOME}/.config/boot-report.env"
 FIRSTBOOT_LOG="/var/log/dotfiles-firstboot.log"
 FAILED_PKG_FILE="${HOME}/.dotfiles-failed-packages.txt"
+FAILED_VSCODE_FILE="${HOME}/.dotfiles-failed-vscode-extensions.txt"
 HOSTNAME_STR="$(hostname)"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 
 # ── Load credentials ──────────────────────────────────────────────────────────
 if [ ! -f "$CONFIG_FILE" ]; then
   echo "boot-report: $CONFIG_FILE not found — skipping remote report." >&2
-  echo "Create it with:" >&2
-  echo "  echo 'TELEGRAM_BOT_TOKEN=xxx' >> $CONFIG_FILE" >&2
-  echo "  echo 'TELEGRAM_CHAT_ID=yyy'   >> $CONFIG_FILE" >&2
-  echo "  chmod 600 $CONFIG_FILE" >&2
   exit 0
 fi
 # shellcheck source=/dev/null
@@ -51,7 +48,6 @@ fi
 # ── Helpers ───────────────────────────────────────────────────────────────────
 tg_send() {
   local text="$1"
-  # Telegram MarkdownV2 — escape special chars
   curl -s -X POST \
     "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
     -d chat_id="${TELEGRAM_CHAT_ID}" \
@@ -72,45 +68,102 @@ tg_file() {
 }
 
 section() { printf '\n<b>%s</b>\n' "$1"; }
+uptime_str() { uptime -p 2>/dev/null || uptime; }
+kernel_str()  { uname -r; }
+disk_usage()  { df -h / 2>/dev/null | awk 'NR==2{print $3 " used / " $2 " total (" $5 ")"}'; }
 
-# ── Collect info ──────────────────────────────────────────────────────────────
+# ── Collectors ────────────────────────────────────────────────────────────────
 collect_failed_units() {
   systemctl --failed --no-legend --no-pager 2>/dev/null \
-    | awk '{print "  ● " $1}' | head -20 || echo "  (none)"
+    | awk '{print "  \xe2\x97\x8f " $1}' | head -20 \
+    || echo "  (none)"
 }
 
 collect_failed_packages() {
   if [ -f "$FAILED_PKG_FILE" ]; then
-    awk '{print "  ✗ " $0}' "$FAILED_PKG_FILE" | head -30
+    awk '{print "  \xe2\x9c\x97 " $0}' "$FAILED_PKG_FILE" | head -30
   else
     echo "  (none)"
   fi
 }
 
-collect_journal_errors() {
-  # Last boot errors from journald (priority err and above), skip noisy lines
-  journalctl -b -p err --no-pager --no-hostname -q 2>/dev/null \
-    | grep -v -E "Failed to load.*theme|use-gl.*Electron|Bluetooth|hci|rfkill" \
-    | tail -30 \
-    | sed 's/^/  /' \
-    || echo "  (none or journald unavailable)"
+collect_vscode_failures() {
+  # Reads ~/.dotfiles-failed-vscode-extensions.txt written by restore-profiles.sh.
+  # Format per line: <profile>:<extension-id>
+  if [ ! -f "$FAILED_VSCODE_FILE" ]; then
+    echo "  (none)"
+    return
+  fi
+  local count
+  count=$(wc -l < "$FAILED_VSCODE_FILE")
+  echo "  ${count} extension(s) failed:"
+  while IFS=: read -r profile ext; do
+    echo "    [${profile}] ${ext}"
+  done < "$FAILED_VSCODE_FILE"
 }
 
 collect_firstboot_errors() {
   if [ -f "$FIRSTBOOT_LOG" ]; then
-    grep -i -E "error|fail|warn|✗|!" "$FIRSTBOOT_LOG" \
+    grep -i -E "error|fail|warn|!|✗" "$FIRSTBOOT_LOG" \
       | grep -v "^$\|install.sh\|backup" \
       | tail -40 \
       | sed 's/^/  /' \
-      || echo "  (no errors found in log)"
+      || echo "  (none)"
   else
     echo "  (firstboot log not found)"
   fi
 }
 
-uptime_str() { uptime -p 2>/dev/null || uptime; }
-kernel_str()  { uname -r; }
-disk_usage()  { df -h / 2>/dev/null | awk 'NR==2{print $3 " used / " $2 " total (" $5 ")"}'; }
+collect_journal_errors() {
+  # priority 0-3: emerg, alert, crit, err
+  journalctl -b -p err --no-pager --no-hostname -q 2>/dev/null \
+    | grep -v -E "Failed to load.*theme|use-gl.*Electron|Bluetooth|hci|rfkill" \
+    | tail -20 \
+    | sed 's/^/  /' \
+    || echo "  (none)"
+}
+
+collect_journal_warnings() {
+  # priority 4: warning only (excludes err+ already shown above)
+  journalctl -b -p warning..warning --no-pager --no-hostname -q 2>/dev/null \
+    | grep -v -E "use-gl.*Electron|deprecated|Bluetooth|hci|rfkill|Failed to load.*theme|NetworkManager.*device" \
+    | tail -15 \
+    | sed 's/^/  /' \
+    || echo "  (none)"
+}
+
+collect_npm_audit() {
+  # Scan npm projects under common dirs for high/critical vulnerabilities.
+  # Silently skips if npm is not installed or no package.json found.
+  command -v npm >/dev/null 2>&1 || { echo "  (npm not installed)"; return; }
+
+  local results="" dir high critical out
+  local search_dirs=("$HOME/src" "$HOME/projects" "$HOME/work" "$HOME/erisanh")
+
+  for base in "${search_dirs[@]}"; do
+    [ -d "$base" ] || continue
+    while IFS= read -r dir; do
+      out=$(cd "$dir" && npm audit --json 2>/dev/null || true)
+      high=$(echo "$out" \
+        | python3 -c "import sys,json; d=json.load(sys.stdin); \
+          print(d.get('metadata',{}).get('vulnerabilities',{}).get('high',0))" 2>/dev/null || echo 0)
+      critical=$(echo "$out" \
+        | python3 -c "import sys,json; d=json.load(sys.stdin); \
+          print(d.get('metadata',{}).get('vulnerabilities',{}).get('critical',0))" 2>/dev/null || echo 0)
+      if [ "${high:-0}" -gt 0 ] || [ "${critical:-0}" -gt 0 ]; then
+        local label="${dir/#$HOME/\~}"
+        results="${results}  $(printf '\xf0\x9f\x93\x81') ${label} — high: ${high}, critical: ${critical}\n"
+      fi
+    done < <(find "$base" -maxdepth 3 -name "package.json" \
+               ! -path "*/node_modules/*" -printf '%h\n' 2>/dev/null | sort -u)
+  done
+
+  if [ -z "$results" ]; then
+    echo "  (no vulnerabilities found)"
+  else
+    printf '%b' "$results"
+  fi
+}
 
 # ── Build message ─────────────────────────────────────────────────────────────
 build_message() {
@@ -118,44 +171,53 @@ build_message() {
   local icon title
 
   case "$mode" in
-    --firstboot) icon="🚀"; title="First-boot provision complete" ;;
-    --provision) icon="🔧"; title="Manual provision complete" ;;
-    --boot)      icon="⚡"; title="System boot report" ;;
-    *)           icon="📋"; title="Boot report" ;;
+    --firstboot) icon="$(printf '\xf0\x9f\x9a\x80')"; title="First-boot provision complete" ;;
+    --provision) icon="$(printf '\xf0\x9f\x94\xa7')"; title="Manual provision complete" ;;
+    --boot)      icon="$(printf '\xe2\x9a\xa1')";      title="System boot report" ;;
+    *)           icon="$(printf '\xf0\x9f\x93\x8b')"; title="Boot report" ;;
   esac
 
-  local failed_units
+  # Collect once, reuse in message and for status icon
+  local failed_units errors warnings
   failed_units="$(collect_failed_units)"
+  errors="$(collect_journal_errors)"
+  warnings="$(collect_journal_warnings)"
 
-  local status_icon="✅"
-  if echo "$failed_units" | grep -q "●"; then
-    status_icon="⚠️"
+  # Status icon: red = failed units, yellow = errors only, green = clean
+  local status_icon="$(printf '\xe2\x9c\x85')"
+  if echo "$failed_units" | grep -q "$(printf '\xe2\x97\x8f')"; then
+    status_icon="$(printf '\xf0\x9f\x94\xb4')"
+  elif ! echo "$errors" | grep -q "(none)"; then
+    status_icon="$(printf '\xe2\x9a\xa0\xef\xb8\x8f')"
   fi
 
-  cat <<MSG
-${status_icon} <b>${icon} ${title}</b>
-<b>Host:</b> ${HOSTNAME_STR}
-<b>Time:</b> ${TIMESTAMP}
-<b>Uptime:</b> $(uptime_str)
-<b>Kernel:</b> $(kernel_str)
-<b>Disk /:</b> $(disk_usage)
-$(section "❌ Failed systemd units")
-${failed_units}
-MSG
+  printf '%s <b>%s %s</b>\n' "$status_icon" "$icon" "$title"
+  printf '<b>Host:</b> %s\n' "$HOSTNAME_STR"
+  printf '<b>Time:</b> %s\n' "$TIMESTAMP"
+  printf '<b>Uptime:</b> %s\n' "$(uptime_str)"
+  printf '<b>Kernel:</b> %s\n' "$(kernel_str)"
+  printf '<b>Disk /:</b> %s\n' "$(disk_usage)"
+
+  section "$(printf '\xe2\x9d\x8c') Failed systemd units"
+  printf '%s\n' "$failed_units"
 
   if [ "$mode" != "--boot" ]; then
-    cat <<MSG
-$(section "📦 Failed packages (yay)")
-$(collect_failed_packages)
-$(section "🔴 Provision errors (from log)")
-$(collect_firstboot_errors)
-MSG
+    section "$(printf '\xf0\x9f\x93\xa6') Failed packages (yay)"
+    collect_failed_packages
+    section "$(printf '\xf0\x9f\x94\xb4') Provision errors (from log)"
+    collect_firstboot_errors
+    section "$(printf '\xf0\x9f\x9f\xa5') VSCode extension failures"
+    collect_vscode_failures
   fi
 
-  cat <<MSG
-$(section "🔴 Journal errors (this boot)")
-$(collect_journal_errors)
-MSG
+  section "$(printf '\xf0\x9f\x94\xb4') Errors (journal)"
+  printf '%s\n' "$errors"
+
+  section "$(printf '\xe2\x9a\xa0\xef\xb8\x8f') Warnings (journal)"
+  printf '%s\n' "$warnings"
+
+  section "$(printf '\xf0\x9f\x94\x92') npm audit (high/critical only)"
+  collect_npm_audit
 }
 
 # ── Send ──────────────────────────────────────────────────────────────────────
@@ -164,14 +226,14 @@ MSG="$(build_message "$MODE")"
 # Telegram message limit is 4096 chars — truncate if needed
 if [ "${#MSG}" -gt 4000 ]; then
   MSG="${MSG:0:3900}
-<i>... (truncated, see attached log)</i>"
+<i>... (truncated — see attached log for full output)</i>"
 fi
 
 tg_send "$MSG"
 
-# Also attach full firstboot log if it exists and we're in provision mode
+# Attach full firstboot log in provision modes
 if [ "$MODE" != "--boot" ] && [ -f "$FIRSTBOOT_LOG" ]; then
-  tg_file "📄 Full firstboot log — ${HOSTNAME_STR} ${TIMESTAMP}" "$FIRSTBOOT_LOG"
+  tg_file "Full firstboot log — ${HOSTNAME_STR} ${TIMESTAMP}" "$FIRSTBOOT_LOG"
 fi
 
 echo "boot-report: sent to Telegram."

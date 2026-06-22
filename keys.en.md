@@ -1,6 +1,7 @@
 # Keybindings & Common Commands
 
 > Cheat sheet for this dotfiles workspace (Arch + Hyprland + ghostty + fish).
+> Keyboard: **DAREU 75%** (has F1–F12 row; no dedicated PrtSc key).
 > Notation: **SUPER** = Super/Windows key · **MEH** = `Ctrl+Shift+Alt`.
 > Source of truth: `config/hypr/binds.lua`, `config/ghostty/config`, `config/tmux/tmux.conf`, `config/fish/`.
 
@@ -30,7 +31,7 @@
 | `SUPER + Alt + G` | Toggle gaming mode |
 
 ### Screenshots & OCR (flameshot)
-> This keyboard has no Print/PrtSc key, so screenshots use Shift+Alt combos.
+> This keyboard (DAREU 75%) has no dedicated Print/PrtSc key, so screenshots use Shift+Alt combos.
 
 | Key | Action |
 | --- | --- |
@@ -88,8 +89,8 @@
 | `XF86MonBrightnessUp / Down` | Brightness |
 | `SUPER + Alt + P` | Play / pause |
 | `SUPER + Alt + [ / ]` | Previous / next track |
-| `XF86AudioPlay / Next / Prev` | Play-pause / next / prev (Fn+7 / Fn+8 / Fn+6) |
-| `XF86Launch4` | Cycle power profile |
+| `XF86AudioPlay / Next / Prev` | Play-pause / next / prev (media Fn keys) |
+| Power profile | Accessible via quickshell bar (no dedicated key on DAREU 75%) |
 
 ### Misc
 | Key | Action |

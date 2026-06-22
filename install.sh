@@ -263,11 +263,11 @@ provision() {
   info "Replaced files are backed up to: $BACKUP"
 
   # ---- Telegram boot-report credentials ----
-  # Credentials được fetch tự động từ private GitHub Gist (không cần truyền tay).
-  # Fallback theo thứ tự:
-  #   1. ~/.config/boot-report.env đã tồn tại → dùng luôn
-  #   2. Env vars TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID → ghi file
-  #   3. Fetch từ private Gist → ghi file  (tự động, không cần làm gì)
+  # Credentials are fetched automatically from a private GitHub Gist.
+  # Resolution order (first match wins):
+  #   1. ~/.config/boot-report.env already exists → use as-is (idempotent)
+  #   2. Env vars TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID are set → write file
+  #   3. Auto-fetch from private Gist → write boot-report.env + chmod 600
   local BOOT_REPORT_ENV="$HOME/.config/boot-report.env"
   local GIST_URL="https://gist.githubusercontent.com/erisanh/698339687f4ef296dbf886a7dff20b1f/raw/boot-report.env"
   mkdir -p "$HOME/.config"
@@ -364,8 +364,14 @@ provision() {
       *)          link "$path" "$HOME/.config/$name" ;;
     esac
   done
-  link "$REPO/nvim"       "$HOME/.config/nvim"
-  link "$REPO/quickshell" "$HOME/.config/quickshell"
+  link "$REPO/nvim"                "$HOME/.config/nvim"
+  link "$REPO/quickshell"          "$HOME/.config/quickshell"
+  # systemd user units (boot-report.service, etc.)
+  mkdir -p "$HOME/.config/systemd/user"
+  for svc in "$REPO"/config/systemd/user/*.service "$REPO"/config/systemd/user/*.timer; do
+    [ -e "$svc" ] || continue
+    link "$svc" "$HOME/.config/systemd/user/$(basename "$svc")"
+  done
 
   # ---- 4. VSCode: shared settings/keybindings + restore profiles ----
   log "Setting up VSCode (stable)"
@@ -417,6 +423,24 @@ provision() {
     sudo usermod -aG docker "$ME" && info "added $ME to the docker group (re-login to apply)"
   fi
 
+  # ---- boot-report systemd user service ----
+  # Runs boot-report.sh --boot after every login so Telegram receives
+  # a summary of failed units, journal errors and warnings on each boot.
+  # Symlinked via the dotfiles link step; just needs to be enabled here.
+  local BOOT_REPORT_SVC="$HOME/.config/systemd/user/boot-report.service"
+  local ACTIVITY_SVC="$HOME/.config/systemd/user/activity-logger.service"
+  systemctl --user daemon-reload 2>/dev/null || true
+  for _svc in boot-report.service activity-logger.service; do
+    _svc_path="$HOME/.config/systemd/user/${_svc}"
+    if [ -f "$_svc_path" ]; then
+      systemctl --user enable "$_svc" 2>/dev/null \
+        && info "enabled ${_svc} (user)" \
+        || warn "could not enable ${_svc} (non-fatal)"
+    else
+      warn "${_svc} not found — skipping."
+    fi
+  done
+
   # ---- 6. zram (plan section 8) ----
   log "Configuring zram"
   if pacman -Qq zram-generator >/dev/null 2>&1 && [ ! -f /etc/systemd/zram-generator.conf ]; then
@@ -466,9 +490,9 @@ Next steps (one-time):
   • GPU: desktop runs on the Intel iGPU (no NVIDIA driver installed by default).
   • [Optional] Enable Telegram boot reports — run once after first login:
       cp ~/erisanh/boot-report.env.example ~/.config/boot-report.env
-      nano ~/.config/boot-report.env   # điền BOT_TOKEN + CHAT_ID
+      nano ~/.config/boot-report.env   # fill in BOT_TOKEN + CHAT_ID
       chmod 600 ~/.config/boot-report.env
-    Hướng dẫn lấy token/chat_id: xem boot-report.env.example
+    Setup guide: see boot-report.env.example
 
 Replaced files (if any) were backed up to: $BACKUP
 EOF

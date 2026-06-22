@@ -23,8 +23,8 @@ hl.bind(meh .. " + A", hl.dsp.exec_cmd(shared.scripts_path .. "/anim-preset.sh c
 
 -- -------------------------------------------------------------------------
 -- Screenshots (flameshot)
--- NOTE: this DAREU 65% keyboard has NO Print/PrtSc key, so screenshots are on
--- Shift+Alt letter combos instead of the usual Print bindings.
+-- NOTE: this DAREU 75% keyboard has NO dedicated Print/PrtSc key, so screenshots
+-- use Shift+Alt letter combos instead of the usual Print binding.
 -- -------------------------------------------------------------------------
 hl.bind("SHIFT + ALT + S", hl.dsp.exec_cmd("flameshot gui")) -- region: select → annotate → copy/save
 hl.bind("SHIFT + ALT + F", hl.dsp.exec_cmd("flameshot full -c")) -- whole screen → clipboard
@@ -47,14 +47,16 @@ hl.bind("XF86PowerOff", hl.dsp.exec_cmd("qs ipc call session open"))
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("qs ipc call session open"))
 -- Super+Space is left free for the fcitx5 Vietnamese toggle (see config/fcitx5)
 hl.bind("SUPER + A", hl.dsp.global("quickshell:launcherToggle")) -- app launcher; was Super+Space
-hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("qs ipc call gamingMode toggle")) -- no F-row on this 65% board; was Super+F1
+hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("qs ipc call gamingMode toggle")) -- gaming mode toggle (no F1 shortcut — Fn layer needed on 75%)
 
 -- Brightness with Quickshell fallback
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc call brightness decrement || brightnessctl s 5%-"))
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("qs ipc call brightness increment || brightnessctl s 5%+"))
 
 -- Power profile
-hl.bind("XF86Launch4", hl.dsp.exec_cmd("qs ipc call powerProfile cycle || asusctl profile --next"))
+-- XF86Launch4 is ASUS-specific and not available on the DAREU 75%.
+-- Power profile cycling is accessible via the quickshell bar instead.
+-- hl.bind("XF86Launch4", hl.dsp.exec_cmd("qs ipc call powerProfile cycle"))
 
 -- -------------------------------------------------------------------------
 -- Media and Volume
@@ -77,7 +79,7 @@ hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd("playerctl play-pause"), { locked = t
 hl.bind("SUPER + ALT + bracketright", hl.dsp.exec_cmd("playerctl next"), { locked = true })
 hl.bind("SUPER + ALT + bracketleft", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 
--- Physical media keys (Fn layer on this 65% board: Fn+7/8/6)
+-- Physical media keys (Fn layer on this 75% board)
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
@@ -171,7 +173,7 @@ end, { repeating = true })
 -- VM Submap
 -- -------------------------------------------------------------------------
 hl.define_submap("vm", function()
-	-- no F-row on this 65% board; was Super+Alt+F1
+	-- toggle VM submap (Super+Alt+V — avoids Fn layer dependency)
 	hl.bind("SUPER + ALT + V", function()
 		if hl.get_current_submap() == "vm" then
 			hl.dispatch(
