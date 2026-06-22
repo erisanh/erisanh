@@ -13,7 +13,7 @@
 | Key | Action |
 | --- | --- |
 | `SUPER + Return` | Terminal (ghostty) |
-| `SUPER + A` | App launcher (quickshell) |
+| `SUPER + A` | App launcher (quickshell) — uses `qs ipc call launcher toggle` |
 | `SUPER + Space` | **Toggle Vietnamese ⇄ English** (fcitx5 / Bamboo) |
 | `SUPER + B` | Browser (zen-browser) |
 | `SUPER + E` | File manager GUI (Thunar) |
@@ -71,6 +71,18 @@
 | `SUPER + Shift + W` | Fit all visible columns |
 | `SUPER + Ctrl + W` | Fit every column |
 | `SUPER + G` | Promote column |
+
+### Screen splitting
+| Key | Action |
+| --- | --- |
+| `SUPER + R` | Cycle active column width (33% → 50% → 67%) |
+| `SUPER + SHIFT + 2` | Arrange all windows into **2 equal columns** |
+| `SUPER + SHIFT + 3` | Arrange all windows into **3 equal columns** |
+| `SUPER + SHIFT + 4` | Arrange all windows into **4 equal columns** |
+| `SUPER + SHIFT + 0` | Reset — fit all columns to screen |
+| `SUPER + Ctrl + W` | Fit every column to screen width |
+
+> Tip: open your windows first, then hit the split shortcut.
 
 ### Workspaces
 | Key | Action |

@@ -46,7 +46,7 @@ hl.bind(
 hl.bind("XF86PowerOff", hl.dsp.exec_cmd("qs ipc call session open"))
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("qs ipc call session open"))
 -- Super+Space is left free for the fcitx5 Vietnamese toggle (see config/fcitx5)
-hl.bind("SUPER + A", hl.dsp.global("quickshell:launcherToggle")) -- app launcher; was Super+Space
+hl.bind("SUPER + A", hl.dsp.exec_cmd("qs ipc call launcher toggle")) -- app launcher
 hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("qs ipc call gamingMode toggle")) -- gaming mode toggle (no F1 shortcut — Fn layer needed on 75%)
 
 -- Brightness with Quickshell fallback
@@ -95,6 +95,40 @@ hl.bind("SUPER + T", hl.dsp.window.float())
 hl.bind("SUPER + Tab", hl.dsp.focus({ workspace = "previous" }))
 hl.bind("SUPER + backslash", hl.dsp.exec_cmd(shared.scripts_path .. "/quake > /dev/null"))
 hl.bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("hyprpicker -a"))
+
+-- -------------------------------------------------------------------------
+-- Screen splitting — multi-column layout presets
+-- -------------------------------------------------------------------------
+-- The scrolling layout uses explicit_column_widths = "0.333, 0.5, 0.667"
+-- (set in compositor.lua). SUPER+R cycles a single column through those
+-- widths. The binds below arrange ALL open windows into N equal columns
+-- in one shot.
+--
+-- Tip: open your windows first, then hit the shortcut.
+
+-- 2 equal columns (50% each) — fit all visible
+hl.bind("SUPER + SHIFT + 2", hl.dsp.exec_cmd(
+    "hyprctl dispatch layoutmsg 'scroller:setcolumnwidth 0.5' ; " ..
+    "hyprctl dispatch layoutmsg 'scroller:setcolumnwidth 0.5,right' ; " ..
+    "hyprctl dispatch layoutmsg 'fit visible'"
+))
+
+-- 3 equal columns (33% each)
+hl.bind("SUPER + SHIFT + 3", hl.dsp.exec_cmd(
+    "hyprctl dispatch layoutmsg 'scroller:setcolumnwidth 0.333' ; " ..
+    "hyprctl dispatch layoutmsg 'fit all'"
+))
+
+-- 4 equal columns (25% each)
+hl.bind("SUPER + SHIFT + 4", hl.dsp.exec_cmd(
+    "hyprctl dispatch layoutmsg 'scroller:setcolumnwidth 0.25' ; " ..
+    "hyprctl dispatch layoutmsg 'fit all'"
+))
+
+-- Reset: all columns back to default width, fit screen
+hl.bind("SUPER + SHIFT + 0", hl.dsp.exec_cmd(
+    "hyprctl dispatch layoutmsg 'fit all'"
+))
 
 -- -------------------------------------------------------------------------
 -- Scrolling Layout Messages
