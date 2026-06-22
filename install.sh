@@ -8,7 +8,7 @@
 #     Wipes a disk you confirm by name, then fully installs Arch:
 #       • GPT + UEFI: 1 GiB ESP (FAT32) + Btrfs root with @,@home,@log,@pkg,@snapshots
 #       • pacstrap base system, fstab, timezone/locale/hostname, initramfs
-#       • create your user, set passwords, GRUB (UEFI) bootloader
+#       • create your user, set passwords, systemd-boot (UEFI) bootloader
 #       • copy this repo into your new home and arm a first-boot service
 #     Then it AUTO-REBOOTS and runs Stage 2 on first boot — no manual step.
 #
@@ -57,7 +57,7 @@ die()  { printf '\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
 bootstrap() {
   [ "$(id -u)" -eq 0 ]              || die "Bootstrap must run as root from the Arch live ISO."
   command -v pacstrap >/dev/null    || die "pacstrap not found — run this from the Arch live ISO."
-  [ -d /sys/firmware/efi ]          || die "Not booted in UEFI mode — this installer only does UEFI/GRUB."
+  [ -d /sys/firmware/efi ]          || die "Not booted in UEFI mode — this installer only does UEFI/systemd-boot."
 
   # ---- configuration: defaults detected for THIS machine; override via env ----
   local HOSTNAME="${HOSTNAME:-arch}"
@@ -117,7 +117,7 @@ bootstrap() {
 
   log "Installing base system (pacstrap)"
   pacstrap -K /mnt base linux linux-firmware base-devel intel-ucode btrfs-progs \
-                   grub efibootmgr grub-btrfs networkmanager sudo git vim
+                   efibootmgr networkmanager sudo git vim
 
   genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -134,6 +134,7 @@ bootstrap() {
     printf 'KEYMAP=%q\n'    "$KEYMAP"
     printf 'USER_PW_B64=%s\n' "$(printf '%s' "$UPW" | base64 -w0)"
     printf 'ROOT_PW_B64=%s\n' "$(printf '%s' "$RPW" | base64 -w0)"
+    printf 'ROOT_UUID=%s\n' "$(blkid -s UUID -o value "$ROOTP")"
   } > /mnt/root/install.env
   chmod 600 /mnt/root/install.env
 
@@ -174,9 +175,25 @@ echo '%wheel ALL=(ALL:ALL) ALL'            > /etc/sudoers.d/10-wheel
 echo "$USER_NAME ALL=(ALL) NOPASSWD: ALL"  > /etc/sudoers.d/99-dotfiles-install
 chmod 440 /etc/sudoers.d/10-wheel /etc/sudoers.d/99-dotfiles-install
 
-# bootloader (UEFI)
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
-grub-mkconfig -o /boot/grub/grub.cfg
+# bootloader (UEFI) — systemd-boot (Dell Inspiron 5593 TPM workaround: GRUB's
+# hardcoded TPM module crashes on this firmware before it ever reads grub.cfg).
+bootctl install
+# Dell BIOS only auto-boots the EFI fallback path when no NVRAM entry exists,
+# so also drop the loader at /EFI/BOOT/BOOTX64.EFI.
+mkdir -p /boot/EFI/BOOT
+cp /boot/EFI/systemd/systemd-bootx64.efi /boot/EFI/BOOT/BOOTX64.EFI
+mkdir -p /boot/loader/entries
+cat > /boot/loader/entries/arch.conf <<BOOTENTRY
+title   Arch Linux
+linux   /vmlinuz-linux
+initrd  /intel-ucode.img
+initrd  /initramfs-linux.img
+options root=UUID=$ROOT_UUID rw rootflags=subvol=@ quiet
+BOOTENTRY
+cat > /boot/loader/loader.conf <<BOOTLOADER
+default arch.conf
+timeout 3
+BOOTLOADER
 
 # networking on next boot
 systemctl enable NetworkManager
@@ -257,10 +274,39 @@ provision() {
   fi
 
   # ---- 2. install everything in pacman.txt (official repos + AUR) ----
+  # Resilient by design: a single flaky AUR package (a moved mirror, a slow
+  # font download) must NEVER abort the whole provision. We do one fast batch
+  # pass, then retry whatever is still missing one-by-one, and report the rest
+  # instead of dying — so the desktop (Hyprland/SDDM/…) always comes up.
   log "Installing packages from pacman.txt"
   local PKGS; mapfile -t PKGS < <(grep -vE '^\s*(#|$)' "$REPO/pacman.txt")
   info "${#PKGS[@]} packages requested."
-  yay -S --needed --noconfirm "${PKGS[@]}"
+
+  # pre-empt the classic pipewire-jack vs jack2 conflict (jack2 gets pulled in
+  # by some stacks; pipewire-jack replaces it and --noconfirm would just abort).
+  if pacman -Qq jack2 >/dev/null 2>&1; then
+    info "removing conflicting jack2 (pipewire-jack replaces it)"
+    sudo pacman -Rdd --noconfirm jack2 || true
+  fi
+
+  # fast batch pass — tolerate failures (the individual retry below recovers)
+  yay -S --needed --noconfirm "${PKGS[@]}" </dev/null || \
+    warn "batch install hit errors — retrying the missing packages individually"
+
+  # second pass: install anything still missing one at a time, collect failures
+  local FAILED=() p
+  for p in "${PKGS[@]}"; do
+    if pacman -Qq -- "$p" >/dev/null 2>&1; then continue; fi   # already present
+    yay -S --needed --noconfirm -- "$p" </dev/null || FAILED+=("$p")
+  done
+  if ((${#FAILED[@]})); then
+    warn "${#FAILED[@]} package(s) could not be installed — the rest of the system is fine:"
+    printf '      - %s\n' "${FAILED[@]}"
+    printf '%s\n' "${FAILED[@]}" > "$HOME/.dotfiles-failed-packages.txt"
+    warn "list saved to ~/.dotfiles-failed-packages.txt — install later with: yay -S <pkg>"
+  else
+    info "all packages installed."
+  fi
 
   # ---- 3. deploy dotfiles via symlink (backing up anything real) ----
   link() {
@@ -350,7 +396,7 @@ ZRAM
 Next steps (one-time):
   • Reboot to start SDDM / Hyprland and activate zram.
   • Set Brave as default browser and sign in to your apps.
-  • GPU: desktop runs on the Intel iGPU; use 'prime-run <app>' for NVIDIA offload.
+  • GPU: desktop runs on the Intel iGPU (no NVIDIA driver installed by default).
 
 Replaced files (if any) were backed up to: $BACKUP
 EOF

@@ -45,8 +45,6 @@ gnome-keyring
 grc
 grim
 grimblast-git
-grub
-grub-btrfs
 gst-plugin-pipewire
 gum
 htop
@@ -87,13 +85,14 @@ networkmanager
 noto-fonts-cjk
 noto-fonts-emoji
 npm
-nvidia
-nvidia-settings
-nvidia-utils
+# NVIDIA MX230 (GP108) intentionally omitted: the Hyprland desktop runs on the
+# Intel iGPU, and the only driver that supports this card is the legacy 525xx
+# branch, which fails to build on current kernels. Add later if you ever need
+# 'prime-run' offload:  yay -S nvidia-525xx-dkms nvidia-525xx-utils
 obs-studio
 openbsd-netcat
-p7zip
-pandoc
+7zip
+pandoc-cli
 papirus-icon-theme
 pavucontrol-qt
 pipewire
@@ -155,9 +154,8 @@ xdotool
 xorg-server
 xorg-xinit
 yay
-yay-debug
 yazi
-zalo
+zalo-for-linux-bin
 zathura
 zathura-pdf-mupdf
 zip
