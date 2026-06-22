@@ -21,7 +21,8 @@ hl.bind("SUPER + Y", hl.dsp.exec_cmd("ghostty -e yazi")) -- yazi TUI file manage
 -- -------------------------------------------------------------------------
 hl.bind(meh .. " + L", hl.dsp.exec_cmd("hyprlock"))
 hl.bind(meh .. " + N", hl.dsp.exec_cmd("makoctl dismiss -a"))
-hl.bind(meh .. " + A", hl.dsp.exec_cmd(shared.scripts_path .. "/anim-preset.sh cycle")) -- cycle anim preset (plan §2)
+hl.bind(meh .. " + A", hl.dsp.exec_cmd(shared.scripts_path .. "/anim-preset.sh cycle")) -- cycle anim preset
+hl.bind(meh .. " + W", hl.dsp.exec_cmd("qs ipc call sunset cycle")) -- cycle color temperature (warm/cool/auto)
 
 -- -------------------------------------------------------------------------
 -- Screenshots (flameshot)
