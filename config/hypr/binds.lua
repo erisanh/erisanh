@@ -8,7 +8,9 @@ local meh = shared.meh
 -- -------------------------------------------------------------------------
 -- App Launchers
 -- -------------------------------------------------------------------------
+-- Terminal: SUPER+Return (primary) and SUPER+grave (fallback)
 hl.bind("SUPER + Return", hl.dsp.exec_cmd("ghostty"))
+hl.bind("SUPER + grave", hl.dsp.exec_cmd("ghostty"))  -- backtick fallback
 hl.bind("SUPER + B", hl.dsp.exec_cmd("zen-browser"))
 hl.bind("SUPER + E", hl.dsp.exec_cmd("thunar"))
 hl.bind("SUPER + D", hl.dsp.exec_cmd("discord"))

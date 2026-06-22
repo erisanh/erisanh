@@ -39,10 +39,10 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
 	hl.exec_cmd("gnome-keyring-daemon --start --components=secrets")
 	hl.exec_cmd("fcitx5")
-	-- Wait for graphical-session.target before launching quickshell so Qt/QML
-	-- services (weather, notifications) can reach the network on first boot.
-	-- Falls back to 5 s sleep if the target is not yet active.
-	hl.exec_cmd("bash -c 'systemctl --user is-active --quiet graphical-session.target || sleep 5; quickshell'")
+	-- Launch quickshell after a short delay so dbus and env are propagated.
+	-- Plain sleep is used instead of waiting for graphical-session.target
+	-- because the target may not exist on all setups (e.g. Arch ISO).
+	hl.exec_cmd("sleep 2 && quickshell")
 	hl.exec_cmd("hypridle")
 	hl.exec_cmd("hyprpaper")
 	hl.exec_cmd("hyprsunset")
