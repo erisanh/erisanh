@@ -95,6 +95,7 @@ Scope {
                     Media {}
                     Resources {}
 
+                    SunsetToggle {}
                     SysTray {}
                     StatusIcons {}
                     BatteryIndicator {}

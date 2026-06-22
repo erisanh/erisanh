@@ -1,0 +1,26 @@
+[General]
+# Core colors - match dotfiles Material 3 dark theme (#101417 background, #95CDF7 accent)
+AccentColor=#95cdf7
+BackgroundColor=#101417
+PlaceholderColor=#8b9198
+
+# Blur
+PartialBlur=true
+BlurRadius=40
+FullBlur=false
+
+# Font - match quickshell
+FontFamily=Inter
+FontSize=12
+
+# Layout
+ScreenWidth=1920
+ScreenHeight=1080
+
+# Input field style
+HaveFormBackground=true
+FormPosition=center
+HeaderText=
+
+# Hide system user avatar (use username text instead)
+AllowEmptyPassword=false

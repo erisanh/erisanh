@@ -12,8 +12,9 @@
 ### Apps & launcher
 | Key | Action |
 | --- | --- |
-| `SUPER + Return` | Terminal (ghostty) |
-| `SUPER + A` | App launcher (quickshell) |
+| `SUPER + G` | Terminal (ghostty) |
+| `SUPER + Return` | Terminal (ghostty) — alias |
+| `SUPER + A` | App launcher (quickshell) — uses `qs ipc call launcher toggle` |
 | `SUPER + Space` | **Toggle Vietnamese ⇄ English** (fcitx5 / Bamboo) |
 | `SUPER + B` | Browser (zen-browser) |
 | `SUPER + E` | File manager GUI (Thunar) |
@@ -38,7 +39,7 @@
 | `Shift + Alt + S` | Capture a region (select → annotate → copy/save) |
 | `Shift + Alt + F` | Copy whole screen to clipboard |
 | `MEH + S` | OCR a region → text to clipboard |
-| `SUPER + Shift + P` | Color picker (hyprpicker) |
+| `SUPER + Shift + K` | Color picker (hyprpicker) |
 
 ### Windows
 | Key | Action |
@@ -70,7 +71,19 @@
 | `SUPER + W` | Fit active column to screen |
 | `SUPER + Shift + W` | Fit all visible columns |
 | `SUPER + Ctrl + W` | Fit every column |
-| `SUPER + G` | Promote column |
+| `SUPER + U` | Promote column |
+
+### Screen splitting
+| Key | Action |
+| --- | --- |
+| `SUPER + R` | Cycle active column width (33% → 50% → 67%) |
+| `SUPER + SHIFT + 2` | Arrange all windows into **2 equal columns** |
+| `SUPER + SHIFT + 3` | Arrange all windows into **3 equal columns** |
+| `SUPER + SHIFT + 4` | Arrange all windows into **4 equal columns** |
+| `SUPER + SHIFT + 0` | Reset — fit all columns to screen |
+| `SUPER + Ctrl + W` | Fit every column to screen width |
+
+> Tip: open your windows first, then hit the split shortcut.
 
 ### Workspaces
 | Key | Action |

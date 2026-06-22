@@ -74,6 +74,8 @@ lxappearance
 man-db
 man-pages
 maplemono-ttf
+inter-font
+ttf-jetbrains-mono-nerd
 matugen
 mdcat
 mpv
@@ -115,6 +117,7 @@ quickshell
 ripgrep
 rofi
 sddm
+sddm-astronaut-theme
 shellcheck
 smartmontools
 sof-firmware
