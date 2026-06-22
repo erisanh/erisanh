@@ -31,6 +31,11 @@ if [ -f "$PROFILES_SRC" ]; then
 fi
 
 # ---- Install extensions per profile ----
+# Failed extensions are written to ~/.dotfiles-failed-vscode-extensions.txt
+# so boot-report.sh can include them in the Telegram notification.
+FAILED_LOG="$HOME/.dotfiles-failed-vscode-extensions.txt"
+rm -f "$FAILED_LOG"   # start fresh each run
+
 FAILED_TOTAL=0
 for d in "$DIR"/*/; do
   name="$(basename "$d")"
@@ -49,6 +54,8 @@ for d in "$DIR"/*/; do
       echo "    ! failed: $ext"
       FAILED_EXTS+=("$ext")
       FAILED_TOTAL=$((FAILED_TOTAL + 1))
+      # Write profile:extension pairs for boot-report.sh to pick up
+      echo "${name}:${ext}" >> "$FAILED_LOG"
     fi
   done < "$list"
 
@@ -61,7 +68,9 @@ done
 echo ""
 if ((FAILED_TOTAL > 0)); then
   echo "Done with $FAILED_TOTAL failure(s). Re-run after first Hyprland login."
+  echo "Failed extensions logged to: $FAILED_LOG"
 else
   echo "Done. All extensions installed successfully."
+  rm -f "$FAILED_LOG"   # no failures — clean up
 fi
 echo "Open VSCode and pick a profile in the bottom-left."

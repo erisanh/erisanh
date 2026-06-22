@@ -28,6 +28,7 @@ MODE="${1:---firstboot}"
 CONFIG_FILE="${HOME}/.config/boot-report.env"
 FIRSTBOOT_LOG="/var/log/dotfiles-firstboot.log"
 FAILED_PKG_FILE="${HOME}/.dotfiles-failed-packages.txt"
+FAILED_VSCODE_FILE="${HOME}/.dotfiles-failed-vscode-extensions.txt"
 HOSTNAME_STR="$(hostname)"
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 
@@ -84,6 +85,21 @@ collect_failed_packages() {
   else
     echo "  (none)"
   fi
+}
+
+collect_vscode_failures() {
+  # Reads ~/.dotfiles-failed-vscode-extensions.txt written by restore-profiles.sh.
+  # Format per line: <profile>:<extension-id>
+  if [ ! -f "$FAILED_VSCODE_FILE" ]; then
+    echo "  (none)"
+    return
+  fi
+  local count
+  count=$(wc -l < "$FAILED_VSCODE_FILE")
+  echo "  ${count} extension(s) failed:"
+  while IFS=: read -r profile ext; do
+    echo "    [${profile}] ${ext}"
+  done < "$FAILED_VSCODE_FILE"
 }
 
 collect_firstboot_errors() {
@@ -190,6 +206,8 @@ build_message() {
     collect_failed_packages
     section "$(printf '\xf0\x9f\x94\xb4') Provision errors (from log)"
     collect_firstboot_errors
+    section "$(printf '\xf0\x9f\x9f\xa5') VSCode extension failures"
+    collect_vscode_failures
   fi
 
   section "$(printf '\xf0\x9f\x94\xb4') Errors (journal)"
