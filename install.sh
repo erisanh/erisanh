@@ -428,12 +428,18 @@ provision() {
   # a summary of failed units, journal errors and warnings on each boot.
   # Symlinked via the dotfiles link step; just needs to be enabled here.
   local BOOT_REPORT_SVC="$HOME/.config/systemd/user/boot-report.service"
-  if [ -f "$BOOT_REPORT_SVC" ]; then
-    systemctl --user daemon-reload 2>/dev/null || true
-    systemctl --user enable boot-report.service 2>/dev/null       && info "enabled boot-report.service (user)"       || warn "could not enable boot-report.service (non-fatal)"
-  else
-    warn "boot-report.service not found at $BOOT_REPORT_SVC — skipping."
-  fi
+  local ACTIVITY_SVC="$HOME/.config/systemd/user/activity-logger.service"
+  systemctl --user daemon-reload 2>/dev/null || true
+  for _svc in boot-report.service activity-logger.service; do
+    _svc_path="$HOME/.config/systemd/user/${_svc}"
+    if [ -f "$_svc_path" ]; then
+      systemctl --user enable "$_svc" 2>/dev/null \
+        && info "enabled ${_svc} (user)" \
+        || warn "could not enable ${_svc} (non-fatal)"
+    else
+      warn "${_svc} not found — skipping."
+    fi
+  done
 
   # ---- 6. zram (plan section 8) ----
   log "Configuring zram"
