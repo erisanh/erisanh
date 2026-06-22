@@ -199,6 +199,12 @@ BOOTLOADER
 systemctl enable NetworkManager
 
 # arm Stage 2 to run automatically once the network is up after first boot
+# Write Telegram credentials into the service if provided at bootstrap time
+local TG_ENV_LINE=""
+if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+  TG_ENV_LINE="Environment=TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}\nEnvironment=TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}"
+fi
+
 cat > /etc/systemd/system/dotfiles-firstboot.service <<UNIT
 [Unit]
 Description=First-boot dotfiles provisioning (Stage 2 of install.sh)
@@ -209,6 +215,7 @@ After=network-online.target NetworkManager-wait-online.service
 Type=oneshot
 User=$USER_NAME
 Environment=HOME=/home/$USER_NAME
+$([ -n "$TG_ENV_LINE" ] && printf '%b' "$TG_ENV_LINE" || true)
 WorkingDirectory=/home/$USER_NAME/erisanh
 ExecStart=/bin/bash /home/$USER_NAME/erisanh/install.sh --firstboot
 StandardOutput=append:/var/log/dotfiles-firstboot.log
@@ -259,6 +266,18 @@ provision() {
   TS="$(date +%Y%m%d-%H%M%S)"; BACKUP="$HOME/.dotfiles-backup/$TS"
   log "Provisioning from: $REPO"
   info "Replaced files are backed up to: $BACKUP"
+
+  # ---- Telegram boot-report credentials (opt-in) ----
+  # Pass via env vars: TELEGRAM_BOT_TOKEN=xxx TELEGRAM_CHAT_ID=yyy bash install.sh
+  # or create ~/.config/boot-report.env manually before running.
+  local BOOT_REPORT_ENV="$HOME/.config/boot-report.env"
+  if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+    mkdir -p "$HOME/.config"
+    printf "TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\n" \
+      "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" > "$BOOT_REPORT_ENV"
+    chmod 600 "$BOOT_REPORT_ENV"
+    info "Telegram boot-report credentials saved to $BOOT_REPORT_ENV"
+  fi
 
   # ---- 1. yay (AUR helper) ----
   log "Ensuring base-devel, git and yay are present"
