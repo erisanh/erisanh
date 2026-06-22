@@ -199,6 +199,8 @@ BOOTLOADER
 systemctl enable NetworkManager
 
 # arm Stage 2 to run automatically once the network is up after first boot
+# Telegram credentials are fetched automatically from private Gist inside
+# provision() — no need to pass them through the service environment.
 cat > /etc/systemd/system/dotfiles-firstboot.service <<UNIT
 [Unit]
 Description=First-boot dotfiles provisioning (Stage 2 of install.sh)
@@ -259,6 +261,34 @@ provision() {
   TS="$(date +%Y%m%d-%H%M%S)"; BACKUP="$HOME/.dotfiles-backup/$TS"
   log "Provisioning from: $REPO"
   info "Replaced files are backed up to: $BACKUP"
+
+  # ---- Telegram boot-report credentials ----
+  # Credentials được fetch tự động từ private GitHub Gist (không cần truyền tay).
+  # Fallback theo thứ tự:
+  #   1. ~/.config/boot-report.env đã tồn tại → dùng luôn
+  #   2. Env vars TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID → ghi file
+  #   3. Fetch từ private Gist → ghi file  (tự động, không cần làm gì)
+  local BOOT_REPORT_ENV="$HOME/.config/boot-report.env"
+  local GIST_URL="https://gist.githubusercontent.com/erisanh/698339687f4ef296dbf886a7dff20b1f/raw/boot-report.env"
+  mkdir -p "$HOME/.config"
+
+  if [ -f "$BOOT_REPORT_ENV" ]; then
+    info "boot-report.env already exists — skipping fetch."
+  elif [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+    printf "TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\n" \
+      "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" > "$BOOT_REPORT_ENV"
+    chmod 600 "$BOOT_REPORT_ENV"
+    info "Telegram credentials saved from env vars."
+  else
+    info "Fetching Telegram credentials from private Gist..."
+    if curl -fsSL "$GIST_URL" -o "$BOOT_REPORT_ENV" 2>/dev/null; then
+      chmod 600 "$BOOT_REPORT_ENV"
+      info "boot-report.env fetched OK."
+    else
+      warn "Could not fetch boot-report.env (non-fatal — no Telegram report will be sent)."
+      rm -f "$BOOT_REPORT_ENV"
+    fi
+  fi
 
   # ---- 1. yay (AUR helper) ----
   log "Ensuring base-devel, git and yay are present"
@@ -410,6 +440,21 @@ ZRAM
     sudo rm -f /etc/systemd/system/dotfiles-firstboot.service
     sudo rm -f /etc/sudoers.d/99-dotfiles-install   # restore password-protected sudo
     info "first-boot service removed; passwordless sudo revoked."
+
+    # ---- 7. remote boot report (Telegram) ----
+    # Sends a summary of errors/failures to Telegram so you can debug
+    # a headless first-boot without needing to be at the machine.
+    # Requires ~/.config/boot-report.env with TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID.
+    # See config/hypr/scripts/boot-report.sh for setup instructions.
+    local REPORT_SCRIPT="$HOME/.config/hypr/scripts/boot-report.sh"
+    if [ -f "$REPORT_SCRIPT" ] && [ -f "$HOME/.config/boot-report.env" ]; then
+      log "Sending boot report to Telegram"
+      bash "$REPORT_SCRIPT" --firstboot || warn "boot-report failed (non-fatal)"
+    else
+      info "Skipping remote boot report (no ~/.config/boot-report.env found)."
+      info "To enable: create that file with TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID."
+      info "See: config/hypr/scripts/boot-report.sh"
+    fi
   fi
 
   log "All done."
@@ -419,6 +464,11 @@ Next steps (one-time):
   • Reboot to start SDDM / Hyprland and activate zram.
   • Set Brave as default browser and sign in to your apps.
   • GPU: desktop runs on the Intel iGPU (no NVIDIA driver installed by default).
+  • [Optional] Enable Telegram boot reports — run once after first login:
+      cp ~/erisanh/boot-report.env.example ~/.config/boot-report.env
+      nano ~/.config/boot-report.env   # điền BOT_TOKEN + CHAT_ID
+      chmod 600 ~/.config/boot-report.env
+    Hướng dẫn lấy token/chat_id: xem boot-report.env.example
 
 Replaced files (if any) were backed up to: $BACKUP
 EOF
