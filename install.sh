@@ -364,8 +364,14 @@ provision() {
       *)          link "$path" "$HOME/.config/$name" ;;
     esac
   done
-  link "$REPO/nvim"       "$HOME/.config/nvim"
-  link "$REPO/quickshell" "$HOME/.config/quickshell"
+  link "$REPO/nvim"                "$HOME/.config/nvim"
+  link "$REPO/quickshell"          "$HOME/.config/quickshell"
+  # systemd user units (boot-report.service, etc.)
+  mkdir -p "$HOME/.config/systemd/user"
+  for svc in "$REPO"/config/systemd/user/*.service "$REPO"/config/systemd/user/*.timer; do
+    [ -e "$svc" ] || continue
+    link "$svc" "$HOME/.config/systemd/user/$(basename "$svc")"
+  done
 
   # ---- 4. VSCode: shared settings/keybindings + restore profiles ----
   log "Setting up VSCode (stable)"
@@ -415,6 +421,18 @@ provision() {
   enable_unit power-profiles-daemon.service power-profiles-daemon
   if pacman -Qq docker >/dev/null 2>&1; then
     sudo usermod -aG docker "$ME" && info "added $ME to the docker group (re-login to apply)"
+  fi
+
+  # ---- boot-report systemd user service ----
+  # Runs boot-report.sh --boot after every login so Telegram receives
+  # a summary of failed units, journal errors and warnings on each boot.
+  # Symlinked via the dotfiles link step; just needs to be enabled here.
+  local BOOT_REPORT_SVC="$HOME/.config/systemd/user/boot-report.service"
+  if [ -f "$BOOT_REPORT_SVC" ]; then
+    systemctl --user daemon-reload 2>/dev/null || true
+    systemctl --user enable boot-report.service 2>/dev/null       && info "enabled boot-report.service (user)"       || warn "could not enable boot-report.service (non-fatal)"
+  else
+    warn "boot-report.service not found at $BOOT_REPORT_SVC — skipping."
   fi
 
   # ---- 6. zram (plan section 8) ----
