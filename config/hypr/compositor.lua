@@ -53,8 +53,7 @@ hl.config({
 			-- Static multi-color gradient border (plan.theme.md §1): alive, ZERO
 			-- animation cost. The "playful" anim preset adds a borderangle loop to
 			-- rotate it (opt-in only — keeps default battery-friendly, §10).
-			-- primary #95CDF7 -> tertiary #CEC0E8 -> secondary #B7C9D9, 45deg.
-			active_border = "rgba(95cdf7ff) rgba(cec0e8ff) rgba(b7c9d9ff) 45deg",
+			active_border = "0xff95cdf7",
 			-- Subtle hairline tone-matched to the #0f120e base (not a 2nd hue).
 			inactive_border = "rgba(2b302aff)",
 		},
@@ -132,5 +131,12 @@ hl.config({
 	binds = {
 		allow_workspace_cycles = true,
 		movefocus_cycles_fullscreen = true,
+	},
+
+	-- -------------------------------------------------------------------------
+	-- Ecosystem
+	-- -------------------------------------------------------------------------
+	ecosystem = {
+		no_update_news = true,
 	},
 })
