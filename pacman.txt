@@ -74,6 +74,8 @@ lxappearance
 man-db
 man-pages
 maplemono-ttf
+inter-font
+ttf-jetbrains-mono-nerd
 matugen
 mdcat
 mpv

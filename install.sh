@@ -429,14 +429,22 @@ Current=astronaut
 SDDMCONF
     info "SDDM theme set to astronaut"
 
-    # Link astronaut theme user overrides if theme is installed
+    # Apply astronaut theme customizations if theme is installed
     if [ -d /usr/share/sddm/themes/astronaut ]; then
-      sudo mkdir -p /usr/share/sddm/themes/astronaut
       sudo cp -f "$REPO/config/sddm/astronaut/theme.conf.user"         /usr/share/sddm/themes/astronaut/theme.conf.user 2>/dev/null || true
+      # Use dotfiles wallpaper as SDDM background if it exists
+      if [ -f "$REPO/assets/background.png" ]; then
+        sudo mkdir -p /usr/share/sddm/themes/astronaut/Backgrounds
+        sudo cp -f "$REPO/assets/background.png"           /usr/share/sddm/themes/astronaut/Backgrounds/background-dark.png 2>/dev/null || true
+        info "SDDM background set to dotfiles wallpaper"
+      fi
       info "astronaut theme.conf.user applied"
     else
-      warn "sddm-astronaut-theme not installed yet — run: yay -S sddm-astronaut-theme"
+      warn "sddm-astronaut-theme not installed — run: yay -S sddm-astronaut-theme"
     fi
+
+    # Allow SDDM to read the theme directory (needs correct permissions)
+    sudo chmod 755 /usr/share/sddm/themes/astronaut 2>/dev/null || true
   fi
   enable_unit cronie.service                cronie
   enable_unit power-profiles-daemon.service power-profiles-daemon

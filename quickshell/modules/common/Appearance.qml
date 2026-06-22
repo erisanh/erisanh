@@ -202,8 +202,8 @@ Singleton {
     // Font configuration
     readonly property QtObject font: QtObject {
         readonly property QtObject family: QtObject {
-            readonly property string main: "sans-serif"
-            readonly property string monospace: "monospace"
+            readonly property string main: "Inter"
+            readonly property string monospace: "JetBrainsMono Nerd Font"
         }
         readonly property QtObject pixelSize: QtObject {
             readonly property int smallest: 10
