@@ -8,9 +8,9 @@ local meh = shared.meh
 -- -------------------------------------------------------------------------
 -- App Launchers
 -- -------------------------------------------------------------------------
--- Terminal: SUPER+Return (primary) and SUPER+grave (fallback)
-hl.bind("SUPER + Return", hl.dsp.exec_cmd("ghostty"))
-hl.bind("SUPER + grave", hl.dsp.exec_cmd("ghostty"))  -- backtick fallback
+-- Terminal: SUPER+G (primary), SUPER+Return kept for muscle memory
+hl.bind("SUPER + G", hl.dsp.exec_cmd("ghostty"))
+hl.bind("SUPER + Return", hl.dsp.exec_cmd("ghostty"))  -- Return alias
 hl.bind("SUPER + B", hl.dsp.exec_cmd("zen-browser"))
 hl.bind("SUPER + E", hl.dsp.exec_cmd("thunar"))
 hl.bind("SUPER + D", hl.dsp.exec_cmd("discord"))
@@ -96,7 +96,7 @@ hl.bind("SUPER + Q", hl.dsp.window.close())
 hl.bind("SUPER + T", hl.dsp.window.float())
 hl.bind("SUPER + Tab", hl.dsp.focus({ workspace = "previous" }))
 hl.bind("SUPER + backslash", hl.dsp.exec_cmd(shared.scripts_path .. "/quake > /dev/null"))
-hl.bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("hyprpicker -a"))
+hl.bind("SUPER + SHIFT + K", hl.dsp.exec_cmd("hyprpicker -a"))  -- color picker
 
 -- -------------------------------------------------------------------------
 -- Screen splitting — multi-column layout presets
@@ -144,7 +144,7 @@ hl.bind("SUPER + C", hl.dsp.layout("togglefit")) -- toggle center/fit mode (niri
 hl.bind("SUPER + W", hl.dsp.layout("fit active")) -- fit active column to screen
 hl.bind("SUPER + SHIFT + W", hl.dsp.layout("fit visible")) -- fit all visible to screen
 hl.bind("SUPER + CTRL + W", hl.dsp.layout("fit all")) -- fit every column to screen
-hl.bind("SUPER + G", hl.dsp.layout("promote"))
+hl.bind("SUPER + U", hl.dsp.layout("promote"))  -- promote column (U = up/promote)
 
 -- Column resize: only layoutmsg version kept.
 -- Intentionally omitted: duplicate splitratio binds on the same keys that

@@ -12,7 +12,8 @@
 ### Apps & launcher
 | Key | Action |
 | --- | --- |
-| `SUPER + Return` | Terminal (ghostty) |
+| `SUPER + G` | Terminal (ghostty) |
+| `SUPER + Return` | Terminal (ghostty) — alias |
 | `SUPER + A` | App launcher (quickshell) — uses `qs ipc call launcher toggle` |
 | `SUPER + Space` | **Toggle Vietnamese ⇄ English** (fcitx5 / Bamboo) |
 | `SUPER + B` | Browser (zen-browser) |
@@ -38,7 +39,7 @@
 | `Shift + Alt + S` | Capture a region (select → annotate → copy/save) |
 | `Shift + Alt + F` | Copy whole screen to clipboard |
 | `MEH + S` | OCR a region → text to clipboard |
-| `SUPER + Shift + P` | Color picker (hyprpicker) |
+| `SUPER + Shift + K` | Color picker (hyprpicker) |
 
 ### Windows
 | Key | Action |
@@ -70,7 +71,7 @@
 | `SUPER + W` | Fit active column to screen |
 | `SUPER + Shift + W` | Fit all visible columns |
 | `SUPER + Ctrl + W` | Fit every column |
-| `SUPER + G` | Promote column |
+| `SUPER + U` | Promote column |
 
 ### Screen splitting
 | Key | Action |
