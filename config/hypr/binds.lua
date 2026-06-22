@@ -10,7 +10,7 @@ local meh = shared.meh
 -- -------------------------------------------------------------------------
 hl.bind("SUPER + Return", hl.dsp.exec_cmd("ghostty"))
 hl.bind("SUPER + B", hl.dsp.exec_cmd("zen-browser"))
-hl.bind("SUPER + E", hl.dsp.exec_cmd("dolphin"))
+hl.bind("SUPER + E", hl.dsp.exec_cmd("thunar"))
 hl.bind("SUPER + D", hl.dsp.exec_cmd("discord"))
 hl.bind("SUPER + Y", hl.dsp.exec_cmd("ghostty -e yazi")) -- yazi TUI file manager (plan §11)
 
@@ -22,19 +22,19 @@ hl.bind(meh .. " + N", hl.dsp.exec_cmd("makoctl dismiss -a"))
 hl.bind(meh .. " + A", hl.dsp.exec_cmd(shared.scripts_path .. "/anim-preset.sh cycle")) -- cycle anim preset (plan §2)
 
 -- -------------------------------------------------------------------------
--- Screenshots (grimblast)
+-- Screenshots (flameshot)
+-- NOTE: this DAREU 65% keyboard has NO Print/PrtSc key, so screenshots are on
+-- Shift+Alt letter combos instead of the usual Print bindings.
 -- -------------------------------------------------------------------------
-hl.bind("Print", hl.dsp.exec_cmd("grimblast -w 0.3 --notify --freeze copy area"))
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("grimblast -w 0.3 --notify save area"))
-hl.bind("SUPER + Print", hl.dsp.exec_cmd("grimblast -w 0.3 --notify copy screen"))
-hl.bind("SUPER + SHIFT + Print", hl.dsp.exec_cmd("grimblast -w 0.3 --notify save screen"))
+hl.bind("SHIFT + ALT + S", hl.dsp.exec_cmd("flameshot gui")) -- region: select → annotate → copy/save
+hl.bind("SHIFT + ALT + F", hl.dsp.exec_cmd("flameshot full -c")) -- whole screen → clipboard
 
--- OCR: capture area → tesseract → clipboard
+-- OCR: capture area → tesseract → clipboard (needs the 'tesseract' package)
 -- Anchored to /tmp/hypr-ocr.png instead of bare tmp.png
 hl.bind(
 	meh .. " + S",
 	hl.dsp.exec_cmd(
-		"grimblast save area /tmp/hypr-ocr.png"
+		"flameshot gui --raw > /tmp/hypr-ocr.png"
 			.. " && tesseract -l eng /tmp/hypr-ocr.png - | wl-copy"
 			.. " && rm /tmp/hypr-ocr.png"
 	)
@@ -45,8 +45,9 @@ hl.bind(
 -- -------------------------------------------------------------------------
 hl.bind("XF86PowerOff", hl.dsp.exec_cmd("qs ipc call session open"))
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("qs ipc call session open"))
-hl.bind("SUPER + space", hl.dsp.global("quickshell:launcherToggle"))
-hl.bind("SUPER + F1", hl.dsp.exec_cmd("qs ipc call gamingMode toggle"))
+-- Super+Space is left free for the fcitx5 Vietnamese toggle (see config/fcitx5)
+hl.bind("SUPER + A", hl.dsp.global("quickshell:launcherToggle")) -- app launcher; was Super+Space
+hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("qs ipc call gamingMode toggle")) -- no F-row on this 65% board; was Super+F1
 
 -- Brightness with Quickshell fallback
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc call brightness decrement || brightnessctl s 5%-"))
@@ -75,6 +76,11 @@ hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("pactl set-source-mute @DEFAULT_SOUR
 hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("SUPER + ALT + bracketright", hl.dsp.exec_cmd("playerctl next"), { locked = true })
 hl.bind("SUPER + ALT + bracketleft", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+
+-- Physical media keys (Fn layer on this 65% board: Fn+7/8/6)
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 
 -- -------------------------------------------------------------------------
 -- Window Management
@@ -165,7 +171,8 @@ end, { repeating = true })
 -- VM Submap
 -- -------------------------------------------------------------------------
 hl.define_submap("vm", function()
-	hl.bind("SUPER + ALT + F1", function()
+	-- no F-row on this 65% board; was Super+Alt+F1
+	hl.bind("SUPER + ALT + V", function()
 		if hl.get_current_submap() == "vm" then
 			hl.dispatch(
 				hl.dsp.exec_cmd("notify-send 'Exited Virtual Machine submap' 'Keybinds re-enabled' -a 'Hyprland'")
@@ -174,7 +181,7 @@ hl.define_submap("vm", function()
 		else
 			hl.dispatch(
 				hl.dsp.exec_cmd(
-					"notify-send 'Entered Virtual Machine submap' 'Keybinds disabled. Hit Super+Alt+F1 to escape' -a 'Hyprland'"
+					"notify-send 'Entered Virtual Machine submap' 'Keybinds disabled. Hit Super+Alt+V to escape' -a 'Hyprland'"
 				)
 			)
 			hl.dispatch(hl.dsp.submap("vm"))

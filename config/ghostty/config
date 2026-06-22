@@ -13,9 +13,10 @@ mouse-hide-while-typing = true
 # # cursor
 # adjust-cursor-thickness = 2
 
-# theme
-theme = /home/dai/ghq/github.com/folke/tokyonight.nvim/extras/ghostty/tokyonight_night
-background = 0f120e
+# theme — ghostty's built-in TokyoNight Night palette; background overridden
+# to the shared desktop surface (#101417, same as Hyprland/quickshell/Qt).
+theme = TokyoNight Night
+background = 101417
 cursor-invert-fg-bg = false
 background-opacity = 1
 window-theme = ghostty

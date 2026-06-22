@@ -82,8 +82,10 @@ hl.config({
 	-- -------------------------------------------------------------------------
 	misc = {
 		-- Flat dark base behind windows / where no wallpaper paints (plan §9.2 / §4).
-		-- Single background hue #0f120e for the whole desktop.
-		background_color = "rgb(0f120e)",
+		-- Single background hue for the whole desktop, matched to the matugen
+		-- Material-You surface (#101417) used by quickshell + Qt, so the void
+		-- behind windows is the same primary background as the apps.
+		background_color = "rgb(101417)",
 		disable_hyprland_logo = true,
 		disable_splash_rendering = true,
 		mouse_move_enables_dpms = true,

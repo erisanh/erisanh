@@ -1,0 +1,19 @@
+# fcitx5 input-method group — managed by this dotfiles repo.
+# Group "Default" holds English (keyboard-us) + Vietnamese (bamboo).
+# Default is English; Super+Space toggles to Bamboo.
+
+[Groups/0]
+Name=Default
+Default Layout=us
+DefaultIM=keyboard-us
+
+[Groups/0/Items/0]
+Name=keyboard-us
+Layout=
+
+[Groups/0/Items/1]
+Name=bamboo
+Layout=
+
+[GroupOrder]
+0=Default

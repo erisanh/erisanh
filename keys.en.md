@@ -12,9 +12,10 @@
 | Key | Action |
 | --- | --- |
 | `SUPER + Return` | Terminal (ghostty) |
-| `SUPER + Space` | App launcher (quickshell) |
+| `SUPER + A` | App launcher (quickshell) |
+| `SUPER + Space` | **Toggle Vietnamese ⇄ English** (fcitx5 / Bamboo) |
 | `SUPER + B` | Browser (zen-browser) |
-| `SUPER + E` | File manager GUI (Dolphin) |
+| `SUPER + E` | File manager GUI (Thunar) |
 | `SUPER + Y` | File manager TUI (yazi in ghostty) |
 | `SUPER + D` | Discord |
 | `SUPER + \` | Drop-down "quake" terminal |
@@ -26,15 +27,15 @@
 | `MEH + N` | Dismiss all notifications |
 | `MEH + A` | Cycle animation preset (default → playful → off) |
 | `SUPER + Shift + S` / `XF86PowerOff` | Power / session menu |
-| `SUPER + F1` | Toggle gaming mode |
+| `SUPER + Alt + G` | Toggle gaming mode |
 
-### Screenshots & OCR
+### Screenshots & OCR (flameshot)
+> This keyboard has no Print/PrtSc key, so screenshots use Shift+Alt combos.
+
 | Key | Action |
 | --- | --- |
-| `Print` | Copy region to clipboard (freeze) |
-| `Shift + Print` | Save region to file |
-| `SUPER + Print` | Copy whole screen |
-| `SUPER + Shift + Print` | Save whole screen |
+| `Shift + Alt + S` | Capture a region (select → annotate → copy/save) |
+| `Shift + Alt + F` | Copy whole screen to clipboard |
 | `MEH + S` | OCR a region → text to clipboard |
 | `SUPER + Shift + P` | Color picker (hyprpicker) |
 
@@ -87,13 +88,14 @@
 | `XF86MonBrightnessUp / Down` | Brightness |
 | `SUPER + Alt + P` | Play / pause |
 | `SUPER + Alt + [ / ]` | Previous / next track |
+| `XF86AudioPlay / Next / Prev` | Play-pause / next / prev (Fn+7 / Fn+8 / Fn+6) |
 | `XF86Launch4` | Cycle power profile |
 
 ### Misc
 | Key | Action |
 | --- | --- |
 | `SUPER + Alt + - / =` | Zoom screen out / in |
-| `SUPER + Alt + F1` | Toggle "VM" submap (disable keybinds; press again to exit) |
+| `SUPER + Alt + V` | Toggle "VM" submap (disable keybinds; press again to exit) |
 | 3-finger horizontal swipe | Switch workspace |
 
 ---
