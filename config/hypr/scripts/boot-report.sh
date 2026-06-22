@@ -1,25 +1,24 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# boot-report.sh — gửi log boot/provision lên Telegram
+# boot-report.sh — send boot/provision log to Telegram
 #
-# Chạy cuối quá trình `install.sh --firstboot` (hoặc --provision) để report
-# kết quả về remote ngay khi máy có mạng, không cần display/Hyprland.
+# Called at the end of `install.sh --firstboot` (or --provision) to report
+# results remotely as soon as the machine has network — no display required.
 #
-# Cách dùng:
+# Usage:
 #   bash boot-report.sh [--firstboot|--provision|--boot]
 #
 # Modes:
-#   --firstboot  : tóm tắt toàn bộ provision + các lỗi (default khi gọi từ install.sh)
-#   --provision  : như firstboot nhưng label "manual provision"
-#   --boot       : report systemd failed units sau mỗi lần reboot bình thường
-#                  (cài vào systemd user service nếu muốn monitor ongoing)
+#   --firstboot  full provision summary + errors (default when called from install.sh)
+#   --provision  same as --firstboot but labelled "manual provision"
+#   --boot       systemd failed units + journal errors/warnings after a normal reboot
 #
-# Config: đọc từ ~/.config/boot-report.env (không commit lên git)
+# Config: read from ~/.config/boot-report.env (never committed to git)
 #   TELEGRAM_BOT_TOKEN=123456:ABC...
 #   TELEGRAM_CHAT_ID=9876543
 #
-# Tạo bot: https://t.me/BotFather → /newbot
-# Lấy chat_id: gửi tin nhắn cho bot rồi truy cập
+# Create a bot: https://t.me/BotFather → /newbot
+# Get chat_id:  send any message to the bot, then open
 #   https://api.telegram.org/bot<TOKEN>/getUpdates
 # ==============================================================================
 set -euo pipefail
@@ -34,10 +33,6 @@ TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 # ── Load credentials ──────────────────────────────────────────────────────────
 if [ ! -f "$CONFIG_FILE" ]; then
   echo "boot-report: $CONFIG_FILE not found — skipping remote report." >&2
-  echo "Create it with:" >&2
-  echo "  echo 'TELEGRAM_BOT_TOKEN=xxx' >> $CONFIG_FILE" >&2
-  echo "  echo 'TELEGRAM_CHAT_ID=yyy'   >> $CONFIG_FILE" >&2
-  echo "  chmod 600 $CONFIG_FILE" >&2
   exit 0
 fi
 # shellcheck source=/dev/null
@@ -51,7 +46,6 @@ fi
 # ── Helpers ───────────────────────────────────────────────────────────────────
 tg_send() {
   local text="$1"
-  # Telegram MarkdownV2 — escape special chars
   curl -s -X POST \
     "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
     -d chat_id="${TELEGRAM_CHAT_ID}" \
@@ -72,11 +66,15 @@ tg_file() {
 }
 
 section() { printf '\n<b>%s</b>\n' "$1"; }
+uptime_str() { uptime -p 2>/dev/null || uptime; }
+kernel_str()  { uname -r; }
+disk_usage()  { df -h / 2>/dev/null | awk 'NR==2{print $3 " used / " $2 " total (" $5 ")"}'; }
 
-# ── Collect info ──────────────────────────────────────────────────────────────
+# ── Collectors ────────────────────────────────────────────────────────────────
 collect_failed_units() {
   systemctl --failed --no-legend --no-pager 2>/dev/null \
-    | awk '{print "  ● " $1}' | head -20 || echo "  (none)"
+    | awk '{print "  ● " $1}' | head -20 \
+    || echo "  (none)"
 }
 
 collect_failed_packages() {
@@ -87,30 +85,35 @@ collect_failed_packages() {
   fi
 }
 
-collect_journal_errors() {
-  # Last boot errors from journald (priority err and above), skip noisy lines
-  journalctl -b -p err --no-pager --no-hostname -q 2>/dev/null \
-    | grep -v -E "Failed to load.*theme|use-gl.*Electron|Bluetooth|hci|rfkill" \
-    | tail -30 \
-    | sed 's/^/  /' \
-    || echo "  (none or journald unavailable)"
-}
-
 collect_firstboot_errors() {
   if [ -f "$FIRSTBOOT_LOG" ]; then
     grep -i -E "error|fail|warn|✗|!" "$FIRSTBOOT_LOG" \
       | grep -v "^$\|install.sh\|backup" \
       | tail -40 \
       | sed 's/^/  /' \
-      || echo "  (no errors found in log)"
+      || echo "  (none)"
   else
     echo "  (firstboot log not found)"
   fi
 }
 
-uptime_str() { uptime -p 2>/dev/null || uptime; }
-kernel_str()  { uname -r; }
-disk_usage()  { df -h / 2>/dev/null | awk 'NR==2{print $3 " used / " $2 " total (" $5 ")"}'; }
+collect_journal_errors() {
+  # priority 0-3: emerg, alert, crit, err
+  journalctl -b -p err --no-pager --no-hostname -q 2>/dev/null \
+    | grep -v -E "Failed to load.*theme|use-gl.*Electron|Bluetooth|hci|rfkill" \
+    | tail -20 \
+    | sed 's/^/  /' \
+    || echo "  (none)"
+}
+
+collect_journal_warnings() {
+  # priority 4: warning only (excludes err+ already shown above)
+  journalctl -b -p warning..warning --no-pager --no-hostname -q 2>/dev/null \
+    | grep -v -E "use-gl.*Electron|deprecated|Bluetooth|hci|rfkill|Failed to load.*theme|NetworkManager.*device" \
+    | tail -15 \
+    | sed 's/^/  /' \
+    || echo "  (none)"
+}
 
 # ── Build message ─────────────────────────────────────────────────────────────
 build_message() {
@@ -124,11 +127,17 @@ build_message() {
     *)           icon="📋"; title="Boot report" ;;
   esac
 
-  local failed_units
+  # Collect once, reuse in message and for status icon
+  local failed_units errors warnings
   failed_units="$(collect_failed_units)"
+  errors="$(collect_journal_errors)"
+  warnings="$(collect_journal_warnings)"
 
+  # Status icon: 🔴 failed units, ⚠️ errors only, ✅ clean
   local status_icon="✅"
   if echo "$failed_units" | grep -q "●"; then
+    status_icon="🔴"
+  elif ! echo "$errors" | grep -q "(none)"; then
     status_icon="⚠️"
   fi
 
@@ -153,8 +162,10 @@ MSG
   fi
 
   cat <<MSG
-$(section "🔴 Journal errors (this boot)")
-$(collect_journal_errors)
+$(section "🔴 Errors (journal)")
+${errors}
+$(section "⚠️ Warnings (journal)")
+${warnings}
 MSG
 }
 
@@ -164,12 +175,12 @@ MSG="$(build_message "$MODE")"
 # Telegram message limit is 4096 chars — truncate if needed
 if [ "${#MSG}" -gt 4000 ]; then
   MSG="${MSG:0:3900}
-<i>... (truncated, see attached log)</i>"
+<i>... (truncated — see attached log for full output)</i>"
 fi
 
 tg_send "$MSG"
 
-# Also attach full firstboot log if it exists and we're in provision mode
+# Attach full firstboot log in provision modes
 if [ "$MODE" != "--boot" ] && [ -f "$FIRSTBOOT_LOG" ]; then
   tg_file "📄 Full firstboot log — ${HOSTNAME_STR} ${TIMESTAMP}" "$FIRSTBOOT_LOG"
 fi
