@@ -20,6 +20,10 @@ hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark
 -- Run once at session start
 -- -------------------------------------------------------------------------
 hl.on("hyprland.start", function()
+	-- Load hyprpm plugins (e.g. hyprscrolling for the scrolling layout) early,
+	-- before any window opens. No-op if hyprpm has no enabled plugins.
+	hl.exec_cmd("hyprpm reload -n")
+
 	-- Session/environment setup
 	-- Import env first, then bring up graphical-session.target via hyprland-session.target.
 	-- xdg-desktop-portal >= 1.22 has Requisite=graphical-session.target, so the portal

@@ -19,6 +19,7 @@ chrome-remote-desktop
 clang
 cliphist
 cloudflare-warp-bin
+cmake
 cronie
 docker
 docker-buildx
