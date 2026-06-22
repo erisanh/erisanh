@@ -391,19 +391,15 @@ provision() {
   # finicky headless), Hyprland just falls back to dwindle and you can retry
   # after first login with:  hyprpm update && hyprpm enable hyprscrolling
   # The plugin is loaded each session by 'hyprpm reload -n' in autostart.lua.
-  if command -v hyprpm >/dev/null 2>&1 && command -v Hyprland >/dev/null 2>&1; then
-    log "Building the hyprscrolling layout plugin (hyprpm)"
-    hyprpm update </dev/null >/dev/null 2>&1 || warn "hyprpm update failed — retry after first login"
-    hyprpm add https://github.com/hyprwm/hyprland-plugins </dev/null >/dev/null 2>&1 || true
-    if hyprpm enable hyprscrolling </dev/null >/dev/null 2>&1; then
-      info "hyprscrolling enabled"
-    else
-      warn "could not enable hyprscrolling now — after first login run:"
-      warn "    hyprpm update && hyprpm enable hyprscrolling"
-      warn "(until then the scrolling layout falls back to dwindle)"
-    fi
+  # hyprscrolling plugin — must be built against the RUNNING Hyprland instance.
+  # hyprpm cannot run headless (requires HYPRLAND_INSTANCE_SIGNATURE).
+  # Instead, install a one-shot user service that runs hyprpm on first login.
+  if command -v hyprpm >/dev/null 2>&1; then
+    info "hyprpm found — hyprscrolling will be enabled on first Hyprland login"
+    info "(autostart.lua already calls 'hyprpm reload -n' each session)"
   else
-    warn "hyprpm/Hyprland not present — scrolling layout will fall back to dwindle"
+    warn "hyprpm not found — install hyprland-plugins and run:"
+    warn "    hyprpm update && hyprpm enable hyprscrolling"
   fi
 
   # ---- 5. enable services ----
@@ -417,6 +413,12 @@ provision() {
   enable_unit bluetooth.service             bluez
   enable_unit sddm.service                  sddm
   enable_unit docker.service                docker
+
+  enable_unit cronie.service                cronie
+  enable_unit power-profiles-daemon.service power-profiles-daemon
+  if pacman -Qq docker >/dev/null 2>&1; then
+    sudo usermod -aG docker "$ME" && info "added $ME to the docker group (re-login to apply)"
+  fi
 
   # ---- SDDM theme configuration ----
   # Install sddm.conf system-wide (requires sudo) and link the theme config.
@@ -446,25 +448,22 @@ SDDMCONF
     # Allow SDDM to read the theme directory (needs correct permissions)
     sudo chmod 755 /usr/share/sddm/themes/astronaut 2>/dev/null || true
   fi
-  enable_unit cronie.service                cronie
-  enable_unit power-profiles-daemon.service power-profiles-daemon
-  if pacman -Qq docker >/dev/null 2>&1; then
-    sudo usermod -aG docker "$ME" && info "added $ME to the docker group (re-login to apply)"
-  fi
 
-  # ---- boot-report systemd user service ----
-  # Runs boot-report.sh --boot after every login so Telegram receives
-  # a summary of failed units, journal errors and warnings on each boot.
-  # Symlinked via the dotfiles link step; just needs to be enabled here.
-  local BOOT_REPORT_SVC="$HOME/.config/systemd/user/boot-report.service"
-  local ACTIVITY_SVC="$HOME/.config/systemd/user/activity-logger.service"
+  # ---- boot-report + activity-logger systemd user services ----
+  # systemctl --user requires an active user dbus session (XDG_RUNTIME_DIR).
+  # During headless firstboot there is none, so we set it explicitly.
+  local _uid; _uid="$(id -u)"
+  export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$_uid}"
+  # Ensure the runtime dir exists (systemd creates it on login, but not headless)
+  sudo mkdir -p "$XDG_RUNTIME_DIR"
+  sudo chown "$ME:$ME" "$XDG_RUNTIME_DIR"
+  sudo chmod 700 "$XDG_RUNTIME_DIR"
+
   systemctl --user daemon-reload 2>/dev/null || true
   for _svc in boot-report.service activity-logger.service; do
     _svc_path="$HOME/.config/systemd/user/${_svc}"
     if [ -f "$_svc_path" ]; then
-      systemctl --user enable "$_svc" 2>/dev/null \
-        && info "enabled ${_svc} (user)" \
-        || warn "could not enable ${_svc} (non-fatal)"
+      systemctl --user enable "$_svc" 2>/dev/null         && info "enabled ${_svc} (user)"         || warn "could not enable ${_svc} (non-fatal)"
     else
       warn "${_svc} not found — skipping."
     fi
@@ -488,6 +487,11 @@ ZRAM
     log "Finalising first-boot provisioning"
     if command -v fish >/dev/null 2>&1; then
       sudo chsh -s /usr/bin/fish "$ME" && info "login shell set to fish"
+      # Install fisher + plugins (fish_plugins file lists them)
+      if [ -f "$HOME/.config/fish/fish_plugins" ]; then
+        info "Installing fisher and fish plugins..."
+        fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install < ~/.config/fish/fish_plugins"           2>/dev/null && info "fisher plugins installed"           || warn "fisher install failed — run manually: fisher install < ~/.config/fish/fish_plugins"
+      fi
     fi
     sudo systemctl disable dotfiles-firstboot.service >/dev/null 2>&1 || true
     sudo rm -f /etc/systemd/system/dotfiles-firstboot.service
