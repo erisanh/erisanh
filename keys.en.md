@@ -90,7 +90,7 @@
 | `SUPER + Alt + P` | Play / pause |
 | `SUPER + Alt + [ / ]` | Previous / next track |
 | `XF86AudioPlay / Next / Prev` | Play-pause / next / prev (media Fn keys) |
-| `XF86Launch4` | Cycle power profile |
+| Power profile | Accessible via quickshell bar (no dedicated key on DAREU 75%) |
 
 ### Misc
 | Key | Action |

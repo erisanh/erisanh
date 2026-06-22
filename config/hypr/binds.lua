@@ -54,7 +54,9 @@ hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc call brightness decreme
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("qs ipc call brightness increment || brightnessctl s 5%+"))
 
 -- Power profile
-hl.bind("XF86Launch4", hl.dsp.exec_cmd("qs ipc call powerProfile cycle || asusctl profile --next"))
+-- XF86Launch4 is ASUS-specific and not available on the DAREU 75%.
+-- Power profile cycling is accessible via the quickshell bar instead.
+-- hl.bind("XF86Launch4", hl.dsp.exec_cmd("qs ipc call powerProfile cycle"))
 
 -- -------------------------------------------------------------------------
 -- Media and Volume
