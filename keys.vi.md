@@ -12,9 +12,10 @@
 | Phím | Hành động |
 | --- | --- |
 | `SUPER + Return` | Terminal (ghostty) |
-| `SUPER + Space` | Trình mở ứng dụng (quickshell launcher) |
+| `SUPER + A` | Trình mở ứng dụng (quickshell launcher) |
+| `SUPER + Space` | **Bật/tắt gõ tiếng Việt ⇄ Anh** (fcitx5 / Bamboo) |
 | `SUPER + B` | Trình duyệt (zen-browser) |
-| `SUPER + E` | File manager GUI (Dolphin) |
+| `SUPER + E` | File manager GUI (Thunar) |
 | `SUPER + Y` | File manager TUI (yazi trong ghostty) |
 | `SUPER + D` | Discord |
 | `SUPER + \` | Terminal "quake" thả xuống |
@@ -26,15 +27,15 @@
 | `MEH + N` | Xóa hết thông báo |
 | `MEH + A` | Đổi preset animation (default → playful → off) |
 | `SUPER + Shift + S` / `XF86PowerOff` | Menu nguồn / phiên |
-| `SUPER + F1` | Bật/tắt gaming mode |
+| `SUPER + Alt + G` | Bật/tắt gaming mode |
 
-### Chụp màn hình & OCR
+### Chụp màn hình & OCR (flameshot)
+> Bàn phím này không có phím Print/PrtSc, nên chụp màn hình dùng tổ hợp Shift+Alt.
+
 | Phím | Hành động |
 | --- | --- |
-| `Print` | Chụp vùng → clipboard (đóng băng màn hình) |
-| `Shift + Print` | Chụp vùng → lưu file |
-| `SUPER + Print` | Chụp toàn màn hình → clipboard |
-| `SUPER + Shift + Print` | Chụp toàn màn hình → lưu file |
+| `Shift + Alt + S` | Chụp vùng (chọn → vẽ chú thích → copy/lưu) |
+| `Shift + Alt + F` | Chụp toàn màn hình → clipboard |
 | `MEH + S` | OCR một vùng → chữ vào clipboard |
 | `SUPER + Shift + P` | Lấy mã màu (hyprpicker) |
 
@@ -87,13 +88,14 @@
 | `XF86MonBrightnessUp / Down` | Độ sáng |
 | `SUPER + Alt + P` | Phát / tạm dừng nhạc |
 | `SUPER + Alt + [ / ]` | Bài trước / bài sau |
+| `XF86AudioPlay / Next / Prev` | Phát-dừng / bài sau / bài trước (Fn+7 / Fn+8 / Fn+6) |
 | `XF86Launch4` | Đổi vòng hồ sơ điện năng |
 
 ### Khác
 | Phím | Hành động |
 | --- | --- |
 | `SUPER + Alt + - / =` | Thu / phóng (zoom) màn hình |
-| `SUPER + Alt + F1` | Bật/tắt submap "VM" (tắt phím tắt; bấm lại để thoát) |
+| `SUPER + Alt + V` | Bật/tắt submap "VM" (tắt phím tắt; bấm lại để thoát) |
 | Vuốt 3 ngón ngang | Đổi workspace |
 
 ---
