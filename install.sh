@@ -263,11 +263,11 @@ provision() {
   info "Replaced files are backed up to: $BACKUP"
 
   # ---- Telegram boot-report credentials ----
-  # Credentials được fetch tự động từ private GitHub Gist (không cần truyền tay).
-  # Fallback theo thứ tự:
-  #   1. ~/.config/boot-report.env đã tồn tại → dùng luôn
-  #   2. Env vars TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID → ghi file
-  #   3. Fetch từ private Gist → ghi file  (tự động, không cần làm gì)
+  # Credentials are fetched automatically from a private GitHub Gist.
+  # Resolution order (first match wins):
+  #   1. ~/.config/boot-report.env already exists → use as-is (idempotent)
+  #   2. Env vars TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID are set → write file
+  #   3. Auto-fetch from private Gist → write boot-report.env + chmod 600
   local BOOT_REPORT_ENV="$HOME/.config/boot-report.env"
   local GIST_URL="https://gist.githubusercontent.com/erisanh/698339687f4ef296dbf886a7dff20b1f/raw/boot-report.env"
   mkdir -p "$HOME/.config"
@@ -466,9 +466,9 @@ Next steps (one-time):
   • GPU: desktop runs on the Intel iGPU (no NVIDIA driver installed by default).
   • [Optional] Enable Telegram boot reports — run once after first login:
       cp ~/erisanh/boot-report.env.example ~/.config/boot-report.env
-      nano ~/.config/boot-report.env   # điền BOT_TOKEN + CHAT_ID
+      nano ~/.config/boot-report.env   # fill in BOT_TOKEN + CHAT_ID
       chmod 600 ~/.config/boot-report.env
-    Hướng dẫn lấy token/chat_id: xem boot-report.env.example
+    Setup guide: see boot-report.env.example
 
 Replaced files (if any) were backed up to: $BACKUP
 EOF
