@@ -374,7 +374,9 @@ provision() {
     name="$(basename "$path")"
     case "$name" in
       .gitconfig) link "$path" "$HOME/.gitconfig" ;;   # home dotfile
-      code)       : ;;                                  # handled below
+      code)       : ;;                                  # VSCode handled below
+      systemd)    : ;;                                  # user units handled below (per-file)
+      sddm)       : ;;                                  # SDDM reads /etc, configured separately
       *)          link "$path" "$HOME/.config/$name" ;;
     esac
   done
@@ -396,6 +398,22 @@ provision() {
     bash "$REPO/config/code/profiles/restore-profiles.sh"
   else
     warn "'code' not found — open VSCode once, then run config/code/profiles/restore-profiles.sh"
+  fi
+
+  # ---- 4a. opencode skills (cloned, not symlinked — was a broken absolute symlink) ----
+  # config/opencode/skills used to be a symlink to a personal absolute path.
+  # Clone the upstream skills repo into the linked config dir instead.
+  local OPENCODE_SKILLS="$HOME/.config/opencode/skills"
+  if [ ! -d "$OPENCODE_SKILLS" ]; then
+    if git clone --depth 1 https://github.com/mattpocock/skills.git /tmp/mp-skills 2>/dev/null \
+       && [ -d /tmp/mp-skills/skills ]; then
+      cp -a /tmp/mp-skills/skills "$OPENCODE_SKILLS"
+      rm -rf /tmp/mp-skills
+      info "opencode skills cloned"
+    else
+      warn "could not clone opencode skills (non-fatal) — clone manually later if needed"
+      rm -rf /tmp/mp-skills 2>/dev/null || true
+    fi
   fi
 
   # ---- 4b. Hyprland scrolling-layout plugin (hyprscrolling via hyprpm) ----
