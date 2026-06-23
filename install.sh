@@ -51,6 +51,14 @@ info() { printf '    %s\n' "$*"; }
 warn() { printf '\033[1;33m  ! %s\033[0m\n' "$*"; }
 die()  { printf '\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
 
+# Optional app/dev-tool install functions (install_bruno, install_docker,
+# install_vscode [restores config/vscode/*], install_figma, install_jetbrains,
+# install_zalo, install_telegram, install_archive, install_uv, install_nvm,
+# install_fcitx5). Defined once in setup-app.sh and reused here so the same
+# commands work standalone or during provisioning.
+# shellcheck source=setup-app.sh
+[ -f "$REPO/setup-app.sh" ] && source "$REPO/setup-app.sh"
+
 # =============================================================================
 # STAGE 1 — BOOTSTRAP (disk wipe + partition + pacstrap + base config)
 # =============================================================================
@@ -334,37 +342,10 @@ provision() {
     && info "sddm enabled (graphical login on boot)" \
     || warn "could not enable sddm — run: sudo systemctl enable sddm"
 
-  # ---- 2a. Vietnamese input method (fcitx5 + bamboo) ----
-  # Set the env vars system-wide so GTK/Qt/Wayland apps all use fcitx5.
-  log "Configuring Vietnamese input (fcitx5-bamboo)"
-  sudo tee /etc/environment >/dev/null <<'ENVEOF'
-# Input method — fcitx5 (Vietnamese via bamboo)
-GTK_IM_MODULE=fcitx
-QT_IM_MODULE=fcitx
-XMODIFIERS=@im=fcitx
-SDL_IM_MODULE=fcitx
-GLFW_IM_MODULE=ibus
-ENVEOF
-  # Pre-seed fcitx5 profile so Bamboo is available as an input method.
-  mkdir -p "$HOME/.config/fcitx5"
-  cat > "$HOME/.config/fcitx5/profile" <<'FCITXEOF'
-[Groups/0]
-Name=Default
-Default Layout=us
-DefaultIM=bamboo
-
-[Groups/0/Items/0]
-Name=keyboard-us
-Layout=
-
-[Groups/0/Items/1]
-Name=bamboo
-Layout=
-
-[GroupOrder]
-0=Default
-FCITXEOF
-  info "fcitx5-bamboo configured (toggle with Ctrl+Space after login)"
+  # ---- 2a. Vietnamese input (fcitx5 + bamboo) ----
+  # Full setup (env vars, profile, Super+Space toggle, Hyprland autostart) is
+  # handled by install_fcitx5() from setup-app.sh. It runs AFTER illogical-impulse
+  # below, so the Hyprland execs.lua already exists and we can inject the autostart.
 
   # ---- 3. install illogical-impulse (end-4/dots-hyprland) ----
   # NOTE: illogical-impulse is the graphical shell (Hyprland + Quickshell).
@@ -398,6 +379,22 @@ FCITXEOF
     else
       warn "illogical-impulse setup script not found — run: bash <(curl -s https://ii.clsty.link/get)"
     fi
+  fi
+
+  # ---- 3a. Vietnamese input + optional desktop apps (from setup-app.sh) ----
+  # Runs AFTER illogical-impulse so install_fcitx5 can add fcitx5 autostart to
+  # the Hyprland execs.lua. Each step is non-fatal (warns and continues).
+  # NOTE: 'archive' installs Ark, which adds the right-click Extract/Compress
+  # entries to Dolphin via KF6 KFileItemAction plugins (no manual config needed).
+  # NOTE: 'figma' also defaults the figma-linux desktop chrome to its dark theme.
+  if declare -F setup_app_run >/dev/null; then
+    log "Vietnamese input + desktop apps + dev tools (bruno, docker, vscode, figma, jetbrains, zalo, telegram, archive, uv, nvm)"
+    for _app in fcitx5 bruno docker vscode figma jetbrains zalo telegram archive uv nvm; do
+      setup_app_run "$_app" || warn "$_app: install step failed (non-fatal)"
+    done
+  else
+    warn "setup-app.sh not found — skipping input setup + desktop apps."
+    warn "Install them later with: bash ~/erisanh/setup-app.sh all"
   fi
 
   # ---- 4. Telegram boot-report + activity-logger scripts ----
