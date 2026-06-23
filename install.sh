@@ -414,6 +414,36 @@ provision() {
     info "activity-logger.sh installed to ~/.local/bin"
   fi
 
+  # ---- 4a. Dolphin: always show hidden files ----
+  # Make Dolphin use one global view setting for every folder and turn hidden
+  # files on there, so dotfiles are visible from a fresh install without having
+  # to press Ctrl+H in each directory.
+  log "Configuring Dolphin to always show hidden files"
+  local DOLPHIN_VP="$HOME/.local/share/dolphin/view_properties/global"
+  mkdir -p "$DOLPHIN_VP"
+  if command -v kwriteconfig6 >/dev/null 2>&1; then
+    kwriteconfig6 --file dolphinrc --group General --key GlobalViewProps true
+    kwriteconfig6 --file "$DOLPHIN_VP/.directory" --group Settings --key HiddenFilesShown true
+    info "Dolphin set to show hidden files (via kwriteconfig6)"
+  else
+    # Fallback: write the config files directly (kconfig tools not present yet).
+    cat > "$DOLPHIN_VP/.directory" <<'DOLPHINVP'
+[Settings]
+HiddenFilesShown=true
+DOLPHINVP
+    local DRC="$HOME/.config/dolphinrc"
+    if [ -f "$DRC" ] && grep -q '^\[General\]' "$DRC"; then
+      if grep -q '^GlobalViewProps=' "$DRC"; then
+        sed -i 's/^GlobalViewProps=.*/GlobalViewProps=true/' "$DRC"
+      else
+        sed -i '/^\[General\]/a GlobalViewProps=true' "$DRC"
+      fi
+    else
+      printf '[General]\nGlobalViewProps=true\n' >> "$DRC"
+    fi
+    info "Dolphin set to show hidden files (wrote config files directly)"
+  fi
+
   # ---- 5. enable services ----
   log "Enabling system services"
   enable_unit() {
