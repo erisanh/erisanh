@@ -317,121 +317,95 @@ provision() {
     info "yay already installed."
   fi
 
-  # ---- 2. install everything in pacman.txt (official repos + AUR) ----
-  # Resilient by design: a single flaky AUR package (a moved mirror, a slow
-  # font download) must NEVER abort the whole provision. We do one fast batch
-  # pass, then retry whatever is still missing one-by-one, and report the rest
-  # instead of dying — so the desktop (Hyprland/SDDM/…) always comes up.
-  log "Installing packages from pacman.txt"
-  local PKGS; mapfile -t PKGS < <(grep -vE '^\s*(#|$)' "$REPO/pacman.txt")
-  info "${#PKGS[@]} packages requested."
+  # ---- 2. base packages needed before the illogical-impulse installer ----
+  log "Installing base packages (git, curl, fish, fcitx5 + Vietnamese input)"
+  yay -S --needed --noconfirm \
+    git curl wget fish \
+    fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-bamboo \
+    socat python jq pciutils usbutils \
+    </dev/null || warn "some base packages failed (non-fatal)"
 
-  # pre-empt the classic pipewire-jack vs jack2 conflict (jack2 gets pulled in
-  # by some stacks; pipewire-jack replaces it and --noconfirm would just abort).
-  if pacman -Qq jack2 >/dev/null 2>&1; then
-    info "removing conflicting jack2 (pipewire-jack replaces it)"
-    sudo pacman -Rdd --noconfirm jack2 || true
-  fi
+  # ---- 2a. Vietnamese input method (fcitx5 + bamboo) ----
+  # Set the env vars system-wide so GTK/Qt/Wayland apps all use fcitx5.
+  log "Configuring Vietnamese input (fcitx5-bamboo)"
+  sudo tee /etc/environment >/dev/null <<'ENVEOF'
+# Input method — fcitx5 (Vietnamese via bamboo)
+GTK_IM_MODULE=fcitx
+QT_IM_MODULE=fcitx
+XMODIFIERS=@im=fcitx
+SDL_IM_MODULE=fcitx
+GLFW_IM_MODULE=ibus
+ENVEOF
+  # Pre-seed fcitx5 profile so Bamboo is available as an input method.
+  mkdir -p "$HOME/.config/fcitx5"
+  cat > "$HOME/.config/fcitx5/profile" <<'FCITXEOF'
+[Groups/0]
+Name=Default
+Default Layout=us
+DefaultIM=bamboo
 
-  # fast batch pass — tolerate failures (the individual retry below recovers)
-  yay -S --needed --noconfirm "${PKGS[@]}" </dev/null || \
-    warn "batch install hit errors — retrying the missing packages individually"
+[Groups/0/Items/0]
+Name=keyboard-us
+Layout=
 
-  # second pass: install anything still missing one at a time, collect failures
-  local FAILED=() p
-  for p in "${PKGS[@]}"; do
-    if pacman -Qq -- "$p" >/dev/null 2>&1; then continue; fi   # already present
-    yay -S --needed --noconfirm -- "$p" </dev/null || FAILED+=("$p")
-  done
-  if ((${#FAILED[@]})); then
-    warn "${#FAILED[@]} package(s) could not be installed — the rest of the system is fine:"
-    printf '      - %s\n' "${FAILED[@]}"
-    printf '%s\n' "${FAILED[@]}" > "$HOME/.dotfiles-failed-packages.txt"
-    warn "list saved to ~/.dotfiles-failed-packages.txt — install later with: yay -S <pkg>"
+[Groups/0/Items/1]
+Name=bamboo
+Layout=
+
+[GroupOrder]
+0=Default
+FCITXEOF
+  info "fcitx5-bamboo configured (toggle with Ctrl+Space after login)"
+
+  # ---- 3. install illogical-impulse (end-4/dots-hyprland) ----
+  # NOTE: illogical-impulse is the graphical shell (Hyprland + Quickshell).
+  # Its installer is INTERACTIVE by design ("every command is shown before
+  # it's run"). We therefore DO NOT run it inside the headless first-boot
+  # systemd service — instead we clone it and print instructions so you run
+  # it yourself from a logged-in terminal (matches your Step 5 workflow).
+  log "Setting up illogical-impulse (end-4/dots-hyprland)"
+  local II_DIR="$HOME/dots-hyprland"
+  if [ ! -d "$II_DIR/.git" ]; then
+    git clone --depth 1 https://github.com/end-4/dots-hyprland.git "$II_DIR" \
+      </dev/null && info "cloned illogical-impulse to $II_DIR" \
+      || warn "could not clone illogical-impulse — clone manually later"
   else
-    info "all packages installed."
+    info "illogical-impulse already cloned at $II_DIR"
   fi
 
-  # ---- 3. deploy dotfiles via symlink (backing up anything real) ----
-  link() {
-    local src="$1" dest="$2"
-    [ -e "$src" ] || { warn "missing in repo, skipped: $src"; return; }
-    if [ -L "$dest" ] && [ "$(readlink -f "$dest")" = "$(readlink -f "$src")" ]; then return; fi
-    if [ -e "$dest" ] || [ -L "$dest" ]; then
-      mkdir -p "$BACKUP/$(dirname "${dest#"$HOME"/}")"
-      mv "$dest" "$BACKUP/${dest#"$HOME"/}"
-    fi
-    mkdir -p "$(dirname "$dest")"
-    ln -s "$src" "$dest"
-    info "linked ${dest/#$HOME/~}"
-  }
-
-  log "Linking dotfiles into \$HOME"
-  mkdir -p "$HOME/.config"
-  local path name
-  for path in "$REPO"/config/* "$REPO"/config/.[!.]*; do
-    [ -e "$path" ] || continue
-    name="$(basename "$path")"
-    case "$name" in
-      .gitconfig) link "$path" "$HOME/.gitconfig" ;;   # home dotfile
-      code)       : ;;                                  # VSCode handled below
-      systemd)    : ;;                                  # user units handled below (per-file)
-      sddm)       : ;;                                  # SDDM reads /etc, configured separately
-      *)          link "$path" "$HOME/.config/$name" ;;
-    esac
-  done
-  link "$REPO/nvim"                "$HOME/.config/nvim"
-  link "$REPO/quickshell"          "$HOME/.config/quickshell"
-  # systemd user units (boot-report.service, etc.)
-  mkdir -p "$HOME/.config/systemd/user"
-  for svc in "$REPO"/config/systemd/user/*.service "$REPO"/config/systemd/user/*.timer; do
-    [ -e "$svc" ] || continue
-    link "$svc" "$HOME/.config/systemd/user/$(basename "$svc")"
-  done
-
-  # ---- 4. VSCode: shared settings/keybindings + restore profiles ----
-  log "Setting up VSCode (stable)"
-  mkdir -p "$HOME/.config/Code/User"
-  link "$REPO/config/code/settings.json"    "$HOME/.config/Code/User/settings.json"
-  link "$REPO/config/code/keybindings.json" "$HOME/.config/Code/User/keybindings.json"
-  if command -v code >/dev/null 2>&1; then
-    bash "$REPO/config/code/profiles/restore-profiles.sh"
+  if [ "$FIRSTBOOT" = "yes" ]; then
+    # Headless first-boot: cannot run the interactive installer here.
+    warn "illogical-impulse installer is INTERACTIVE — not run during headless first-boot."
+    warn "After you log into a terminal, run:"
+    warn "    cd ~/dots-hyprland && ./setup install"
+    warn "(or:  bash <(curl -s https://ii.clsty.link/get) )"
   else
-    warn "'code' not found — open VSCode once, then run config/code/profiles/restore-profiles.sh"
-  fi
-
-  # ---- 4a. opencode skills (cloned, not symlinked — was a broken absolute symlink) ----
-  # config/opencode/skills used to be a symlink to a personal absolute path.
-  # Clone the upstream skills repo into the linked config dir instead.
-  local OPENCODE_SKILLS="$HOME/.config/opencode/skills"
-  if [ ! -d "$OPENCODE_SKILLS" ]; then
-    if git clone --depth 1 https://github.com/mattpocock/skills.git /tmp/mp-skills 2>/dev/null \
-       && [ -d /tmp/mp-skills/skills ]; then
-      cp -a /tmp/mp-skills/skills "$OPENCODE_SKILLS"
-      rm -rf /tmp/mp-skills
-      info "opencode skills cloned"
+    # Interactive provision (you ran 'bash install.sh' from a logged-in shell):
+    # launch the official installer now.
+    if [ -x "$II_DIR/setup" ]; then
+      log "Running illogical-impulse installer (interactive)"
+      ( cd "$II_DIR" && ./setup install ) \
+        || warn "illogical-impulse installer exited non-zero — re-run: cd ~/dots-hyprland && ./setup install"
     else
-      warn "could not clone opencode skills (non-fatal) — clone manually later if needed"
-      rm -rf /tmp/mp-skills 2>/dev/null || true
+      warn "illogical-impulse setup script not found — run: bash <(curl -s https://ii.clsty.link/get)"
     fi
   fi
 
-  # ---- 4b. Hyprland scrolling-layout plugin (hyprscrolling via hyprpm) ----
-  # compositor.lua uses layout="scrolling", provided by the official
-  # hyprscrolling plugin. hyprpm builds it from source against the installed
-  # Hyprland. Best-effort + non-fatal: if the build fails here (hyprpm can be
-  # finicky headless), Hyprland just falls back to dwindle and you can retry
-  # after first login with:  hyprpm update && hyprpm enable hyprscrolling
-  # The plugin is loaded each session by 'hyprpm reload -n' in autostart.lua.
-  # hyprscrolling plugin — must be built against the RUNNING Hyprland instance.
-  # hyprpm cannot run headless (requires HYPRLAND_INSTANCE_SIGNATURE).
-  # Instead, install a one-shot user service that runs hyprpm on first login.
-  if command -v hyprpm >/dev/null 2>&1; then
-    info "hyprpm found — hyprscrolling will be enabled on first Hyprland login"
-    info "(autostart.lua already calls 'hyprpm reload -n' each session)"
-  else
-    warn "hyprpm not found — install hyprland-plugins and run:"
-    warn "    hyprpm update && hyprpm enable hyprscrolling"
+  # ---- 4. Telegram boot-report + activity-logger scripts ----
+  # These are kept from the old setup as standalone helpers (not tied to
+  # the old dotfiles). Copy them into ~/.local/bin so they survive any
+  # illogical-impulse updates.
+  log "Installing Telegram reporter scripts"
+  mkdir -p "$HOME/.local/bin" "$HOME/.config/systemd/user"
+  if [ -f "$REPO/assets/boot-report.sh" ]; then
+    cp "$REPO/assets/boot-report.sh" "$HOME/.local/bin/boot-report.sh"
+    chmod +x "$HOME/.local/bin/boot-report.sh"
+    info "boot-report.sh installed to ~/.local/bin"
+  fi
+  if [ -f "$REPO/assets/activity-logger.sh" ]; then
+    cp "$REPO/assets/activity-logger.sh" "$HOME/.local/bin/activity-logger.sh"
+    chmod +x "$HOME/.local/bin/activity-logger.sh"
+    info "activity-logger.sh installed to ~/.local/bin"
   fi
 
   # ---- 5. enable services ----

@@ -1,7 +1,0 @@
-cweijan.vscode-office
-eamodio.gitlens
-fwcd.kotlin
-github.github-vscode-theme
-ms-vscode.makefile-tools
-pkief.material-icon-theme
-zhuangtongfa.material-theme
