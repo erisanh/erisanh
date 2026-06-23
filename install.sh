@@ -272,6 +272,14 @@ provision() {
   local GIST_URL="https://gist.githubusercontent.com/erisanh/698339687f4ef296dbf886a7dff20b1f/raw/boot-report.env"
   mkdir -p "$HOME/.config"
 
+  # SECURITY NOTE: these credentials are baked into a PUBLIC repo, so anyone
+  # can read them and control/spam this Telegram bot. They are only used for a
+  # personal boot-report bot with no access to anything sensitive. After the
+  # setup is stable, revoke this bot via @BotFather and switch to the Gist or
+  # env-var method above. Treat this token as disposable.
+  local FALLBACK_BOT_TOKEN="8969386847:AAHuYDxI05h98Bl9eOB0Azh3d4xm3wgO-NI"
+  local FALLBACK_CHAT_ID="6224920853"
+
   if [ -f "$BOOT_REPORT_ENV" ]; then
     info "boot-report.env already exists — skipping fetch."
   elif [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
@@ -280,13 +288,19 @@ provision() {
     chmod 600 "$BOOT_REPORT_ENV"
     info "Telegram credentials saved from env vars."
   else
-    info "Fetching Telegram credentials from private Gist..."
-    if curl -fsSL "$GIST_URL" -o "$BOOT_REPORT_ENV" 2>/dev/null; then
+    # Try the Gist first (lets you rotate creds without editing the repo),
+    # then fall back to the hardcoded defaults so the report ALWAYS works.
+    info "Fetching Telegram credentials from Gist (with hardcoded fallback)..."
+    if curl -fsSL --retry 3 --retry-delay 2 "$GIST_URL" -o "$BOOT_REPORT_ENV" 2>/dev/null \
+       && grep -q "TELEGRAM_BOT_TOKEN" "$BOOT_REPORT_ENV"; then
       chmod 600 "$BOOT_REPORT_ENV"
-      info "boot-report.env fetched OK."
+      info "boot-report.env fetched from Gist."
     else
-      warn "Could not fetch boot-report.env (non-fatal — no Telegram report will be sent)."
-      rm -f "$BOOT_REPORT_ENV"
+      warn "Gist fetch failed — using hardcoded fallback credentials."
+      printf "TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\n" \
+        "$FALLBACK_BOT_TOKEN" "$FALLBACK_CHAT_ID" > "$BOOT_REPORT_ENV"
+      chmod 600 "$BOOT_REPORT_ENV"
+      info "boot-report.env written from hardcoded fallback."
     fi
   fi
 
@@ -360,7 +374,9 @@ provision() {
     name="$(basename "$path")"
     case "$name" in
       .gitconfig) link "$path" "$HOME/.gitconfig" ;;   # home dotfile
-      code)       : ;;                                  # handled below
+      code)       : ;;                                  # VSCode handled below
+      systemd)    : ;;                                  # user units handled below (per-file)
+      sddm)       : ;;                                  # SDDM reads /etc, configured separately
       *)          link "$path" "$HOME/.config/$name" ;;
     esac
   done
@@ -382,6 +398,22 @@ provision() {
     bash "$REPO/config/code/profiles/restore-profiles.sh"
   else
     warn "'code' not found — open VSCode once, then run config/code/profiles/restore-profiles.sh"
+  fi
+
+  # ---- 4a. opencode skills (cloned, not symlinked — was a broken absolute symlink) ----
+  # config/opencode/skills used to be a symlink to a personal absolute path.
+  # Clone the upstream skills repo into the linked config dir instead.
+  local OPENCODE_SKILLS="$HOME/.config/opencode/skills"
+  if [ ! -d "$OPENCODE_SKILLS" ]; then
+    if git clone --depth 1 https://github.com/mattpocock/skills.git /tmp/mp-skills 2>/dev/null \
+       && [ -d /tmp/mp-skills/skills ]; then
+      cp -a /tmp/mp-skills/skills "$OPENCODE_SKILLS"
+      rm -rf /tmp/mp-skills
+      info "opencode skills cloned"
+    else
+      warn "could not clone opencode skills (non-fatal) — clone manually later if needed"
+      rm -rf /tmp/mp-skills 2>/dev/null || true
+    fi
   fi
 
   # ---- 4b. Hyprland scrolling-layout plugin (hyprscrolling via hyprpm) ----
@@ -425,28 +457,39 @@ provision() {
   if pacman -Qq sddm >/dev/null 2>&1; then
     # System-wide SDDM config (not per-user)
     sudo mkdir -p /etc/sddm.conf.d
-    sudo tee /etc/sddm.conf.d/10-theme.conf >/dev/null <<SDDMCONF
-[Theme]
-Current=astronaut
-SDDMCONF
-    info "SDDM theme set to astronaut"
-
-    # Apply astronaut theme customizations if theme is installed
-    if [ -d /usr/share/sddm/themes/astronaut ]; then
-      sudo cp -f "$REPO/config/sddm/astronaut/theme.conf.user"         /usr/share/sddm/themes/astronaut/theme.conf.user 2>/dev/null || true
-      # Use dotfiles wallpaper as SDDM background if it exists
-      if [ -f "$REPO/assets/background.png" ]; then
-        sudo mkdir -p /usr/share/sddm/themes/astronaut/Backgrounds
-        sudo cp -f "$REPO/assets/background.png"           /usr/share/sddm/themes/astronaut/Backgrounds/background-dark.png 2>/dev/null || true
-        info "SDDM background set to dotfiles wallpaper"
-      fi
-      info "astronaut theme.conf.user applied"
-    else
-      warn "sddm-astronaut-theme not installed — run: yay -S sddm-astronaut-theme"
+    # The AUR package installs into the folder 'sddm-astronaut-theme'
+    # (NOT 'astronaut'). Using the wrong name makes SDDM silently fall
+    # back to the ugly default greeter. Detect the real folder name.
+    local THEME_DIR=""
+    if [ -d /usr/share/sddm/themes/sddm-astronaut-theme ]; then
+      THEME_DIR="sddm-astronaut-theme"
+    elif [ -d /usr/share/sddm/themes/astronaut ]; then
+      THEME_DIR="astronaut"
     fi
 
-    # Allow SDDM to read the theme directory (needs correct permissions)
-    sudo chmod 755 /usr/share/sddm/themes/astronaut 2>/dev/null || true
+    if [ -n "$THEME_DIR" ]; then
+      sudo tee /etc/sddm.conf.d/10-theme.conf >/dev/null <<SDDMCONF
+[Theme]
+Current=$THEME_DIR
+
+[General]
+# sddm-astronaut-theme needs the qt virtual keyboard input method
+InputMethod=qtvirtualkeyboard
+SDDMCONF
+      info "SDDM theme set to $THEME_DIR"
+
+      # Apply theme customizations
+      sudo cp -f "$REPO/config/sddm/astronaut/theme.conf.user"         "/usr/share/sddm/themes/$THEME_DIR/theme.conf.user" 2>/dev/null || true
+      if [ -f "$REPO/assets/background.png" ]; then
+        sudo mkdir -p "/usr/share/sddm/themes/$THEME_DIR/Backgrounds"
+        sudo cp -f "$REPO/assets/background.png"           "/usr/share/sddm/themes/$THEME_DIR/Backgrounds/background-dark.png" 2>/dev/null || true
+        info "SDDM background set to dotfiles wallpaper"
+      fi
+      sudo chmod 755 "/usr/share/sddm/themes/$THEME_DIR" 2>/dev/null || true
+    else
+      warn "sddm-astronaut-theme not installed — keeping default SDDM theme."
+      warn "Install later with: yay -S sddm-astronaut-theme"
+    fi
   fi
 
   # ---- boot-report + activity-logger systemd user services ----
