@@ -318,12 +318,21 @@ provision() {
   fi
 
   # ---- 2. base packages needed before the illogical-impulse installer ----
-  log "Installing base packages (git, curl, fish, fcitx5 + Vietnamese input)"
+  # NOTE: illogical-impulse does NOT install a display manager, so we must
+  # install SDDM here (+ the qt6 deps its greeter/theme need). Without this
+  # the machine boots to a text console instead of a graphical login.
+  log "Installing base packages (sddm, git, curl, fish, fcitx5 + Vietnamese input)"
   yay -S --needed --noconfirm \
+    sddm qt6-svg qt6-virtualkeyboard qt6-multimedia \
     git curl wget fish \
     fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-bamboo \
     socat python jq pciutils usbutils \
     </dev/null || warn "some base packages failed (non-fatal)"
+
+  # Enable SDDM so the graphical login starts on every boot.
+  sudo systemctl enable sddm.service 2>/dev/null \
+    && info "sddm enabled (graphical login on boot)" \
+    || warn "could not enable sddm — run: sudo systemctl enable sddm"
 
   # ---- 2a. Vietnamese input method (fcitx5 + bamboo) ----
   # Set the env vars system-wide so GTK/Qt/Wayland apps all use fcitx5.
