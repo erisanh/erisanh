@@ -425,28 +425,39 @@ provision() {
   if pacman -Qq sddm >/dev/null 2>&1; then
     # System-wide SDDM config (not per-user)
     sudo mkdir -p /etc/sddm.conf.d
-    sudo tee /etc/sddm.conf.d/10-theme.conf >/dev/null <<SDDMCONF
-[Theme]
-Current=astronaut
-SDDMCONF
-    info "SDDM theme set to astronaut"
-
-    # Apply astronaut theme customizations if theme is installed
-    if [ -d /usr/share/sddm/themes/astronaut ]; then
-      sudo cp -f "$REPO/config/sddm/astronaut/theme.conf.user"         /usr/share/sddm/themes/astronaut/theme.conf.user 2>/dev/null || true
-      # Use dotfiles wallpaper as SDDM background if it exists
-      if [ -f "$REPO/assets/background.png" ]; then
-        sudo mkdir -p /usr/share/sddm/themes/astronaut/Backgrounds
-        sudo cp -f "$REPO/assets/background.png"           /usr/share/sddm/themes/astronaut/Backgrounds/background-dark.png 2>/dev/null || true
-        info "SDDM background set to dotfiles wallpaper"
-      fi
-      info "astronaut theme.conf.user applied"
-    else
-      warn "sddm-astronaut-theme not installed — run: yay -S sddm-astronaut-theme"
+    # The AUR package installs into the folder 'sddm-astronaut-theme'
+    # (NOT 'astronaut'). Using the wrong name makes SDDM silently fall
+    # back to the ugly default greeter. Detect the real folder name.
+    local THEME_DIR=""
+    if [ -d /usr/share/sddm/themes/sddm-astronaut-theme ]; then
+      THEME_DIR="sddm-astronaut-theme"
+    elif [ -d /usr/share/sddm/themes/astronaut ]; then
+      THEME_DIR="astronaut"
     fi
 
-    # Allow SDDM to read the theme directory (needs correct permissions)
-    sudo chmod 755 /usr/share/sddm/themes/astronaut 2>/dev/null || true
+    if [ -n "$THEME_DIR" ]; then
+      sudo tee /etc/sddm.conf.d/10-theme.conf >/dev/null <<SDDMCONF
+[Theme]
+Current=$THEME_DIR
+
+[General]
+# sddm-astronaut-theme needs the qt virtual keyboard input method
+InputMethod=qtvirtualkeyboard
+SDDMCONF
+      info "SDDM theme set to $THEME_DIR"
+
+      # Apply theme customizations
+      sudo cp -f "$REPO/config/sddm/astronaut/theme.conf.user"         "/usr/share/sddm/themes/$THEME_DIR/theme.conf.user" 2>/dev/null || true
+      if [ -f "$REPO/assets/background.png" ]; then
+        sudo mkdir -p "/usr/share/sddm/themes/$THEME_DIR/Backgrounds"
+        sudo cp -f "$REPO/assets/background.png"           "/usr/share/sddm/themes/$THEME_DIR/Backgrounds/background-dark.png" 2>/dev/null || true
+        info "SDDM background set to dotfiles wallpaper"
+      fi
+      sudo chmod 755 "/usr/share/sddm/themes/$THEME_DIR" 2>/dev/null || true
+    else
+      warn "sddm-astronaut-theme not installed — keeping default SDDM theme."
+      warn "Install later with: yay -S sddm-astronaut-theme"
+    fi
   fi
 
   # ---- boot-report + activity-logger systemd user services ----

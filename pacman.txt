@@ -118,6 +118,9 @@ ripgrep
 rofi
 sddm
 sddm-astronaut-theme
+qt6-svg
+qt6-virtualkeyboard
+qt6-multimedia
 shellcheck
 smartmontools
 sof-firmware
@@ -140,7 +143,6 @@ tumbler
 unzip
 usbutils
 uv
-uwsm
 vim
 visual-studio-code-bin
 vulkan-intel
