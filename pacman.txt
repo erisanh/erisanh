@@ -61,6 +61,10 @@ intel-ucode
 iwd
 journalctl-desktop-notification
 jq
+socat
+curl
+python
+pciutils
 keyd
 kvantum
 lazydocker
