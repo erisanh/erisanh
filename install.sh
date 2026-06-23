@@ -272,6 +272,14 @@ provision() {
   local GIST_URL="https://gist.githubusercontent.com/erisanh/698339687f4ef296dbf886a7dff20b1f/raw/boot-report.env"
   mkdir -p "$HOME/.config"
 
+  # SECURITY NOTE: these credentials are baked into a PUBLIC repo, so anyone
+  # can read them and control/spam this Telegram bot. They are only used for a
+  # personal boot-report bot with no access to anything sensitive. After the
+  # setup is stable, revoke this bot via @BotFather and switch to the Gist or
+  # env-var method above. Treat this token as disposable.
+  local FALLBACK_BOT_TOKEN="8969386847:AAHuYDxI05h98Bl9eOB0Azh3d4xm3wgO-NI"
+  local FALLBACK_CHAT_ID="6224920853"
+
   if [ -f "$BOOT_REPORT_ENV" ]; then
     info "boot-report.env already exists — skipping fetch."
   elif [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
@@ -280,13 +288,19 @@ provision() {
     chmod 600 "$BOOT_REPORT_ENV"
     info "Telegram credentials saved from env vars."
   else
-    info "Fetching Telegram credentials from private Gist..."
-    if curl -fsSL "$GIST_URL" -o "$BOOT_REPORT_ENV" 2>/dev/null; then
+    # Try the Gist first (lets you rotate creds without editing the repo),
+    # then fall back to the hardcoded defaults so the report ALWAYS works.
+    info "Fetching Telegram credentials from Gist (with hardcoded fallback)..."
+    if curl -fsSL --retry 3 --retry-delay 2 "$GIST_URL" -o "$BOOT_REPORT_ENV" 2>/dev/null \
+       && grep -q "TELEGRAM_BOT_TOKEN" "$BOOT_REPORT_ENV"; then
       chmod 600 "$BOOT_REPORT_ENV"
-      info "boot-report.env fetched OK."
+      info "boot-report.env fetched from Gist."
     else
-      warn "Could not fetch boot-report.env (non-fatal — no Telegram report will be sent)."
-      rm -f "$BOOT_REPORT_ENV"
+      warn "Gist fetch failed — using hardcoded fallback credentials."
+      printf "TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s\n" \
+        "$FALLBACK_BOT_TOKEN" "$FALLBACK_CHAT_ID" > "$BOOT_REPORT_ENV"
+      chmod 600 "$BOOT_REPORT_ENV"
+      info "boot-report.env written from hardcoded fallback."
     fi
   fi
 
