@@ -53,8 +53,10 @@ die()  { printf '\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
 
 # Optional app/dev-tool install functions (install_bruno, install_docker,
 # install_vscode [restores config/vscode/*], install_figma, install_jetbrains,
-# install_zalo, install_telegram, install_archive, install_uv, install_nvm,
-# install_fcitx5). Defined once in setup-app.sh and reused here so the same
+# install_zalo, install_telegram, install_teams, install_capcut [web-app],
+# install_archive, install_uv, install_nvm, install_fcitx5,
+# install_shortcuts [Hyprland app-launch keybinds]).
+# Defined once in setup-app.sh and reused here so the same
 # commands work standalone or during provisioning.
 # shellcheck source=setup-app.sh
 [ -f "$REPO/setup-app.sh" ] && source "$REPO/setup-app.sh"
@@ -387,9 +389,13 @@ provision() {
   # NOTE: 'archive' installs Ark, which adds the right-click Extract/Compress
   # entries to Dolphin via KF6 KFileItemAction plugins (no manual config needed).
   # NOTE: 'figma' also defaults the figma-linux desktop chrome to its dark theme.
+  # 'shortcuts' runs LAST so hypr/custom/keybinds.lua already exists (created by
+  # illogical-impulse above) — it adds the Super+Alt launch keys for every
+  # installed GUI app (B Bruno, C VSCode, D Figma, E Teams, J JetBrains,
+  # T Telegram, V CapCut, Z Zalo).
   if declare -F setup_app_run >/dev/null; then
-    log "Vietnamese input + desktop apps + dev tools (bruno, docker, vscode, figma, jetbrains, zalo, telegram, archive, uv, nvm)"
-    for _app in fcitx5 bruno docker vscode figma jetbrains zalo telegram archive uv nvm; do
+    log "Vietnamese input + desktop apps + dev tools (bruno, docker, vscode, figma, jetbrains, zalo, telegram, teams, capcut, archive, uv, nvm) + app keybinds"
+    for _app in fcitx5 bruno docker vscode figma jetbrains zalo telegram teams capcut archive uv nvm shortcuts; do
       setup_app_run "$_app" || warn "$_app: install step failed (non-fatal)"
     done
   else

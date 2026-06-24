@@ -58,6 +58,21 @@
 
 > Vietnamese typing uses **fcitx5 + bamboo**. Configure with `fcitx5-configtool`.
 
+## App shortcuts (added via setup-app.sh)
+| Key | Action |
+| --- | --- |
+| `Super + Alt + B` | Bruno (API client) |
+| `Super + Alt + C` | Visual Studio Code |
+| `Super + Alt + D` | Figma (figma-linux) |
+| `Super + Alt + E` | Microsoft Teams |
+| `Super + Alt + J` | JetBrains Toolbox *(written when installed)* |
+| `Super + Alt + T` | Telegram |
+| `Super + Alt + V` | CapCut (web app via Brave) |
+| `Super + Alt + Z` | Zalo |
+
+> Managed block in `~/.config/hypr/custom/keybinds.lua`. Re-run
+> `bash ~/erisanh/setup-app.sh shortcuts` to sync after installing new apps.
+
 ## Helpers kept from the previous setup
 | Command | Action |
 | --- | --- |

@@ -58,6 +58,21 @@
 
 > Gõ tiếng Việt dùng **fcitx5 + bamboo**. Cấu hình bằng `fcitx5-configtool`.
 
+## Phím tắt mở app (thêm qua setup-app.sh)
+| Phím | Hành động |
+| --- | --- |
+| `Super + Alt + B` | Bruno (API client) |
+| `Super + Alt + C` | Visual Studio Code |
+| `Super + Alt + D` | Figma (figma-linux) |
+| `Super + Alt + E` | Microsoft Teams |
+| `Super + Alt + J` | JetBrains Toolbox *(ghi khi đã cài)* |
+| `Super + Alt + T` | Telegram |
+| `Super + Alt + V` | CapCut (web app qua Brave) |
+| `Super + Alt + Z` | Zalo |
+
+> Được quản lý trong `~/.config/hypr/custom/keybinds.lua`. Chạy lại
+> `bash ~/erisanh/setup-app.sh shortcuts` để đồng bộ sau khi cài thêm app.
+
 ## Script giữ lại từ bộ cũ
 | Lệnh | Hành động |
 | --- | --- |

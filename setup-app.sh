@@ -13,8 +13,15 @@
 #   bash setup-app.sh all              # install every app below
 #   bash setup-app.sh jetbrains        # JetBrains Toolbox (pick IDEs from it later)
 #   bash setup-app.sh vscode-save      # snapshot live VSCode config back into the repo
+#   bash setup-app.sh shortcuts        # (re)write the Hyprland app-launch keybinds
 #
-# Apps:  bruno  docker  vscode  figma  jetbrains  zalo  telegram  archive  uv  nvm  fcitx5
+# Apps:  bruno  docker  vscode  figma  jetbrains  zalo  telegram  teams  capcut  archive  uv  nvm  fcitx5  shortcuts
+#
+# Re-runs are idempotent for EVERY app: one that's already installed is NOT
+# reinstalled — the run just (re)applies its config / launch keybind. A missing
+# app is installed first. Launch keybinds are written only for installed GUI
+# apps (docker/uv/nvm/fcitx5/archive are daemons/CLI/input-method with nothing
+# to "open", so they get the install-skip but no key).
 #
 # NOTE: open-design.ai is intentionally NOT included — Linux has no prebuilt
 # AppImage, so both AUR variants build from source (the -git desktop build is
@@ -27,13 +34,22 @@
 #                    + restores config/vscode/{settings,keybindings}.json + extensions
 #   figma         -> AUR  figma-linux-bin          (defaults desktop chrome to dark theme)
 #   jetbrains     -> AUR  jetbrains-toolbox        (launcher to install any JetBrains IDE)
-#   zalo          -> AUR  zalo-for-linux-bin
+#   zalo          -> AUR  zalo-for-linux-bin  (+ repo fuse2: the AppImage needs
+#                    libfuse.so.2 at runtime or `zalo` fails to launch)
 #   telegram      -> repo telegram-desktop
+#   teams         -> AUR  teams-for-linux          (open-source Electron client;
+#                    Microsoft discontinued the official Linux Teams app)
+#   capcut        -> web-app launcher (~/.local/bin/capcut) opening capcut.com in
+#                    a Chromium-based browser (Brave) --app window; no native
+#                    Linux CapCut exists, so this wraps the official web editor
 #   archive       -> repo ark zip unzip 7zip unrar unarchiver
 #                    (Ark adds Dolphin right-click Extract/Compress via KF6 plugins)
 #   uv            -> repo uv                       (Python package + version manager)
 #   nvm           -> fisher jorgebucaran/nvm.fish  (Node version manager, fish-native)
 #   fcitx5        -> Vietnamese input (fcitx5-bamboo) + Super+Space toggle + autostart
+#   shortcuts     -> Hyprland app-launch keybinds (written to hypr/custom/keybinds.lua),
+#                    one per INSTALLED GUI app:  Super+Alt+  B Bruno  C VSCode
+#                    D Figma  E Teams  J JetBrains  T Telegram  V CapCut  Z Zalo
 # =============================================================================
 set -euo pipefail
 
@@ -64,17 +80,28 @@ ensure_yay() {
 aur()  { ensure_yay; yay    -S --needed --noconfirm "$@" </dev/null; }   # AUR / repo via yay
 repo() { sudo pacman -S --needed --noconfirm "$@" </dev/null; }          # official repo only
 
+# Idempotency helpers: skip the (re)install when the app is already present so a
+# re-run only refreshes the keybinds. have_pkg = installed pacman package;
+# have_cmd = launchable binary on PATH (or an absolute path to one).
+have_pkg() { pacman -Qq "$1" >/dev/null 2>&1; }
+have_cmd() { command -v "$1" >/dev/null 2>&1 || [ -x "$1" ]; }
+
 # =============================================================================
 # App install functions
 # =============================================================================
 install_bruno() {
-  log "Installing Bruno (API client)"
-  aur bruno-bin && info "Bruno installed." || warn "Bruno install failed."
+  log "Bruno (API client)"
+  if have_cmd bruno; then info "Bruno already installed — skipping install."
+  else aur bruno-bin && info "Bruno installed." || warn "Bruno install failed."; fi
 }
 
 install_docker() {
-  log "Installing Docker + Compose"
-  repo docker docker-compose docker-buildx || { warn "Docker install failed."; return 1; }
+  log "Docker + Compose"
+  if have_cmd docker; then
+    info "Docker already installed — skipping install (service/group still ensured below)."
+  else
+    repo docker docker-compose docker-buildx || { warn "Docker install failed."; return 1; }
+  fi
   # enable --now both enables on boot AND starts the daemon now, so 'docker' is
   # usable immediately (no reboot needed to create /var/run/docker.sock).
   sudo systemctl enable --now docker.service >/dev/null 2>&1 \
@@ -85,8 +112,9 @@ install_docker() {
 }
 
 install_vscode() {
-  log "Installing Visual Studio Code (official build)"
-  aur visual-studio-code-bin && info "VSCode installed." || warn "VSCode install failed."
+  log "Visual Studio Code (official build)"
+  if have_cmd code; then info "VSCode already installed — skipping install (config still synced below)."
+  else aur visual-studio-code-bin && info "VSCode installed." || warn "VSCode install failed."; fi
 
   # Restore config from the repo so a reinstalled machine keeps the same VSCode:
   # settings.json (incl. the Nerd Font terminal fix), keybindings.json, extensions.
@@ -120,15 +148,17 @@ vscode_save() {
 }
 
 install_figma() {
-  log "Installing Figma (figma-linux desktop)"
-  aur figma-linux-bin && info "Figma desktop installed." || warn "Figma install failed."
+  log "Figma (figma-linux desktop)"
+  if have_cmd figma-linux; then info "Figma already installed — skipping install (dark theme still applied below)."
+  else aur figma-linux-bin && info "Figma desktop installed." || warn "Figma install failed."; fi
 
   # Default the figma-linux desktop chrome to the built-in dark theme
   # (theme id 'dark-theme'). settings.json also holds runtime state, so MERGE
   # the key instead of overwriting; create a minimal file if it doesn't exist
   # yet (figma hasn't been launched). NOTE: the Figma EDITOR's own light/dark is
   # a Figma account setting (in-app Preferences → Theme), not in this file.
-  local fdir="$HOME/.config/figma-linux" fset="$fdir/settings.json"
+  local fdir="$HOME/.config/figma-linux"
+  local fset="$fdir/settings.json"
   mkdir -p "$fdir"
   if [ -f "$fset" ] && command -v jq >/dev/null 2>&1; then
     local tmp; tmp="$(mktemp)"
@@ -151,20 +181,86 @@ FIGMA
 # Use the web version at https://open-design.ai when needed.
 
 install_jetbrains() {
-  log "Installing JetBrains Toolbox App"
-  aur jetbrains-toolbox \
-    && info "JetBrains Toolbox installed — launch it, sign in, then install any IDE (IntelliJ, PyCharm, WebStorm, …) from inside it." \
-    || warn "JetBrains Toolbox install failed."
+  log "JetBrains Toolbox App"
+  if have_cmd jetbrains-toolbox; then
+    info "JetBrains Toolbox already installed — skipping install."
+  else
+    aur jetbrains-toolbox \
+      && info "JetBrains Toolbox installed — launch it, sign in, then install any IDE (IntelliJ, PyCharm, WebStorm, …) from inside it." \
+      || warn "JetBrains Toolbox install failed."
+  fi
 }
 
 install_zalo() {
-  log "Installing Zalo desktop"
-  aur zalo-for-linux-bin && info "Zalo installed." || warn "Zalo install failed."
+  log "Zalo desktop"
+  if have_cmd zalo; then info "Zalo already installed — skipping install."
+  else aur zalo-for-linux-bin && info "Zalo installed." || warn "Zalo install failed."; fi
+  # Zalo ships as an AppImage that needs FUSE (libfuse.so.2) AT RUNTIME, but the
+  # AUR package doesn't pull it in — without it `zalo` dies instantly with
+  # "dlopen(): error loading libfuse.so.2 / AppImages require FUSE to run", so the
+  # launcher/keybind appears to "do nothing". Ensure fuse2 is present.
+  if ! have_pkg fuse2; then
+    repo fuse2 && info "fuse2 installed (AppImage runtime needed by Zalo)." \
+      || warn "fuse2 install failed — Zalo will not launch until 'fuse2' is installed."
+  else
+    info "fuse2 already present (Zalo AppImage runtime)."
+  fi
 }
 
 install_telegram() {
-  log "Installing Telegram desktop"
-  repo telegram-desktop && info "Telegram installed." || warn "Telegram install failed."
+  log "Telegram desktop"
+  # The telegram-desktop package installs the binary as 'Telegram' (capital T),
+  # NOT 'telegram-desktop'.
+  if have_cmd Telegram; then info "Telegram already installed — skipping install."
+  else repo telegram-desktop && info "Telegram installed." || warn "Telegram install failed."; fi
+}
+
+# Microsoft discontinued the official Linux Teams client, so we use the
+# community 'teams-for-linux' (an open-source Electron wrapper around the
+# Teams web app — the de-facto Linux Teams on Arch). Binary: teams-for-linux.
+install_teams() {
+  log "Microsoft Teams (teams-for-linux)"
+  if have_cmd teams-for-linux; then info "MS Teams already installed — skipping install."
+  else aur teams-for-linux && info "MS Teams installed." || warn "MS Teams install failed."; fi
+}
+
+# CapCut (ByteDance) ships NO native Linux client — only Windows/macOS/web/mobile.
+# We install a thin web-app launcher: a Chromium-based browser opened in --app
+# (standalone-window) mode pointing at the official CapCut web editor, plus a
+# .desktop entry so it shows in the app launcher. Binary: ~/.local/bin/capcut.
+install_capcut() {
+  log "CapCut (web app — no native Linux client exists)"
+  local capbin="$HOME/.local/bin/capcut"
+  if have_cmd "$capbin"; then info "CapCut launcher already present — skipping install."; return 0; fi
+  # Find a Chromium-based browser that supports --app (Brave is this machine's default).
+  local browser=""
+  local b; for b in brave brave-browser chromium google-chrome-stable microsoft-edge-stable; do
+    command -v "$b" >/dev/null 2>&1 && { browser="$b"; break; }
+  done
+  if [ -z "$browser" ]; then
+    warn "No Chromium-based browser found (brave/chromium/chrome) — install one first."
+    warn "CapCut web needs --app mode; re-run after a browser is installed:  bash ~/erisanh/setup-app.sh capcut"
+    return 1
+  fi
+  mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications"
+  cat > "$capbin" <<CAPCUT
+#!/usr/bin/env bash
+# CapCut web-app launcher (ByteDance ships no native Linux client).
+exec $browser --app=https://www.capcut.com --class=capcut --name=capcut "\$@"
+CAPCUT
+  chmod +x "$capbin"
+  cat > "$HOME/.local/share/applications/capcut.desktop" <<'CAPDESK'
+[Desktop Entry]
+Type=Application
+Name=CapCut
+Comment=CapCut video editor (web app)
+Exec=capcut
+Icon=video-editor
+Terminal=false
+Categories=AudioVideo;Video;
+StartupWMClass=capcut
+CAPDESK
+  info "CapCut web launcher installed ($capbin → opens in $browser)."
 }
 
 # ---- archive manager: Ark + backends for zip / 7z / rar / tar -----------------
@@ -177,10 +273,14 @@ install_telegram() {
 # up without a relogin. Backends give full format coverage: zip+unzip (.zip),
 # 7zip (.7z, provides /usr/bin/7z), unrar (.rar), unarchiver (unar/lsar, extras).
 install_archive() {
-  log "Installing archive manager (Ark + zip/7z/rar backends)"
-  repo ark zip unzip 7zip unrar unarchiver \
-    && info "Ark + backends installed." \
-    || { warn "archive tools install failed."; return 1; }
+  log "Archive manager (Ark + zip/7z/rar backends)"
+  if have_cmd ark; then
+    info "Ark already installed — skipping install (Dolphin cache still refreshed below)."
+  else
+    repo ark zip unzip 7zip unrar unarchiver \
+      && info "Ark + backends installed." \
+      || { warn "archive tools install failed."; return 1; }
+  fi
   # Refresh the KDE service cache so Dolphin shows Extract/Compress immediately.
   command -v kbuildsycoca6 >/dev/null 2>&1 && kbuildsycoca6 >/dev/null 2>&1 || true
   info "Right-click in Dolphin now has Extract… / Compress… (restart Dolphin if open)."
@@ -188,10 +288,11 @@ install_archive() {
 
 # ---- uv: Python package + version manager (Astral) ---------------------------
 install_uv() {
-  log "Installing uv (Python package & version manager)"
-  repo uv \
+  log "uv (Python package & version manager)"
+  if have_cmd uv; then info "uv already installed — skipping install."
+  else repo uv \
     && info "uv installed (e.g. 'uv python install 3.12', 'uv venv', 'uv pip install …')." \
-    || warn "uv install failed."
+    || warn "uv install failed."; fi
 }
 
 # ---- nvm: Node version manager -----------------------------------------------
@@ -200,8 +301,12 @@ install_uv() {
 # provides the same `nvm` command natively in fish. It needs fisher, which we
 # bootstrap here if absent. (For bash too, install the AUR 'nvm' package.)
 install_nvm() {
-  log "Installing nvm.fish (Node version manager for fish)"
+  log "nvm.fish (Node version manager for fish)"
   command -v fish >/dev/null 2>&1 || { warn "fish not installed — install fish first."; return 1; }
+  if fish -c 'functions -q nvm' 2>/dev/null; then
+    info "nvm.fish already installed — skipping install."
+    return 0
+  fi
   fish -c '
     if not functions -q fisher
       curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
@@ -215,9 +320,13 @@ install_nvm() {
 
 # ---- Vietnamese input (fcitx5 + bamboo, Super+Space toggle, autostart) -------
 install_fcitx5() {
-  log "Setting up Vietnamese input (fcitx5-bamboo, Super+Space)"
-  aur fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-bamboo \
-    || warn "some fcitx5 packages failed (non-fatal)"
+  log "Vietnamese input (fcitx5-bamboo, Super+Space)"
+  if have_pkg fcitx5 && have_pkg fcitx5-bamboo; then
+    info "fcitx5 + bamboo already installed — skipping install (config still applied below)."
+  else
+    aur fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-bamboo \
+      || warn "some fcitx5 packages failed (non-fatal)"
+  fi
 
   # Input-method env vars for GTK / Qt / X11 / SDL apps (system-wide).
   sudo tee /etc/environment >/dev/null <<'ENVEOF'
@@ -308,11 +417,68 @@ FCITXCONFIG
   fi
 }
 
+# ---- Hyprland app-launch keybinds --------------------------------------------
+# illogical-impulse leaves hypr/custom/keybinds.lua for user-defined binds and
+# never overwrites it, so we manage our launch keys inside a marked block there
+# (idempotent: the whole block is regenerated on every run, never duplicated).
+#
+# Single source of truth: "app | check-cmd | keybind | launch-cmd | label".
+# A key is only written when its check-cmd is present, so an app you haven't
+# installed never leaves a dead keybind. All chosen Super+Alt letters are free
+# in the default illogical-impulse binds (M=mute-mic, F=fullscreen are avoided).
+# Only GUI apps you'd "open" get a launch key — docker/uv/nvm/fcitx5/archive are
+# daemons / CLI tools / input-method / Dolphin integration with nothing to launch.
+#   B Bruno  C VSCode  D Figma  E MS Teams  J JetBrains  T Telegram  V CapCut  Z Zalo
+SETUP_APP_SHORTCUTS=(
+  "bruno|bruno|SUPER + ALT + B|bruno|Bruno"
+  "vscode|code|SUPER + ALT + C|code|VSCode"
+  "figma|figma-linux|SUPER + ALT + D|figma-linux|Figma"
+  "teams|teams-for-linux|SUPER + ALT + E|teams-for-linux|MS Teams"
+  "jetbrains|jetbrains-toolbox|SUPER + ALT + J|jetbrains-toolbox|JetBrains Toolbox"
+  "telegram|Telegram|SUPER + ALT + T|Telegram|Telegram"
+  "capcut|$HOME/.local/bin/capcut|SUPER + ALT + V|$HOME/.local/bin/capcut|CapCut"
+  "zalo|zalo|SUPER + ALT + Z|zalo|Zalo"
+)
+
+install_shortcuts() {
+  log "Setting up Hyprland app-launch keybinds (for installed apps only)"
+  local kb="$HOME/.config/hypr/custom/keybinds.lua"
+  if [ ! -d "$(dirname "$kb")" ]; then
+    warn "hypr/custom not found yet (illogical-impulse not installed?) — skipping."
+    warn "After installing it, re-run:  bash ~/erisanh/setup-app.sh shortcuts"
+    return 1
+  fi
+  touch "$kb"
+  # Drop any previous managed block so re-runs don't pile up duplicate binds.
+  if grep -q '>>> erisanh app shortcuts >>>' "$kb"; then
+    sed -i '/>>> erisanh app shortcuts >>>/,/<<< erisanh app shortcuts <<</d' "$kb"
+    sed -i -e :a -e '/^\n*$/{$d;N;ba}' "$kb"   # trim trailing blank lines
+  fi
+  # Regenerate the block, emitting a bind line only for apps actually installed.
+  local entry key check keybind cmd label wrote=""
+  {
+    echo '-- >>> erisanh app shortcuts >>> (managed by setup-app.sh — edit there, not here)'
+    for entry in "${SETUP_APP_SHORTCUTS[@]}"; do
+      IFS='|' read -r key check keybind cmd label <<<"$entry"
+      if have_cmd "$check"; then
+        printf 'hl.bind("%s", hl.dsp.exec_cmd("%s"), {description = "Launch %s"})\n' "$keybind" "$cmd" "$label"
+        wrote="$wrote $label"
+      fi
+    done
+    echo '-- <<< erisanh app shortcuts <<<'
+  } >> "$kb"
+  [ -n "$wrote" ] && info "app keybinds written for:$wrote" \
+                  || info "no shortcut apps installed yet — block left empty."
+  # Live-reload so the keys work without a relogin (no-op if Hyprland isn't up).
+  command -v hyprctl >/dev/null 2>&1 && hyprctl reload >/dev/null 2>&1 \
+    && info "Hyprland config reloaded." || true
+}
+
 # =============================================================================
 # Dispatcher — only runs when executed directly (not when sourced by install.sh)
 # =============================================================================
 # Ordered list used by 'all' and the interactive prompt.
-SETUP_APP_ALL=(bruno docker vscode figma jetbrains zalo telegram archive uv nvm fcitx5)
+SETUP_APP_ALL=(bruno docker vscode figma jetbrains zalo telegram teams capcut archive uv nvm fcitx5 shortcuts)
 
 setup_app_run() {
   local name="$1"
@@ -325,6 +491,9 @@ setup_app_run() {
     jetbrains|toolbox|jetbrains-toolbox)  install_jetbrains ;;
     zalo)               install_zalo ;;
     telegram)           install_telegram ;;
+    teams|msteams|ms-teams|teams-for-linux) install_teams ;;
+    capcut)             install_capcut ;;
+    shortcuts|keybinds|keys) install_shortcuts ;;
     archive|ark)        install_archive ;;
     uv)                 install_uv ;;
     nvm|node)           install_nvm ;;
@@ -351,8 +520,20 @@ setup_app_main() {
     all|--all)      set -- "${SETUP_APP_ALL[@]}" ;;
   esac
 
-  local app rc=0
-  for app in "$@"; do setup_app_run "$app" || rc=1; done
+  local app rc=0 touched_shortcut="" did_shortcuts=""
+  for app in "$@"; do
+    case "$app" in
+      shortcuts|keybinds|keys) did_shortcuts=1 ;;
+      bruno|vscode|code|figma|teams|msteams|ms-teams|teams-for-linux|jetbrains|toolbox|jetbrains-toolbox|telegram|capcut|zalo) touched_shortcut=1 ;;
+    esac
+    setup_app_run "$app" || rc=1
+  done
+  # If we processed a shortcut-bearing app, sync its launch key now (the app was
+  # installed-if-needed above). Skip when 'shortcuts' was requested explicitly
+  # (already synced). Non-fatal if the Hyprland config isn't present yet.
+  if [ -n "$touched_shortcut" ] && [ -z "$did_shortcuts" ]; then
+    install_shortcuts || true
+  fi
   log "setup-app.sh finished."
   return "$rc"
 }
