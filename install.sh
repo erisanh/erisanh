@@ -55,7 +55,7 @@ die()  { printf '\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
 # install_vscode [restores config/vscode/*], install_figma, install_jetbrains,
 # install_zalo, install_telegram, install_teams, install_capcut [web-app],
 # install_archive, install_uv, install_nvm, install_fcitx5,
-# install_shortcuts [Hyprland app-launch keybinds]).
+# install_gh, install_shortcuts [Hyprland app-launch keybinds]).
 # Defined once in setup-app.sh and reused here so the same
 # commands work standalone or during provisioning.
 # shellcheck source=setup-app.sh
@@ -394,8 +394,8 @@ provision() {
   # installed GUI app (B Bruno, C VSCode, D Figma, E Teams, J JetBrains,
   # T Telegram, V CapCut, Z Zalo).
   if declare -F setup_app_run >/dev/null; then
-    log "Vietnamese input + desktop apps + dev tools (bruno, docker, vscode, figma, jetbrains, zalo, telegram, teams, capcut, archive, uv, nvm) + app keybinds"
-    for _app in fcitx5 bruno docker vscode figma jetbrains zalo telegram teams capcut archive uv nvm shortcuts; do
+    log "Vietnamese input + desktop apps + dev tools (bruno, docker, vscode, figma, jetbrains, zalo, telegram, teams, capcut, archive, uv, nvm, pandoc) + app keybinds"
+    for _app in fcitx5 bruno docker vscode figma jetbrains zalo telegram teams capcut archive uv nvm pandoc gh cloudflare-warp shortcuts; do
       setup_app_run "$_app" || warn "$_app: install step failed (non-fatal)"
     done
   else
@@ -464,6 +464,7 @@ DOLPHINVP
 
   enable_unit cronie.service                cronie
   enable_unit power-profiles-daemon.service power-profiles-daemon
+  enable_unit warp-svc.service              cloudflare-warp-bin
   if pacman -Qq docker >/dev/null 2>&1; then
     sudo usermod -aG docker "$ME" && info "added $ME to the docker group (re-login to apply)"
   fi

@@ -15,7 +15,7 @@
 #   bash setup-app.sh vscode-save      # snapshot live VSCode config back into the repo
 #   bash setup-app.sh shortcuts        # (re)write the Hyprland app-launch keybinds
 #
-# Apps:  bruno  docker  vscode  figma  jetbrains  zalo  telegram  teams  capcut  archive  uv  nvm  fcitx5  shortcuts
+# Apps:  bruno  docker  vscode  figma  jetbrains  zalo  telegram  teams  capcut  archive  uv  nvm  pandoc  gh  fcitx5  shortcuts
 #
 # Re-runs are idempotent for EVERY app: one that's already installed is NOT
 # reinstalled — the run just (re)applies its config / launch keybind. A missing
@@ -295,6 +295,24 @@ install_uv() {
     || warn "uv install failed."; fi
 }
 
+# ---- gh: GitHub CLI ----------------------------------------------------------
+install_gh() {
+  log "gh (GitHub CLI)"
+  if have_cmd gh; then info "gh already installed — skipping install."
+  else repo github-cli \
+    && info "gh installed. Authenticate with: gh auth login" \
+    || warn "gh install failed."; fi
+}
+
+# ---- pandoc: universal document converter ------------------------------------
+install_pandoc() {
+  log "pandoc (universal document converter)"
+  if have_cmd pandoc; then info "pandoc already installed — skipping install."
+  else repo pandoc \
+    && info "pandoc installed (e.g. 'pandoc input.md -o output.pdf')." \
+    || warn "pandoc install failed."; fi
+}
+
 # ---- nvm: Node version manager -----------------------------------------------
 # The classic nvm is a bash/zsh shell function and does NOT work in fish — this
 # machine's login shell is fish, so we install nvm.fish (jorgebucaran), which
@@ -417,6 +435,21 @@ FCITXCONFIG
   fi
 }
 
+# ---- Cloudflare WARP (warp-cli, for the right-sidebar toggle) ---------------
+install_cloudflare_warp() {
+  log "Cloudflare WARP (warp-cli)"
+  if have_cmd warp-cli; then
+    info "cloudflare-warp already installed — skipping install (service still ensured below)."
+  else
+    aur cloudflare-warp-bin \
+      && info "cloudflare-warp installed." \
+      || { warn "cloudflare-warp install failed."; return 1; }
+  fi
+  sudo systemctl enable --now warp-svc.service >/dev/null 2>&1 \
+    && info "warp-svc enabled + started." \
+    || warn "could not start warp-svc — run: sudo systemctl enable --now warp-svc"
+}
+
 # ---- Hyprland app-launch keybinds --------------------------------------------
 # illogical-impulse leaves hypr/custom/keybinds.lua for user-defined binds and
 # never overwrites it, so we manage our launch keys inside a marked block there
@@ -478,7 +511,7 @@ install_shortcuts() {
 # Dispatcher — only runs when executed directly (not when sourced by install.sh)
 # =============================================================================
 # Ordered list used by 'all' and the interactive prompt.
-SETUP_APP_ALL=(bruno docker vscode figma jetbrains zalo telegram teams capcut archive uv nvm fcitx5 shortcuts)
+SETUP_APP_ALL=(bruno docker vscode figma jetbrains zalo telegram teams capcut archive uv nvm pandoc gh fcitx5 cloudflare-warp shortcuts)
 
 setup_app_run() {
   local name="$1"
@@ -497,7 +530,10 @@ setup_app_run() {
     archive|ark)        install_archive ;;
     uv)                 install_uv ;;
     nvm|node)           install_nvm ;;
+    pandoc)             install_pandoc ;;
+    gh|github-cli)      install_gh ;;
     fcitx5|vietnamese|vi) install_fcitx5 ;;
+    cloudflare-warp|cloudflare|warp) install_cloudflare_warp ;;
     *) warn "Unknown app: $name  (run 'bash setup-app.sh list')"; return 1 ;;
   esac
 }
