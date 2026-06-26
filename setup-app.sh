@@ -15,7 +15,7 @@
 #   bash setup-app.sh vscode-save      # snapshot live VSCode config back into the repo
 #   bash setup-app.sh shortcuts        # (re)write the Hyprland app-launch keybinds
 #
-# Apps:  bruno  docker  vscode  figma  jetbrains  zalo  telegram  teams  capcut  archive  uv  nvm  pandoc  gh  fcitx5  shortcuts
+# Apps:  bruno  docker  vscode  figma  onlyoffice  jetbrains  zalo  telegram  teams  capcut  archive  uv  nvm  pandoc  gh  fcitx5  shortcuts
 #
 # Re-runs are idempotent for EVERY app: one that's already installed is NOT
 # reinstalled — the run just (re)applies its config / launch keybind. A missing
@@ -46,10 +46,11 @@
 #                    (Ark adds Dolphin right-click Extract/Compress via KF6 plugins)
 #   uv            -> repo uv                       (Python package + version manager)
 #   nvm           -> fisher jorgebucaran/nvm.fish  (Node version manager, fish-native)
+#   onlyoffice    -> AUR  onlyoffice-bin               (Calc for .xlsx/.ods/etc.)
 #   fcitx5        -> Vietnamese input (fcitx5-bamboo) + Super+Space toggle + autostart
 #   shortcuts     -> Hyprland app-launch keybinds (written to hypr/custom/keybinds.lua),
 #                    one per INSTALLED GUI app:  Super+Alt+  B Bruno  C VSCode
-#                    D Figma  E Teams  J JetBrains  T Telegram  V CapCut  Z Zalo
+#                    D Figma  E Teams  J JetBrains  O OnlyOffice  T Telegram  V CapCut  Z Zalo
 # =============================================================================
 set -euo pipefail
 
@@ -179,6 +180,17 @@ FIGMA
 # NOTE: open-design.ai was intentionally dropped — Linux has no prebuilt AppImage,
 # so both AUR variants build from source (the -git desktop build takes ~20 min).
 # Use the web version at https://open-design.ai when needed.
+
+install_onlyoffice() {
+  log "OnlyOffice Desktop Editors (spreadsheet / writer / presentation)"
+  if have_cmd onlyoffice-desktopeditors; then
+    info "OnlyOffice already installed — skipping install."
+  else
+    aur onlyoffice-bin \
+      && info "OnlyOffice installed (supports .xlsx, .ods, .docx, .pptx, …)." \
+      || warn "OnlyOffice install failed."
+  fi
+}
 
 install_jetbrains() {
   log "JetBrains Toolbox App"
@@ -461,13 +473,14 @@ install_cloudflare_warp() {
 # in the default illogical-impulse binds (M=mute-mic, F=fullscreen are avoided).
 # Only GUI apps you'd "open" get a launch key — docker/uv/nvm/fcitx5/archive are
 # daemons / CLI tools / input-method / Dolphin integration with nothing to launch.
-#   B Bruno  C VSCode  D Figma  E MS Teams  J JetBrains  T Telegram  V CapCut  Z Zalo
+#   B Bruno  C VSCode  D Figma  E MS Teams  J JetBrains  O OnlyOffice  T Telegram  V CapCut  Z Zalo
 SETUP_APP_SHORTCUTS=(
   "bruno|bruno|SUPER + ALT + B|bruno|Bruno"
   "vscode|code|SUPER + ALT + C|code|VSCode"
   "figma|figma-linux|SUPER + ALT + D|figma-linux|Figma"
   "teams|teams-for-linux|SUPER + ALT + E|teams-for-linux|MS Teams"
   "jetbrains|jetbrains-toolbox|SUPER + ALT + J|jetbrains-toolbox|JetBrains Toolbox"
+  "onlyoffice|onlyoffice-desktopeditors|SUPER + ALT + O|onlyoffice-desktopeditors|OnlyOffice"
   "telegram|Telegram|SUPER + ALT + T|Telegram|Telegram"
   "capcut|$HOME/.local/bin/capcut|SUPER + ALT + V|$HOME/.local/bin/capcut|CapCut"
   "zalo|zalo|SUPER + ALT + Z|zalo|Zalo"
@@ -511,7 +524,7 @@ install_shortcuts() {
 # Dispatcher — only runs when executed directly (not when sourced by install.sh)
 # =============================================================================
 # Ordered list used by 'all' and the interactive prompt.
-SETUP_APP_ALL=(bruno docker vscode figma jetbrains zalo telegram teams capcut archive uv nvm pandoc gh fcitx5 cloudflare-warp shortcuts)
+SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains zalo telegram teams capcut archive uv nvm pandoc gh fcitx5 cloudflare-warp shortcuts)
 
 setup_app_run() {
   local name="$1"
@@ -521,6 +534,7 @@ setup_app_run() {
     vscode|code)        install_vscode ;;
     vscode-save|code-save) vscode_save ;;
     figma)              install_figma ;;
+    onlyoffice)         install_onlyoffice ;;
     jetbrains|toolbox|jetbrains-toolbox)  install_jetbrains ;;
     zalo)               install_zalo ;;
     telegram)           install_telegram ;;
@@ -560,7 +574,7 @@ setup_app_main() {
   for app in "$@"; do
     case "$app" in
       shortcuts|keybinds|keys) did_shortcuts=1 ;;
-      bruno|vscode|code|figma|teams|msteams|ms-teams|teams-for-linux|jetbrains|toolbox|jetbrains-toolbox|telegram|capcut|zalo) touched_shortcut=1 ;;
+      bruno|vscode|code|figma|onlyoffice|teams|msteams|ms-teams|teams-for-linux|jetbrains|toolbox|jetbrains-toolbox|telegram|capcut|zalo) touched_shortcut=1 ;;
     esac
     setup_app_run "$app" || rc=1
   done
