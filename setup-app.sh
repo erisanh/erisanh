@@ -78,8 +78,10 @@ ensure_yay() {
 }
 
 # Thin wrappers so each install function stays a one-liner and reads clearly.
-aur()  { ensure_yay; yay    -S --needed --noconfirm "$@" </dev/null; }   # AUR / repo via yay
-repo() { sudo pacman -S --needed --noconfirm "$@" </dev/null; }          # official repo only
+# Note: </dev/null suppressed here — sudo needs a real stdin to read the password
+# when the credential cache is cold (e.g. first run after login).
+aur()  { ensure_yay; yay    -S --needed --noconfirm "$@"; }   # AUR / repo via yay
+repo() { sudo pacman -S --needed --noconfirm "$@"; }          # official repo only
 
 # Idempotency helpers: skip the (re)install when the app is already present so a
 # re-run only refreshes the keybinds. have_pkg = installed pacman package;
@@ -184,12 +186,25 @@ FIGMA
 install_onlyoffice() {
   log "OnlyOffice Desktop Editors (spreadsheet / writer / presentation)"
   if have_cmd onlyoffice-desktopeditors; then
-    info "OnlyOffice already installed — skipping install."
+    info "OnlyOffice already installed — skipping install (MIME types still applied below)."
   else
     aur onlyoffice-bin \
       && info "OnlyOffice installed (supports .xlsx, .ods, .docx, .pptx, …)." \
-      || warn "OnlyOffice install failed."
+      || { warn "OnlyOffice install failed."; return 1; }
   fi
+  # Set OnlyOffice as the default handler for common office MIME types.
+  local desktop="onlyoffice-desktopeditors.desktop"
+  local mime; for mime in \
+    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet \
+    application/vnd.ms-excel \
+    application/vnd.oasis.opendocument.spreadsheet \
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document \
+    application/msword \
+    application/vnd.openxmlformats-officedocument.presentationml.presentation \
+    application/vnd.ms-powerpoint; do
+    xdg-mime default "$desktop" "$mime" 2>/dev/null && info "  default for $mime" || true
+  done
+  info "OnlyOffice set as default for .xlsx/.ods/.docx/.pptx/.doc files."
 }
 
 install_jetbrains() {
