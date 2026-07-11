@@ -48,6 +48,8 @@
 #   nvm           -> fisher jorgebucaran/nvm.fish  (Node version manager, fish-native)
 #   onlyoffice    -> AUR  onlyoffice-bin               (Calc for .xlsx/.ods/etc.)
 #   fcitx5        -> Vietnamese input (fcitx5-bamboo) + Super+Space toggle + autostart
+#   appearance    -> transparency tweaks: illogical-impulse backgroundTransparency
+#                    + matching kitty background_opacity (shell + terminal share a look)
 #   shortcuts     -> Hyprland app-launch keybinds (written to hypr/custom/keybinds.lua),
 #                    one per INSTALLED GUI app:  Super+Alt+  B Bruno  C VSCode
 #                    D Figma  E Teams  J JetBrains  O OnlyOffice  T Telegram  V CapCut  Z Zalo
@@ -535,11 +537,63 @@ install_shortcuts() {
     && info "Hyprland config reloaded." || true
 }
 
+# Tune transparency so the shell + terminal share the same, less see-through look.
+# Both values are idempotent: jq rewrites the illogical-impulse config in place and
+# a managed block is (re)written into kitty.conf, so re-runs converge, never pile up.
+APPEARANCE_BG_TRANSPARENCY="0.15"   # illogical-impulse: higher = more transparent
+APPEARANCE_KITTY_OPACITY="0.85"     # kitty: 1 - background transparency (higher = more solid)
+install_appearance() {
+  log "Applying transparency tweaks (shell + kitty)"
+
+  # ---- 1. illogical-impulse shell background -------------------------------
+  local ii_cfg="$HOME/.config/illogical-impulse/config.json"
+  if [ -f "$ii_cfg" ]; then
+    if have_cmd jq; then
+      local tmp; tmp="$(mktemp)"
+      jq --argjson bt "$APPEARANCE_BG_TRANSPARENCY" \
+        '.appearance.transparency.enable = true
+         | .appearance.transparency.automatic = false
+         | .appearance.transparency.backgroundTransparency = $bt' \
+        "$ii_cfg" > "$tmp" && mv "$tmp" "$ii_cfg" \
+        && info "shell backgroundTransparency set to $APPEARANCE_BG_TRANSPARENCY (automatic off)" \
+        || { rm -f "$tmp"; warn "failed to patch $ii_cfg"; }
+    else
+      warn "jq not found — skipping shell transparency patch (install jq and re-run)."
+    fi
+  else
+    warn "illogical-impulse config not found — skipping shell transparency."
+    warn "After installing it, re-run:  bash ~/erisanh/setup-app.sh appearance"
+  fi
+
+  # ---- 2. kitty terminal background ----------------------------------------
+  local kitty_cfg="$HOME/.config/kitty/kitty.conf"
+  if [ -f "$kitty_cfg" ]; then
+    # Drop any previous managed block so re-runs replace instead of stacking.
+    if grep -q '>>> erisanh appearance >>>' "$kitty_cfg"; then
+      sed -i '/# >>> erisanh appearance >>>/,/# <<< erisanh appearance <<</d' "$kitty_cfg"
+      sed -i -e :a -e '/^\n*$/{$d;N;ba}' "$kitty_cfg"   # trim trailing blank lines
+    fi
+    {
+      echo
+      echo '# >>> erisanh appearance >>> (managed by setup-app.sh — edit there, not here)'
+      echo "# Match quickshell background transparency ($APPEARANCE_BG_TRANSPARENCY transparent)"
+      echo "background_opacity $APPEARANCE_KITTY_OPACITY"
+      echo 'dynamic_background_opacity yes'
+      echo '# <<< erisanh appearance <<<'
+    } >> "$kitty_cfg"
+    info "kitty background_opacity set to $APPEARANCE_KITTY_OPACITY"
+    # Live-reload any running kitty (no-op if none is up).
+    pkill -SIGUSR1 kitty >/dev/null 2>&1 && info "running kitty reloaded." || true
+  else
+    warn "kitty.conf not found — skipping terminal transparency."
+  fi
+}
+
 # =============================================================================
 # Dispatcher — only runs when executed directly (not when sourced by install.sh)
 # =============================================================================
 # Ordered list used by 'all' and the interactive prompt.
-SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains zalo telegram teams capcut archive uv nvm pandoc gh fcitx5 cloudflare-warp shortcuts)
+SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains zalo telegram teams capcut archive uv nvm pandoc gh fcitx5 cloudflare-warp appearance shortcuts)
 
 setup_app_run() {
   local name="$1"
@@ -563,6 +617,7 @@ setup_app_run() {
     gh|github-cli)      install_gh ;;
     fcitx5|vietnamese|vi) install_fcitx5 ;;
     cloudflare-warp|cloudflare|warp) install_cloudflare_warp ;;
+    appearance|transparency|opacity) install_appearance ;;
     *) warn "Unknown app: $name  (run 'bash setup-app.sh list')"; return 1 ;;
   esac
 }
