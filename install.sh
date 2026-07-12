@@ -331,11 +331,12 @@ provision() {
   # NOTE: illogical-impulse does NOT install a display manager, so we must
   # install SDDM here (+ the qt6 deps its greeter/theme need). Without this
   # the machine boots to a text console instead of a graphical login.
-  log "Installing base packages (sddm, git, curl, fish, fcitx5 + Vietnamese input)"
+  log "Installing base packages (sddm, git, curl, fish, fcitx5 + Vietnamese input, CJK fonts)"
   yay -S --needed --noconfirm \
     sddm qt6-svg qt6-virtualkeyboard qt6-multimedia \
     git curl wget fish \
     fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-bamboo \
+    noto-fonts noto-fonts-cjk noto-fonts-emoji \
     socat python jq pciutils usbutils \
     </dev/null || warn "some base packages failed (non-fatal)"
 
