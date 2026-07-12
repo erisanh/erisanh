@@ -292,6 +292,13 @@ CAPDESK
   info "CapCut web launcher installed ($capbin → opens in $browser)."
 }
 
+# Celluloid — a simple GTK front-end for mpv (official repo). Binary: celluloid.
+install_celluloid() {
+  log "Celluloid (GTK media player, mpv front-end)"
+  if have_cmd celluloid; then info "Celluloid already installed — skipping install."
+  else repo celluloid && info "Celluloid installed." || warn "Celluloid install failed."; fi
+}
+
 # ---- archive manager: Ark + backends for zip / 7z / rar / tar -----------------
 # On KDE Plasma 6 / KF6, Ark adds the right-click Extract / Compress entries in
 # Dolphin via KFileItemAction PLUGINS (not .desktop service menus):
@@ -593,7 +600,7 @@ install_appearance() {
 # Dispatcher — only runs when executed directly (not when sourced by install.sh)
 # =============================================================================
 # Ordered list used by 'all' and the interactive prompt.
-SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains zalo telegram teams capcut archive uv nvm pandoc gh fcitx5 cloudflare-warp appearance shortcuts)
+SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains zalo telegram teams capcut celluloid archive uv nvm pandoc gh fcitx5 cloudflare-warp appearance shortcuts)
 
 setup_app_run() {
   local name="$1"
@@ -609,6 +616,7 @@ setup_app_run() {
     telegram)           install_telegram ;;
     teams|msteams|ms-teams|teams-for-linux) install_teams ;;
     capcut)             install_capcut ;;
+    celluloid|mpv-gtk)  install_celluloid ;;
     shortcuts|keybinds|keys) install_shortcuts ;;
     archive|ark)        install_archive ;;
     uv)                 install_uv ;;
