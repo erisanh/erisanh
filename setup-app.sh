@@ -15,7 +15,7 @@
 #   bash setup-app.sh vscode-save      # snapshot live VSCode config back into the repo
 #   bash setup-app.sh shortcuts        # (re)write the Hyprland app-launch keybinds
 #
-# Apps:  bruno  docker  vscode  figma  onlyoffice  jetbrains  zalo  telegram  teams  capcut  archive  uv  nvm  pandoc  gh  fcitx5  shortcuts
+# Apps:  bruno  docker  vscode  figma  onlyoffice  jetbrains  orca  zalo  telegram  teams  capcut  archive  uv  nvm  pandoc  gh  fcitx5  shortcuts
 #
 # Re-runs are idempotent for EVERY app: one that's already installed is NOT
 # reinstalled — the run just (re)applies its config / launch keybind. A missing
@@ -34,6 +34,11 @@
 #                    + restores config/vscode/{settings,keybindings}.json + extensions
 #   figma         -> AUR  figma-linux-bin          (defaults desktop chrome to dark theme)
 #   jetbrains     -> AUR  jetbrains-toolbox        (launcher to install any JetBrains IDE)
+#   orca          -> AUR  onorca-bin               (onorca.dev — Agent Development
+#                    Environment: Claude Code / Codex / OpenCode running side by
+#                    side in isolated git worktrees; repackages the official .deb.
+#                    Binary is 'orca-ide', NOT 'orca' — /usr/bin/orca belongs to
+#                    the GNOME Orca screen reader.)
 #   zalo          -> AUR  zalo-for-linux-bin  (+ repo fuse2: the AppImage needs
 #                    libfuse.so.2 at runtime or `zalo` fails to launch)
 #   telegram      -> repo telegram-desktop
@@ -52,7 +57,8 @@
 #                    + matching kitty background_opacity (shell + terminal share a look)
 #   shortcuts     -> Hyprland app-launch keybinds (written to hypr/custom/keybinds.lua),
 #                    one per INSTALLED GUI app:  Super+Alt+  B Bruno  C VSCode
-#                    D Figma  E Teams  J JetBrains  O OnlyOffice  T Telegram  V CapCut  Z Zalo
+#                    D Figma  E Teams  G Orca  J JetBrains  O OnlyOffice  T Telegram
+#                    V CapCut  Z Zalo
 # =============================================================================
 set -euo pipefail
 
@@ -292,6 +298,21 @@ CAPDESK
   info "CapCut web launcher installed ($capbin → opens in $browser)."
 }
 
+# Orca (onorca.dev) — "Agent Development Environment": run Claude Code / Codex /
+# OpenCode side by side, each in its own git worktree, with a built-in editor,
+# terminal, diff review and GitHub/Linear integration. Electron app, MIT.
+# Upstream ships no AUR package; onorca-bin repackages the OFFICIAL .deb release
+# (same build as the download page) and is the one that tracks upstream versions.
+# The binary is 'orca-ide' — upstream renamed it to avoid clashing with GNOME
+# Orca, the screen reader, which owns /usr/bin/orca.
+install_orca() {
+  log "Orca (agent development environment — onorca.dev)"
+  if have_cmd orca-ide; then info "Orca already installed — skipping install."
+  else aur onorca-bin \
+    && info "Orca installed — launch with 'orca-ide' (Super+Alt+G)." \
+    || warn "Orca install failed."; fi
+}
+
 # Celluloid — a simple GTK front-end for mpv (official repo). Binary: celluloid.
 install_celluloid() {
   log "Celluloid (GTK media player, mpv front-end)"
@@ -497,11 +518,13 @@ install_cloudflare_warp() {
 # in the default illogical-impulse binds (M=mute-mic, F=fullscreen are avoided).
 # Only GUI apps you'd "open" get a launch key — docker/uv/nvm/fcitx5/archive are
 # daemons / CLI tools / input-method / Dolphin integration with nothing to launch.
-#   B Bruno  C VSCode  D Figma  E MS Teams  J JetBrains  O OnlyOffice  T Telegram  V CapCut  Z Zalo
+#   B Bruno  C VSCode  D Figma  E MS Teams  G Orca  J JetBrains  O OnlyOffice
+#   T Telegram  V CapCut  Z Zalo
 SETUP_APP_SHORTCUTS=(
   "bruno|bruno|SUPER + ALT + B|bruno|Bruno"
   "vscode|code|SUPER + ALT + C|code|VSCode"
   "figma|figma-linux|SUPER + ALT + D|figma-linux|Figma"
+  "orca|orca-ide|SUPER + ALT + G|orca-ide|Orca"
   "teams|teams-for-linux|SUPER + ALT + E|teams-for-linux|MS Teams"
   "jetbrains|jetbrains-toolbox|SUPER + ALT + J|jetbrains-toolbox|JetBrains Toolbox"
   "onlyoffice|onlyoffice-desktopeditors|SUPER + ALT + O|onlyoffice-desktopeditors|OnlyOffice"
@@ -600,7 +623,7 @@ install_appearance() {
 # Dispatcher — only runs when executed directly (not when sourced by install.sh)
 # =============================================================================
 # Ordered list used by 'all' and the interactive prompt.
-SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains zalo telegram teams capcut celluloid archive uv nvm pandoc gh fcitx5 cloudflare-warp appearance shortcuts)
+SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains orca zalo telegram teams capcut celluloid archive uv nvm pandoc gh fcitx5 cloudflare-warp appearance shortcuts)
 
 setup_app_run() {
   local name="$1"
@@ -617,6 +640,7 @@ setup_app_run() {
     teams|msteams|ms-teams|teams-for-linux) install_teams ;;
     capcut)             install_capcut ;;
     celluloid|mpv-gtk)  install_celluloid ;;
+    orca|orca-ide|onorca) install_orca ;;
     shortcuts|keybinds|keys) install_shortcuts ;;
     archive|ark)        install_archive ;;
     uv)                 install_uv ;;
@@ -652,7 +676,7 @@ setup_app_main() {
   for app in "$@"; do
     case "$app" in
       shortcuts|keybinds|keys) did_shortcuts=1 ;;
-      bruno|vscode|code|figma|onlyoffice|teams|msteams|ms-teams|teams-for-linux|jetbrains|toolbox|jetbrains-toolbox|telegram|capcut|zalo) touched_shortcut=1 ;;
+      bruno|vscode|code|figma|onlyoffice|teams|msteams|ms-teams|teams-for-linux|jetbrains|toolbox|jetbrains-toolbox|orca|orca-ide|onorca|telegram|capcut|zalo) touched_shortcut=1 ;;
     esac
     setup_app_run "$app" || rc=1
   done
