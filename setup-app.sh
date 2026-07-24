@@ -15,7 +15,7 @@
 #   bash setup-app.sh vscode-save      # snapshot live VSCode config back into the repo
 #   bash setup-app.sh shortcuts        # (re)write the Hyprland app-launch keybinds
 #
-# Apps:  bruno  docker  vscode  figma  onlyoffice  jetbrains  orca  zalo  telegram  teams  capcut  archive  uv  nvm  pandoc  gh  fcitx5  shortcuts
+# Apps:  bruno  docker  vscode  figma  onlyoffice  jetbrains  orca  zalo  telegram  teams  capcut  archive  uv  nvm  pandoc  gh  fcitx5  appearance  agents  shortcuts
 #
 # Re-runs are idempotent for EVERY app: one that's already installed is NOT
 # reinstalled — the run just (re)applies its config / launch keybind. A missing
@@ -55,6 +55,12 @@
 #   fcitx5        -> Vietnamese input (fcitx5-bamboo) + Super+Space toggle + autostart
 #   appearance    -> transparency tweaks: illogical-impulse backgroundTransparency
 #                    + matching kitty background_opacity (shell + terminal share a look)
+#   agents        -> Figma agent skills (github figma/mcp-server-guide) into the
+#                    shared ~/.agents/skills store + figma-mcp-go MCP server wired
+#                    into Claude Code / Codex / Antigravity / Gemini CLI GLOBAL
+#                    configs. Needs FIGMA_ACCESS_TOKEN (env var or
+#                    ~/.config/erisanh/figma.env) for the MCP part — the token is
+#                    NEVER committed. See install_agents() for details.
 #   shortcuts     -> Hyprland app-launch keybinds (written to hypr/custom/keybinds.lua),
 #                    one per INSTALLED GUI app:  Super+Alt+  B Bruno  C VSCode
 #                    D Figma  E Teams  G Orca  J JetBrains  O OnlyOffice  T Telegram
@@ -620,10 +626,120 @@ install_appearance() {
 }
 
 # =============================================================================
+# AI coding agents — Figma skills + figma-mcp-go MCP server (global, cross-agent)
+# =============================================================================
+# Installs Figma's official agent skills into the shared ~/.agents/skills store
+# (the open "agent skills" standard — https://skills.sh) so Claude Code, Codex,
+# Antigravity, Cursor, Gemini CLI and every other installed skills-aware agent
+# pick them up from ONE place, then wires the figma-mcp-go MCP server into each
+# agent's GLOBAL config so the Figma tools (use_figma, create_frame, get_node, …)
+# are available everywhere. Mirrors the per-project setup in rv-fs (.mcp.json).
+#
+# SECURITY — the Figma personal-access token is NEVER stored in this (public)
+# repo. Provide it at run time via EITHER:
+#   • env var:    FIGMA_ACCESS_TOKEN=figd_xxx bash setup-app.sh agents
+#   • local file: ~/.config/erisanh/figma.env   containing  FIGMA_ACCESS_TOKEN=figd_xxx
+# Mint a token at https://www.figma.com/developers/api#access-tokens .
+# Without a token the SKILLS still install; only the MCP wiring is skipped.
+FIGMA_SKILLS_REPO="figma/mcp-server-guide"
+FIGMA_MCP_PKG="@vkhanhqui/figma-mcp-go@v0.0.3-alpha"
+FIGMA_TOKEN_FILE="$HOME/.config/erisanh/figma.env"
+
+install_agents() {
+  log "AI agents: Figma skills + figma-mcp-go MCP (global, cross-agent)"
+
+  # ---- 0. prerequisites ----------------------------------------------------
+  if ! have_cmd npx; then
+    warn "npx (Node.js) not found — install Node first:  bash setup-app.sh nvm"
+    warn "then re-run:  bash setup-app.sh agents"
+    return 1
+  fi
+
+  # ---- 1. Figma skills into the shared ~/.agents/skills store --------------
+  # `-g` = user-global, `--all` = every skill in the repo to every detected
+  # agent (== --skill '*' --agent '*' -y, so it runs non-interactively).
+  # Idempotent: re-running updates in place. Claude Code reads them from
+  # ~/.claude/skills (symlinked to ~/.agents/skills); other agents likewise.
+  info "Installing Figma skills globally (npx skills add $FIGMA_SKILLS_REPO)…"
+  npx -y skills add "$FIGMA_SKILLS_REPO" -g --all \
+    && info "Figma skills installed into ~/.agents/skills (shared by all agents)." \
+    || warn "Figma skills install reported errors (some agents don't support global skills — safe to ignore)."
+
+  # ---- 2. resolve the Figma token (env var, else local untracked file) -----
+  local token="${FIGMA_ACCESS_TOKEN:-}"
+  if [ -z "$token" ] && [ -f "$FIGMA_TOKEN_FILE" ]; then
+    # shellcheck disable=SC1090
+    token="$(. "$FIGMA_TOKEN_FILE" 2>/dev/null; printf '%s' "${FIGMA_ACCESS_TOKEN:-}")"
+  fi
+  if [ -z "$token" ]; then
+    warn "FIGMA_ACCESS_TOKEN not set — skipping MCP wiring (skills ARE installed)."
+    warn "Provide it and re-run:  FIGMA_ACCESS_TOKEN=figd_xxx bash setup-app.sh agents"
+    warn "or store it in $FIGMA_TOKEN_FILE  (line:  FIGMA_ACCESS_TOKEN=figd_xxx )"
+    return 0
+  fi
+
+  # ---- 3. wire figma-mcp-go into each agent's GLOBAL MCP config -------------
+  # Claude Code — user scope (persists to ~/.claude.json).
+  if have_cmd claude; then
+    claude mcp remove figma-mcp-go -s user >/dev/null 2>&1 || true
+    claude mcp add figma-mcp-go -s user -e FIGMA_ACCESS_TOKEN="$token" \
+      -- npx -y "$FIGMA_MCP_PKG" >/dev/null 2>&1 \
+      && info "Claude Code: figma-mcp-go added (user scope)." \
+      || warn "Claude Code: could not add figma-mcp-go."
+  else
+    info "Claude Code CLI not found — skipping its MCP wiring."
+  fi
+
+  # Codex (~/.codex/config.toml, TOML), Gemini CLI (~/.gemini/settings.json),
+  # Antigravity (~/.gemini/config/mcp_config.json) — merged with python3 so
+  # existing config keys are preserved. Token passed via env, not argv.
+  if have_cmd python3; then
+    FIGMA_ACCESS_TOKEN="$token" FIGMA_MCP_PKG="$FIGMA_MCP_PKG" python3 - <<'PY'
+import os, json
+pkg   = os.environ["FIGMA_MCP_PKG"]
+token = os.environ["FIGMA_ACCESS_TOKEN"]
+home  = os.path.expanduser("~")
+server = {"command": "npx", "args": ["-y", pkg], "env": {"FIGMA_ACCESS_TOKEN": token}}
+
+def merge_json(path, mkparent=False):
+    if mkparent:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+    d = {}
+    if os.path.exists(path) and os.path.getsize(path):
+        try: d = json.load(open(path))
+        except Exception: d = {}
+    d.setdefault("mcpServers", {})["figma-mcp-go"] = server
+    json.dump(d, open(path, "w"), indent=2)
+    print("    figma-mcp-go ->", path.replace(home, "~"))
+
+merge_json(f"{home}/.gemini/settings.json")                    # Gemini CLI
+merge_json(f"{home}/.gemini/config/mcp_config.json", True)     # Antigravity
+
+codex = f"{home}/.codex/config.toml"                           # Codex (TOML)
+os.makedirs(os.path.dirname(codex), exist_ok=True)
+cur = open(codex).read() if os.path.exists(codex) else ""
+if "[mcp_servers.figma-mcp-go]" not in cur:
+    with open(codex, "a") as f:
+        f.write('\n[mcp_servers.figma-mcp-go]\ncommand = "npx"\n'
+                f'args = ["-y", "{pkg}"]\n'
+                'env = { FIGMA_ACCESS_TOKEN = "%s" }\n' % token)
+    print("    figma-mcp-go ->", codex.replace(home, "~"))
+else:
+    print("    figma-mcp-go already in", codex.replace(home, "~"))
+PY
+    info "Codex / Gemini CLI / Antigravity: figma-mcp-go MCP configured."
+  else
+    warn "python3 not found — skipping Codex/Gemini/Antigravity MCP wiring."
+  fi
+
+  info "Done. Restart any running agent to pick up the new skills + MCP server."
+}
+
+# =============================================================================
 # Dispatcher — only runs when executed directly (not when sourced by install.sh)
 # =============================================================================
 # Ordered list used by 'all' and the interactive prompt.
-SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains orca zalo telegram teams capcut celluloid archive uv nvm pandoc gh fcitx5 cloudflare-warp appearance shortcuts)
+SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains orca zalo telegram teams capcut celluloid archive uv nvm pandoc gh fcitx5 cloudflare-warp appearance agents shortcuts)
 
 setup_app_run() {
   local name="$1"
@@ -650,6 +766,7 @@ setup_app_run() {
     fcitx5|vietnamese|vi) install_fcitx5 ;;
     cloudflare-warp|cloudflare|warp) install_cloudflare_warp ;;
     appearance|transparency|opacity) install_appearance ;;
+    agents|ai|skills|figma-skills|figma-mcp) install_agents ;;
     *) warn "Unknown app: $name  (run 'bash setup-app.sh list')"; return 1 ;;
   esac
 }
