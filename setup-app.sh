@@ -15,7 +15,7 @@
 #   bash setup-app.sh vscode-save      # snapshot live VSCode config back into the repo
 #   bash setup-app.sh shortcuts        # (re)write the Hyprland app-launch keybinds
 #
-# Apps:  bruno  docker  vscode  figma  onlyoffice  jetbrains  orca  zalo  telegram  teams  capcut  archive  uv  nvm  pandoc  gh  fcitx5  appearance  agents  shortcuts
+# Apps:  bruno  docker  vscode  figma  onlyoffice  jetbrains  orca  zalo  telegram  teams  capcut  celluloid  shotcut  archive  uv  nvm  pandoc  gh  fcitx5  cloudflare-warp  warp-proxy  appearance  agents  shortcuts
 #
 # Re-runs are idempotent for EVERY app: one that's already installed is NOT
 # reinstalled — the run just (re)applies its config / launch keybind. A missing
@@ -47,12 +47,23 @@
 #   capcut        -> web-app launcher (~/.local/bin/capcut) opening capcut.com in
 #                    a Chromium-based browser (Brave) --app window; no native
 #                    Linux CapCut exists, so this wraps the official web editor
+#   shotcut       -> repo shotcut               (native Qt video editor; the
+#                    real, native replacement for CapCut on Linux)
 #   archive       -> repo ark zip unzip 7zip unrar unarchiver
 #                    (Ark adds Dolphin right-click Extract/Compress via KF6 plugins)
 #   uv            -> repo uv                       (Python package + version manager)
 #   nvm           -> fisher jorgebucaran/nvm.fish  (Node version manager, fish-native)
 #   onlyoffice    -> AUR  onlyoffice-bin               (Calc for .xlsx/.ods/etc.)
 #   fcitx5        -> Vietnamese input (fcitx5-bamboo) + Super+Space toggle + autostart
+#   warp-proxy    -> open ISP-blocked sites (missav.* …) WITHOUT a machine-wide VPN, so Claude
+#                    CLI / the bot / Telegram keep their direct connection: WARP is put in
+#                    PROXY mode (a local SOCKS5 on 127.0.0.1:40000, no route or DNS change), a
+#                    loopback DoH proxy (~/.local/bin/warp-doh-proxy, systemd --user, port
+#                    40001, allowlist ~/.config/warp-doh-proxy/hosts) resolves the names WARP's
+#                    SOCKS5 cannot, and "Brave (WARP)" (~/.local/bin/brave-warp, own profile)
+#                    sends only the allowlisted sites through it. Sources: config/warp-proxy/.
+#                    NOTE: this makes the right-sidebar WARP toggle proxy-only (it no longer
+#                    tunnels the whole machine). See install_warp_proxy().
 #   appearance    -> transparency tweaks: illogical-impulse backgroundTransparency
 #                    + matching kitty background_opacity (shell + terminal share a look)
 #   agents        -> Figma agent skills (github figma/mcp-server-guide) into the
@@ -64,7 +75,7 @@
 #   shortcuts     -> Hyprland app-launch keybinds (written to hypr/custom/keybinds.lua),
 #                    one per INSTALLED GUI app:  Super+Alt+  B Bruno  C VSCode
 #                    D Figma  E Teams  G Orca  J JetBrains  O OnlyOffice  T Telegram
-#                    V CapCut  Z Zalo
+#                    V CapCut  S Shotcut  Z Zalo
 # =============================================================================
 set -euo pipefail
 
@@ -326,6 +337,16 @@ install_celluloid() {
   else repo celluloid && info "Celluloid installed." || warn "Celluloid install failed."; fi
 }
 
+# Shotcut — native, open-source Qt video editor (official repo). CapCut ships
+# no Linux client at all (not even the "linux-text-editor" resource page — it's
+# just an SEO blog post with no download); Shotcut is the real cross-platform
+# replacement. Binary: shotcut.
+install_shotcut() {
+  log "Shotcut (native video editor)"
+  if have_cmd shotcut; then info "Shotcut already installed — skipping install."
+  else repo shotcut && info "Shotcut installed." || warn "Shotcut install failed."; fi
+}
+
 # ---- archive manager: Ark + backends for zip / 7z / rar / tar -----------------
 # On KDE Plasma 6 / KF6, Ark adds the right-click Extract / Compress entries in
 # Dolphin via KFileItemAction PLUGINS (not .desktop service menus):
@@ -513,6 +534,79 @@ install_cloudflare_warp() {
     || warn "could not start warp-svc — run: sudo systemctl enable --now warp-svc"
 }
 
+# ---- WARP in PROXY mode + local DoH proxy + "Brave (WARP)" -------------------
+# Goal: open sites the ISP blocks (DNS sinkhole + TLS reset on the SNI — e.g. missav.*) without a
+# machine-wide VPN. A full-tunnel WARP ("warp" mode, the default — and what the right-sidebar toggle
+# starts) reroutes EVERYTHING, which drops Claude CLI's connection (it reaches api.anthropic.com
+# over IPv6 here). So:
+#   1. WARP is switched to PROXY mode: it only opens a SOCKS5 on 127.0.0.1:40000 — no interface,
+#      no route, no DNS change. Only processes that point at it use it.
+#   2. warp-doh-proxy (loopback HTTP CONNECT proxy, systemd --user, 127.0.0.1:40001) resolves the
+#      host over DoH and asks WARP's SOCKS5 for the IP: WARP's proxy mode resolves names with the
+#      system resolver, so a name-based SOCKS request for a blocked site is refused. It serves ONLY
+#      the allowlist (~/.config/warp-doh-proxy/hosts, never overwritten) and 403s anything else.
+#   3. brave-warp = Brave with its own profile and a PAC that sends only the allowlist to (2);
+#      all other sites in that window go direct. It refuses to start unless WARP is in proxy mode.
+# Anything else that needs the same route (Playwright, curl_cffi, yt-dlp) just sets
+# proxy = http://127.0.0.1:40001 — per call, never via HTTP(S)_PROXY, which would leak to every tool.
+install_warp_proxy() {
+  log "WARP proxy mode + local DoH proxy + Brave (WARP)"
+  local src="$SETUP_APP_REPO/config/warp-proxy" bin="$HOME/.local/bin"
+  [ -d "$src" ] || { warn "missing $src"; return 1; }
+  have_cmd python3 || { warn "python3 not found — warp-doh-proxy needs it."; return 1; }
+  have_cmd warp-cli || install_cloudflare_warp || return 1
+
+  # First run on a fresh machine: register the WARP client.
+  warp-cli --accept-tos registration show >/dev/null 2>&1 \
+    || warp-cli --accept-tos registration new >/dev/null 2>&1 \
+    || warn "could not register WARP — run: warp-cli registration new"
+
+  # Proxy mode FIRST, connect after. (Changing the mode disconnects, so only when it differs.)
+  if warp-cli --accept-tos settings list 2>/dev/null | grep -q "Mode: WarpProxy"; then
+    info "WARP already in proxy mode."
+  else
+    warp-cli --accept-tos mode proxy >/dev/null \
+      && info "WARP set to proxy mode (SOCKS5 on 127.0.0.1:40000)." \
+      || { warn "could not set WARP proxy mode — NOT connecting (it would tunnel the whole machine)."; return 1; }
+  fi
+  warp-cli --accept-tos settings list 2>/dev/null | grep -q "Mode: WarpProxy" \
+    || { warn "WARP is not in proxy mode — NOT connecting."; return 1; }
+  warp-cli --accept-tos status 2>/dev/null | grep -q "Connected" \
+    || warp-cli --accept-tos connect >/dev/null 2>&1 \
+    || warn "could not connect WARP — run: warp-cli connect"
+
+  # The proxy, the launcher, the unit, the (never overwritten) allowlist, the menu entry.
+  mkdir -p "$bin" "$HOME/.config/systemd/user" "$HOME/.config/warp-doh-proxy" "$HOME/.local/share/applications"
+  install -m 0755 "$src/warp-doh-proxy.py" "$bin/warp-doh-proxy"
+  install -m 0755 "$src/brave-warp.sh"     "$bin/brave-warp"
+  install -m 0644 "$src/warp-doh-proxy.service" "$HOME/.config/systemd/user/warp-doh-proxy.service"
+  [ -e "$HOME/.config/warp-doh-proxy/hosts" ] \
+    || install -m 0644 "$src/hosts.default" "$HOME/.config/warp-doh-proxy/hosts"
+  cat > "$HOME/.local/share/applications/brave-warp.desktop" <<'WARPDESK'
+[Desktop Entry]
+Type=Application
+Name=Brave (WARP)
+Comment=Brave with its own profile; ISP-blocked sites go through Cloudflare WARP, everything else direct
+Exec=brave-warp %U
+Icon=brave-desktop
+Terminal=false
+Categories=Network;WebBrowser;
+StartupWMClass=brave-warp
+WARPDESK
+  if systemctl --user daemon-reload 2>/dev/null \
+     && systemctl --user enable warp-doh-proxy.service >/dev/null 2>&1 \
+     && systemctl --user restart warp-doh-proxy.service 2>/dev/null; then
+    info "warp-doh-proxy running on 127.0.0.1:40001 (systemd --user)."
+  else
+    warn "no systemd user session — start it later:  systemctl --user enable --now warp-doh-proxy"
+  fi
+  "$bin/warp-doh-proxy" --check >/dev/null 2>&1 \
+    && info "WARP SOCKS5 reachable. Open it from the menu: 'Brave (WARP)', or run: brave-warp https://missav.com" \
+    || warn "WARP SOCKS5 not reachable yet — check: warp-cli status"
+  info "Allowlist: ~/.config/warp-doh-proxy/hosts (edit freely; re-runs keep it)."
+  info "The right-sidebar WARP toggle is now proxy-only — it no longer tunnels the whole machine."
+}
+
 # ---- Hyprland app-launch keybinds --------------------------------------------
 # illogical-impulse leaves hypr/custom/keybinds.lua for user-defined binds and
 # never overwrites it, so we manage our launch keys inside a marked block there
@@ -525,7 +619,7 @@ install_cloudflare_warp() {
 # Only GUI apps you'd "open" get a launch key — docker/uv/nvm/fcitx5/archive are
 # daemons / CLI tools / input-method / Dolphin integration with nothing to launch.
 #   B Bruno  C VSCode  D Figma  E MS Teams  G Orca  J JetBrains  O OnlyOffice
-#   T Telegram  V CapCut  Z Zalo
+#   T Telegram  V CapCut  S Shotcut  Z Zalo
 SETUP_APP_SHORTCUTS=(
   "bruno|bruno|SUPER + ALT + B|bruno|Bruno"
   "vscode|code|SUPER + ALT + C|code|VSCode"
@@ -536,6 +630,7 @@ SETUP_APP_SHORTCUTS=(
   "onlyoffice|onlyoffice-desktopeditors|SUPER + ALT + O|onlyoffice-desktopeditors|OnlyOffice"
   "telegram|Telegram|SUPER + ALT + T|Telegram|Telegram"
   "capcut|$HOME/.local/bin/capcut|SUPER + ALT + V|$HOME/.local/bin/capcut|CapCut"
+  "shotcut|shotcut|SUPER + ALT + S|shotcut|Shotcut"
   "zalo|zalo|SUPER + ALT + Z|zalo|Zalo"
 )
 
@@ -739,7 +834,7 @@ PY
 # Dispatcher — only runs when executed directly (not when sourced by install.sh)
 # =============================================================================
 # Ordered list used by 'all' and the interactive prompt.
-SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains orca zalo telegram teams capcut celluloid archive uv nvm pandoc gh fcitx5 cloudflare-warp appearance agents shortcuts)
+SETUP_APP_ALL=(bruno docker vscode figma onlyoffice jetbrains orca zalo telegram teams capcut celluloid shotcut archive uv nvm pandoc gh fcitx5 cloudflare-warp warp-proxy appearance agents shortcuts)
 
 setup_app_run() {
   local name="$1"
@@ -756,6 +851,7 @@ setup_app_run() {
     teams|msteams|ms-teams|teams-for-linux) install_teams ;;
     capcut)             install_capcut ;;
     celluloid|mpv-gtk)  install_celluloid ;;
+    shotcut)             install_shotcut ;;
     orca|orca-ide|onorca) install_orca ;;
     shortcuts|keybinds|keys) install_shortcuts ;;
     archive|ark)        install_archive ;;
@@ -765,6 +861,7 @@ setup_app_run() {
     gh|github-cli)      install_gh ;;
     fcitx5|vietnamese|vi) install_fcitx5 ;;
     cloudflare-warp|cloudflare|warp) install_cloudflare_warp ;;
+    warp-proxy|warp-doh|brave-warp) install_warp_proxy ;;
     appearance|transparency|opacity) install_appearance ;;
     agents|ai|skills|figma-skills|figma-mcp) install_agents ;;
     *) warn "Unknown app: $name  (run 'bash setup-app.sh list')"; return 1 ;;
@@ -793,7 +890,7 @@ setup_app_main() {
   for app in "$@"; do
     case "$app" in
       shortcuts|keybinds|keys) did_shortcuts=1 ;;
-      bruno|vscode|code|figma|onlyoffice|teams|msteams|ms-teams|teams-for-linux|jetbrains|toolbox|jetbrains-toolbox|orca|orca-ide|onorca|telegram|capcut|zalo) touched_shortcut=1 ;;
+      bruno|vscode|code|figma|onlyoffice|teams|msteams|ms-teams|teams-for-linux|jetbrains|toolbox|jetbrains-toolbox|orca|orca-ide|onorca|telegram|capcut|shotcut|zalo) touched_shortcut=1 ;;
     esac
     setup_app_run "$app" || rc=1
   done

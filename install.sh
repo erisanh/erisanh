@@ -396,7 +396,7 @@ provision() {
   # T Telegram, V CapCut, Z Zalo).
   if declare -F setup_app_run >/dev/null; then
     log "Vietnamese input + desktop apps + dev tools (bruno, docker, vscode, figma, onlyoffice, jetbrains, zalo, telegram, teams, capcut, archive, uv, nvm, pandoc) + app keybinds"
-    for _app in fcitx5 bruno docker vscode figma onlyoffice jetbrains zalo telegram teams capcut archive uv nvm pandoc gh cloudflare-warp shortcuts; do
+    for _app in fcitx5 bruno docker vscode figma onlyoffice jetbrains zalo telegram teams capcut archive uv nvm pandoc gh cloudflare-warp warp-proxy shortcuts; do
       setup_app_run "$_app" || warn "$_app: install step failed (non-fatal)"
     done
   else

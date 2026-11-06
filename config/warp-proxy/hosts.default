@@ -1,0 +1,16 @@
+# Sites the ISP blocks (DNS sinkhole + SNI reset) that go through WARP — one domain per line.
+# A line covers the domain and every sub-domain ("missav.ws" also covers "www.missav.ws").
+# Used by BOTH the proxy (anything else is refused, 403) and Brave (WARP)'s PAC file (anything
+# else goes direct), so no other traffic can ever reach WARP through this path.
+# Edit ~/.config/warp-doh-proxy/hosts — setup-app.sh never overwrites it.
+missav.com
+missav.ai
+missav.ws
+missav.live
+123av.com
+123av.ai
+123av.ws
+javxx.com
+njavtv.com
+# HLS CDN of the sites above (reachable directly, but listed so a clearance tied to the WARP IP still works)
+surrit.com

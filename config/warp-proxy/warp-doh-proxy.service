@@ -1,0 +1,14 @@
+[Unit]
+Description=WARP DoH proxy — loopback HTTP CONNECT proxy for ISP-blocked sites (WARP proxy mode)
+Documentation=file://%h/.local/bin/warp-doh-proxy
+
+[Service]
+ExecStart=%h/.local/bin/warp-doh-proxy --listen 127.0.0.1:40001 --socks 127.0.0.1:40000
+Restart=on-failure
+RestartSec=3
+# It only needs loopback sockets and one outbound DoH request — nothing else.
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=default.target
