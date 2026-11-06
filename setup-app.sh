@@ -15,7 +15,7 @@
 #   bash setup-app.sh vscode-save      # snapshot live VSCode config back into the repo
 #   bash setup-app.sh shortcuts        # (re)write the Hyprland app-launch keybinds
 #
-# Apps:  bruno  docker  vscode  figma  onlyoffice  jetbrains  orca  zalo  telegram  teams  capcut  celluloid  shotcut  archive  uv  nvm  pandoc  gh  fcitx5  cloudflare-warp  warp-proxy  appearance  agents  shortcuts
+# Apps:  bruno  docker  vscode  figma  onlyoffice  jetbrains  orca  orca-serve  zalo  telegram  teams  capcut  celluloid  shotcut  archive  uv  nvm  pandoc  gh  fcitx5  cloudflare-warp  warp-proxy  appearance  agents  shortcuts
 #
 # Re-runs are idempotent for EVERY app: one that's already installed is NOT
 # reinstalled — the run just (re)applies its config / launch keybind. A missing
@@ -39,6 +39,10 @@
 #                    side in isolated git worktrees; repackages the official .deb.
 #                    Binary is 'orca-ide', NOT 'orca' — /usr/bin/orca belongs to
 #                    the GNOME Orca screen reader.)
+#   orca-serve    -> systemd --user unit running 'orca serve --supervise' (headless Orca
+#                    runtime at boot, no window). OPT-IN: not part of 'all' — it holds the
+#                    Orca profile lock, so the GUI and the service can't both run on it.
+#                    Needs linger (loginctl enable-linger) to start before login.
 #   zalo          -> AUR  zalo-for-linux-bin  (+ repo fuse2: the AppImage needs
 #                    libfuse.so.2 at runtime or `zalo` fails to launch)
 #   telegram      -> repo telegram-desktop
@@ -328,6 +332,30 @@ install_orca() {
   else aur onorca-bin \
     && info "Orca installed — launch with 'orca-ide' (Super+Alt+G)." \
     || warn "Orca install failed."; fi
+}
+
+# Orca headless runtime as a boot service: 'orca serve --supervise' under systemd --user.
+# Opt-in (not in SETUP_APP_ALL). Enabled but NOT started here: the GUI may be running
+# right now (possibly hosting this very shell) and the two share one profile lock.
+install_orca_serve() {
+  log "Orca headless runtime (systemd --user: orca-serve)"
+  local src="$SETUP_APP_REPO/config/orca-serve/orca-serve.service" bin=/opt/Orca/resources/bin/orca-ide
+  [ -f "$src" ] || { warn "missing $src"; return 1; }
+  [ -x "$bin" ] || { install_orca || return 1; }
+  [ -x "$bin" ] || { warn "$bin not found after install."; return 1; }
+  mkdir -p "$HOME/.config/systemd/user"
+  install -m 0644 "$src" "$HOME/.config/systemd/user/orca-serve.service"
+  if systemctl --user daemon-reload 2>/dev/null \
+     && systemctl --user enable orca-serve.service >/dev/null 2>&1; then
+    info "orca-serve enabled — starts at boot (start now: systemctl --user start orca-serve)."
+  else
+    warn "no systemd user session — enable later:  systemctl --user enable orca-serve"
+  fi
+  [ "$(loginctl show-user "$USER" -p Linger --value 2>/dev/null)" = yes ] \
+    || warn "linger is off — it only starts after login. Fix: sudo loginctl enable-linger $USER"
+  if pgrep -fx /opt/Orca/orca-ide >/dev/null 2>&1; then
+    warn "the Orca GUI is running and holds the profile lock — close it before starting orca-serve."
+  fi
 }
 
 # Celluloid — a simple GTK front-end for mpv (official repo). Binary: celluloid.
@@ -853,6 +881,7 @@ setup_app_run() {
     celluloid|mpv-gtk)  install_celluloid ;;
     shotcut)             install_shotcut ;;
     orca|orca-ide|onorca) install_orca ;;
+    orca-serve|orca-headless) install_orca_serve ;;
     shortcuts|keybinds|keys) install_shortcuts ;;
     archive|ark)        install_archive ;;
     uv)                 install_uv ;;

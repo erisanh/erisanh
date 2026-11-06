@@ -8,7 +8,7 @@ WIFI_SCRIPT := scripts/pywifi_demo.py
 WIFI_VENV   := .venv
 
 .DEFAULT_GOAL := help
-.PHONY: help orca-version orca-up wifi-venv wifi-demo
+.PHONY: help orca-version orca-up orca-serve-install orca-serve-status wifi-venv wifi-demo
 
 help: ## Show this help
 	@echo "Usage: make <target>"
@@ -38,6 +38,12 @@ orca-up: ## Upgrade Orca to the latest version, then restart it (safe to run ins
 			pgrep -f "^$(ORCA_PROC)$$" >/dev/null || break; sleep 0.5; done; \
 		pkill -9 -f "^$(ORCA_PROC)$$" 2>/dev/null; \
 		exec setsid $(ORCA_PROC) >/dev/null 2>&1 </dev/null' >/dev/null 2>&1
+
+orca-serve-install: ## Install + enable the headless Orca boot service (systemd --user)
+	@bash setup-app.sh orca-serve
+
+orca-serve-status: ## Show the headless Orca service state and recent log
+	@systemctl --user status orca-serve --no-pager -n 15 || true
 
 wifi-venv: ## Create .venv and install pywifi (used by wifi-demo)
 	@test -d $(WIFI_VENV) || python3 -m venv $(WIFI_VENV)

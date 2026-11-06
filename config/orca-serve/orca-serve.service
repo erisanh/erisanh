@@ -1,0 +1,18 @@
+[Unit]
+Description=Orca headless runtime (orca serve) — starts at boot, no GUI needed
+Documentation=https://onorca.dev
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Bare 'orca-ide' (not the CLI shim) so the unit survives a missing ~/.config/orca.
+# --supervise: Orca restarts itself with growing delays, waits while an update replaces
+# the app, and waits while another Orca (the GUI) serves this profile. --no-pairing: no
+# remote-pairing link is offered; drop it (or add --mobile-pairing) to pair a phone.
+ExecStart=/opt/Orca/resources/bin/orca-ide serve --supervise --no-pairing
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
