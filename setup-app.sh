@@ -40,9 +40,10 @@
 #                    Binary is 'orca-ide', NOT 'orca' — /usr/bin/orca belongs to
 #                    the GNOME Orca screen reader.)
 #   orca-serve    -> systemd --user unit running 'orca serve --supervise' (headless Orca
-#                    runtime at boot, no window). OPT-IN: not part of 'all' — it holds the
-#                    Orca profile lock, so the GUI and the service can't both run on it.
-#                    Needs linger (loginctl enable-linger) to start before login.
+#                    runtime at boot, no window). OPT-IN: not part of 'all'. The GUI and the
+#                    service can't share one profile, so the Orca menu entry / Super+Alt+G run
+#                    'orca-gui': stops the service, opens the GUI, restarts the service when
+#                    the GUI closes. Needs linger (loginctl enable-linger) to boot headless.
 #   zalo          -> AUR  zalo-for-linux-bin  (+ repo fuse2: the AppImage needs
 #                    libfuse.so.2 at runtime or `zalo` fails to launch)
 #   telegram      -> repo telegram-desktop
@@ -332,6 +333,24 @@ install_orca() {
   else aur onorca-bin \
     && info "Orca installed — launch with 'orca-ide' (Super+Alt+G)." \
     || warn "Orca install failed."; fi
+  have_cmd orca-ide && install_orca_launcher
+}
+
+# 'orca-gui': GUI launcher that pauses the headless service while the window is open and
+# resumes it on close (see config/orca-serve/orca-gui.sh). Safe without the service — it
+# then just runs orca-ide. Also overrides the menu entry / orca:// handler to use it.
+install_orca_launcher() {
+  local src="$SETUP_APP_REPO/config/orca-serve/orca-gui.sh" sys=/usr/share/applications/orca-ide.desktop
+  local dst="$HOME/.local/share/applications/orca-ide.desktop"
+  [ -f "$src" ] || { warn "missing $src"; return 1; }
+  mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications"
+  install -m 0755 "$src" "$HOME/.local/bin/orca-gui"
+  if [ -f "$sys" ]; then
+    sed "s|^Exec=.*|Exec=$HOME/.local/bin/orca-gui %U|" "$sys" > "$dst"
+    command -v update-desktop-database >/dev/null 2>&1 \
+      && update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1
+  fi
+  info "orca-gui installed (menu entry + Super+Alt+G open Orca through it)."
 }
 
 # Orca headless runtime as a boot service: 'orca serve --supervise' under systemd --user.
@@ -343,6 +362,7 @@ install_orca_serve() {
   [ -f "$src" ] || { warn "missing $src"; return 1; }
   [ -x "$bin" ] || { install_orca || return 1; }
   [ -x "$bin" ] || { warn "$bin not found after install."; return 1; }
+  install_orca_launcher
   mkdir -p "$HOME/.config/systemd/user"
   install -m 0644 "$src" "$HOME/.config/systemd/user/orca-serve.service"
   if systemctl --user daemon-reload 2>/dev/null \
@@ -652,7 +672,7 @@ SETUP_APP_SHORTCUTS=(
   "bruno|bruno|SUPER + ALT + B|bruno|Bruno"
   "vscode|code|SUPER + ALT + C|code|VSCode"
   "figma|figma-linux|SUPER + ALT + D|figma-linux|Figma"
-  "orca|orca-ide|SUPER + ALT + G|orca-ide|Orca"
+  "orca|orca-ide|SUPER + ALT + G|$HOME/.local/bin/orca-gui|Orca"
   "teams|teams-for-linux|SUPER + ALT + E|teams-for-linux|MS Teams"
   "jetbrains|jetbrains-toolbox|SUPER + ALT + J|jetbrains-toolbox|JetBrains Toolbox"
   "onlyoffice|onlyoffice-desktopeditors|SUPER + ALT + O|onlyoffice-desktopeditors|OnlyOffice"
@@ -671,6 +691,7 @@ install_shortcuts() {
     return 1
   fi
   touch "$kb"
+  have_cmd orca-ide && install_orca_launcher >/dev/null   # the Orca key launches through it
   # Drop any previous managed block so re-runs don't pile up duplicate binds.
   if grep -q '>>> erisanh app shortcuts >>>' "$kb"; then
     sed -i '/>>> erisanh app shortcuts >>>/,/<<< erisanh app shortcuts <<</d' "$kb"

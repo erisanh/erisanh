@@ -33,11 +33,12 @@ orca-up: ## Upgrade Orca to the latest version, then restart it (safe to run ins
 	@# has arguments, so it is left alone. Runs in its own scope + session so it
 	@# survives Orca closing the terminal it was launched from.
 	@systemd-run --user --scope --quiet -- setsid -f sh -c '\
+		pkill -9 -f "/\.local/bin/[o]rca-gui" 2>/dev/null; \
 		pkill -f "^$(ORCA_PROC)$$" 2>/dev/null; \
 		for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do \
 			pgrep -f "^$(ORCA_PROC)$$" >/dev/null || break; sleep 0.5; done; \
 		pkill -9 -f "^$(ORCA_PROC)$$" 2>/dev/null; \
-		exec setsid $(ORCA_PROC) >/dev/null 2>&1 </dev/null' >/dev/null 2>&1
+		exec setsid "$$(command -v orca-gui || echo $(ORCA_PROC))" >/dev/null 2>&1 </dev/null' >/dev/null 2>&1
 
 orca-serve-install: ## Install + enable the headless Orca boot service (systemd --user)
 	@bash setup-app.sh orca-serve
